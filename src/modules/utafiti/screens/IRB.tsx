@@ -5,6 +5,7 @@ import { BRAND, CREAM, NEUTRAL, RADII, TEXT, hexToRgba } from '../../../lib/glas
 import { list, insert } from '../../../lib/db'
 import type { TrResearchConsent, TrAuditLog } from '../../../lib/db'
 import { getMeId } from '../../../lib/me'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -40,6 +41,7 @@ interface AE { id: string; date: string; participant: string; severity: 'AE' | '
 interface ProtocolRow { id: string; name: string; v: string; muhas: string; uams: string; status: string; expires: string; consentCount: number }
 
 export default function IRB(): React.JSX.Element {
+  const { t } = useLang()
   const [aes, setAes] = useState<AE[]>(() => {
     try { return JSON.parse(localStorage.getItem(KEY_AE) || '[]') as AE[] } catch { return [] }
   })
@@ -119,8 +121,8 @@ export default function IRB(): React.JSX.Element {
 
   return (
     <>
-      <Card title="Protocol version control — MUHAS + UAMS dual IRB" accent={BRAND.green}>
-        <Table headers={['Itifaki', 'Toleo', 'MUHAS', 'UAMS', 'Hali', 'Consents', 'Expiry']}>
+      <Card title={t('utafiti.irb.protocols_title', 'Protocol version control — MUHAS + UAMS dual IRB')} accent={BRAND.green}>
+        <Table headers={[t('utafiti.irb.col.protocol', 'Itifaki'), t('utafiti.irb.col.version', 'Toleo'), 'MUHAS', 'UAMS', t('utafiti.irb.col.status', 'Hali'), t('utafiti.irb.col.consents', 'Consents'), t('utafiti.irb.col.expiry', 'Expiry')]}>
           {protocols.map((p) => (
             <tr key={p.id}>
               <Td style={{ color: TEXT.body }}><strong>{p.id}</strong> — {p.name}</Td>
@@ -135,8 +137,8 @@ export default function IRB(): React.JSX.Element {
         </Table>
       </Card>
 
-      <Card title="Consent template library" accent={BRAND.blue}>
-        <Table headers={['Aina', 'Kiswahili', 'English']}>
+      <Card title={t('utafiti.irb.consent_lib', 'Consent template library')} accent={BRAND.blue}>
+        <Table headers={[t('utafiti.irb.col.kind', 'Aina'), 'Kiswahili', 'English']}>
           {CONSENTS.map((c) => (
             <tr key={c.kind}>
               <Td style={{ color: TEXT.body }}>{c.kind}</Td>
@@ -147,8 +149,8 @@ export default function IRB(): React.JSX.Element {
         </Table>
       </Card>
 
-      <Card title="Amendment tracker" accent={BRAND.yellow}>
-        <Table headers={['#', 'Itifaki', 'Mabadiliko', 'Tarehe', 'Hali']}>
+      <Card title={t('utafiti.irb.amendments', 'Amendment tracker')} accent={BRAND.yellow}>
+        <Table headers={['#', t('utafiti.irb.col.protocol', 'Itifaki'), t('utafiti.irb.col.change', 'Mabadiliko'), t('utafiti.irb.col.date', 'Tarehe'), t('utafiti.irb.col.status', 'Hali')]}>
           {AMENDMENTS.map((a) => (
             <tr key={a.id}>
               <Td style={{ color: TEXT.body }}><strong>{a.id}</strong></Td>
@@ -161,8 +163,8 @@ export default function IRB(): React.JSX.Element {
         </Table>
       </Card>
 
-      <Card title="DSA + Ethics Review Log" accent={BRAND.blue}>
-        <Table headers={['Tarehe', 'Mhusika', 'Hatua']}>
+      <Card title={t('utafiti.irb.dsa_log', 'DSA + Ethics Review Log')} accent={BRAND.blue}>
+        <Table headers={[t('utafiti.irb.col.date', 'Tarehe'), t('utafiti.irb.col.actor', 'Mhusika'), t('utafiti.irb.col.action', 'Hatua')]}>
           {DSA_LOG.map((e, i) => (
             <tr key={i}>
               <Td style={{ color: TEXT.muted }}>{e.date}</Td>
@@ -173,39 +175,39 @@ export default function IRB(): React.JSX.Element {
         </Table>
       </Card>
 
-      <Card title="Adverse Event reporting (AE / SAE)" accent={NEUTRAL.ink}>
+      <Card title={t('utafiti.irb.ae_title', 'Adverse Event reporting (AE / SAE)')} accent={NEUTRAL.ink}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 12 }}>
           <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: TEXT.muted }}>
-            Tarehe
+            {t('utafiti.irb.col.date', 'Tarehe')}
             <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })}
               style={{ padding: '8px 10px', borderRadius: 8, background: CREAM.milk, border: `1px solid ${ink(0.22)}`, color: TEXT.body, fontSize: 13 }} />
           </label>
           <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: TEXT.muted }}>
-            Kitambulisho cha mhusika
+            {t('utafiti.irb.participant_id', 'Kitambulisho cha mhusika')}
             <input type="text" value={form.participant} placeholder="TR-001-PT-####" onChange={(e) => setForm({ ...form, participant: e.target.value })}
               style={{ padding: '8px 10px', borderRadius: 8, background: CREAM.milk, border: `1px solid ${ink(0.22)}`, color: TEXT.body, fontSize: 13 }} />
           </label>
           <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: TEXT.muted }}>
-            Ukali
+            {t('utafiti.irb.severity', 'Ukali')}
             <select value={form.severity} onChange={(e) => setForm({ ...form, severity: e.target.value as 'AE' | 'SAE' })}
               style={{ padding: '8px 10px', borderRadius: 8, background: CREAM.milk, border: `1px solid ${ink(0.15)}`, color: NEUTRAL.ink, fontSize: 13 }}>
-              <option value="AE">AE — Adverse Event</option>
-              <option value="SAE">SAE — Serious AE</option>
+              <option value="AE">{t('utafiti.irb.ae_label', 'AE — Adverse Event')}</option>
+              <option value="SAE">{t('utafiti.irb.sae_label', 'SAE — Serious AE')}</option>
             </select>
           </label>
         </div>
         <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-          placeholder="Maelezo kamili ya tukio, hatua zilizochukuliwa, na ufuatiliaji…" rows={3}
+          placeholder={t('utafiti.irb.desc_placeholder', 'Maelezo kamili ya tukio, hatua zilizochukuliwa, na ufuatiliaji…')} rows={3}
           style={{ width: '100%', padding: '10px 12px', borderRadius: 8, background: CREAM.milk,
             border: `1px solid ${ink(0.22)}`, color: TEXT.body, fontSize: 13, marginBottom: 10, outline: 'none', resize: 'vertical' }} />
         <button onClick={submit} style={{
           padding: '10px 16px', borderRadius: RADII.chip, background: BRAND.green,
           color: TEXT.onJewel, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-        }}>Wasilisha ripoti</button>
+        }}>{t('utafiti.irb.submit_report', 'Wasilisha ripoti')}</button>
 
         {aes.length > 0 ? (
           <div style={{ marginTop: 16 }}>
-            <Table headers={['Tarehe', 'Mhusika', 'Ukali', 'Maelezo']}>
+            <Table headers={[t('utafiti.irb.col.date', 'Tarehe'), t('utafiti.irb.col.participant', 'Mhusika'), t('utafiti.irb.severity', 'Ukali'), t('utafiti.irb.col.desc', 'Maelezo')]}>
               {aes.map((a) => (
                 <tr key={a.id}>
                   <Td style={{ color: TEXT.muted }}>{a.date}</Td>

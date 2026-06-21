@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { PageShell, Card } from './components/Shell'
 import { JEWEL, TYPE, TEXT, hexToRgba } from '../../lib/glass'
+import { useLang } from '../../lib/i18n/Provider'
 import { CATEGORIES, CATEGORY_LABEL_SW, requestPermission, type NotificationCategory } from '../../lib/notifications'
 import { listInbox, markRead, markAllRead, getSettings, setSettings, type InboxItem, type NotificationSettings } from '../../lib/notifications/inbox'
 
 export default function Notifications() {
+  const { t } = useLang()
   const [tab, setTab] = useState<'inbox' | 'settings'>('inbox')
   const [items, setItems] = useState<InboxItem[]>([])
   const [settings, setSettingsState] = useState<NotificationSettings>(() => getSettings())
@@ -43,39 +45,39 @@ export default function Notifications() {
   }
 
   return (
-    <PageShell title="Arifa" subtitle="Inbox ya mafunzo, dawa, miadi, na ujumbe." back={{ to: '/mimi', label: 'Mimi' }}>
-      <div role="tablist" aria-label="Vichupo vya arifa" style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-        {(['inbox', 'settings'] as const).map((t) => (
+    <PageShell title={t('mimi.notify.title', 'Arifa')} subtitle={t('mimi.notify.subtitle', 'Inbox ya mafunzo, dawa, miadi, na ujumbe.')} back={{ to: '/mimi', label: t('mimi.nav.back', 'Mimi') }}>
+      <div role="tablist" aria-label={t('mimi.notify.tabs-aria', 'Vichupo vya arifa')} style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        {(['inbox', 'settings'] as const).map((tk) => (
           <button
-            key={t}
+            key={tk}
             role="tab"
-            aria-selected={tab === t}
-            onClick={() => setTab(t)}
+            aria-selected={tab === tk}
+            onClick={() => setTab(tk)}
             style={{
               padding: '8px 16px',
               borderRadius: 999,
               border: 'none',
-              background: tab === t ? JEWEL.tealMwenza : hexToRgba(JEWEL.tealMwenza, 0.1),
-              color: tab === t ? TEXT.onJewel : JEWEL.tealMwenza,
+              background: tab === tk ? JEWEL.tealMwenza : hexToRgba(JEWEL.tealMwenza, 0.1),
+              color: tab === tk ? TEXT.onJewel : JEWEL.tealMwenza,
               fontWeight: 700,
               cursor: 'pointer',
             }}
-          >{t === 'inbox' ? 'Inbox' : 'Mipangilio'}</button>
+          >{tk === 'inbox' ? t('mimi.notify.inbox', 'Inbox') : t('mimi.notify.settings', 'Mipangilio')}</button>
         ))}
       </div>
 
       {tab === 'inbox' && (
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-            <span style={{ color: TEXT.muted }}>{items.length} ujumbe</span>
+            <span style={{ color: TEXT.muted }}>{items.length} {t('mimi.notify.messages', 'ujumbe')}</span>
             <button
               onClick={() => { markAllRead(); refresh() }}
               style={{ background: 'transparent', border: 'none', color: JEWEL.tealMwenza, cursor: 'pointer', fontWeight: 600 }}
-            >Tia alama yote kuwa imesomwa</button>
+            >{t('mimi.notify.mark-all', 'Tia alama yote kuwa imesomwa')}</button>
           </div>
           {items.length === 0 ? (
             <Card>
-              <p style={{ margin: 0 }}>Hakuna arifa kwa sasa. Utapata ujumbe wa miadi, dawa, na ufuatiliaji hapa.</p>
+              <p style={{ margin: 0 }}>{t('mimi.notify.empty', 'Hakuna arifa kwa sasa. Utapata ujumbe wa miadi, dawa, na ufuatiliaji hapa.')}</p>
             </Card>
           ) : (
             <div style={{ display: 'grid', gap: 10 }}>
@@ -92,7 +94,7 @@ export default function Notifications() {
                       <button
                         onClick={() => { markRead(i.id); refresh() }}
                         style={{ background: 'transparent', border: 'none', color: JEWEL.tealMwenza, cursor: 'pointer', fontWeight: 600 }}
-                      >Soma</button>
+                      >{t('mimi.notify.read', 'Soma')}</button>
                     )}
                   </div>
                 </Card>
@@ -105,16 +107,16 @@ export default function Notifications() {
       {tab === 'settings' && (
         <>
           <Card style={{ marginBottom: 14 }}>
-            <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>Idhini ya kifaa</h3>
-            <p style={{ fontSize: 14 }}>Hali ya sasa: <strong>{perm}</strong></p>
+            <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>{t('mimi.notify.device-perm', 'Idhini ya kifaa')}</h3>
+            <p style={{ fontSize: 14 }}>{t('mimi.notify.current-status', 'Hali ya sasa')}: <strong>{perm}</strong></p>
             <button
               onClick={() => void askPermission()}
               style={{ padding: '8px 14px', borderRadius: 999, background: JEWEL.tealMwenza, color: TEXT.onJewel, border: 'none', fontWeight: 700, cursor: 'pointer' }}
-            >Omba idhini ya arifa</button>
+            >{t('mimi.notify.ask-perm', 'Omba idhini ya arifa')}</button>
           </Card>
 
           <Card style={{ marginBottom: 14 }}>
-            <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>Aina za arifa</h3>
+            <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>{t('mimi.notify.categories', 'Aina za arifa')}</h3>
             <div style={{ display: 'grid', gap: 8 }}>
               {CATEGORIES.map((c) => (
                 <label key={c} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0' }}>
@@ -123,7 +125,7 @@ export default function Notifications() {
                     type="checkbox"
                     checked={!!settings.categories[c]}
                     onChange={() => toggleCategory(c)}
-                    aria-label={`Wezesha arifa ya ${CATEGORY_LABEL_SW[c]}`}
+                    aria-label={`${t('mimi.notify.enable', 'Wezesha arifa ya')} ${CATEGORY_LABEL_SW[c]}`}
                   />
                 </label>
               ))}
@@ -131,12 +133,12 @@ export default function Notifications() {
           </Card>
 
           <Card>
-            <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>Masaa ya kimya</h3>
+            <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>{t('mimi.notify.quiet-hours', 'Masaa ya kimya')}</h3>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-              <label>Kuanza:
+              <label>{t('mimi.notify.start', 'Kuanza')}:
                 <input type="time" value={settings.quietHours.start} onChange={(e) => setQuiet('start', e.target.value)} style={{ marginLeft: 8 }} />
               </label>
-              <label>Mwisho:
+              <label>{t('mimi.notify.end', 'Mwisho')}:
                 <input type="time" value={settings.quietHours.end} onChange={(e) => setQuiet('end', e.target.value)} style={{ marginLeft: 8 }} />
               </label>
             </div>

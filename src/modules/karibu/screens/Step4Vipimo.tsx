@@ -5,6 +5,7 @@ import { JEWEL, NEUTRAL, TEXT, hexToRgba } from '../../../lib/glass';
 import { AUDIT, CRAFFT, CSSRS, EPDS, GAD7, PHQ9, type Instrument } from '../lib/instruments';
 import type { KaribuProfile } from '../lib/storage';
 import { cardStyle, ghostBtn, primaryBtn, subStyle, titleStyle } from '../lib/ui';
+import { useLang } from '../../../lib/i18n/Provider';
 
 interface Props { profile: KaribuProfile; update: (p: Partial<KaribuProfile>) => void; next: () => void; back: () => void; }
 
@@ -15,6 +16,7 @@ function emptyAnswers(inst: Instrument): ScoredAnswers {
 }
 
 export default function Step4Vipimo({ profile, update, next, back }: Props) {
+  const { t } = useLang();
   const isPregnant = !!profile.step3?.pregnant;
   const age = profile.step1?.age ?? 0;
   const isAdolescent = age >= 12 && age <= 21;
@@ -70,15 +72,15 @@ export default function Step4Vipimo({ profile, update, next, back }: Props) {
 
   return (
     <div style={cardStyle}>
-      <h2 style={titleStyle}>Vipimo vichache</h2>
+      <h2 style={titleStyle}>{t('karibu.step4.heading', 'Vipimo vichache')}</h2>
       <p style={subStyle}>
-        {inst.name_sw} — swali {item + 1} / {inst.items.length}.{' '}
-        {!inst.validated_sw && <span style={{ color: TEXT.hint }}>(Tafsiri ya mwongozo, si tafsiri rasmi ya Kiswahili)</span>}
+        {inst.name_sw} — {t('karibu.step4.question_word', 'swali')} {item + 1} / {inst.items.length}.{' '}
+        {!inst.validated_sw && <span style={{ color: TEXT.hint }}>{t('karibu.step4.unofficial', '(Tafsiri ya mwongozo, si tafsiri rasmi ya Kiswahili)')}</span>}
       </p>
 
       <div style={{ background: hexToRgba(JEWEL.tealMwenza, 0.05), padding: 16, borderRadius: 14, marginBottom: 14 }}>
         <p style={{ margin: 0, fontSize: 16, lineHeight: 1.5, color: NEUTRAL.ink }}>
-          Katika wiki 2 zilizopita: {q.text_sw}
+          {t('karibu.step4.timeframe', 'Katika wiki 2 zilizopita')}: {q.text_sw}
         </p>
       </div>
 
@@ -98,14 +100,14 @@ export default function Step4Vipimo({ profile, update, next, back }: Props) {
       </div>
 
       <div style={{ marginTop: 18, fontSize: 12, color: TEXT.muted }}>
-        Chanzo: {inst.source}
+        {t('karibu.step4.source', 'Chanzo')}: {inst.source}
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20 }}>
-        <button type="button" onClick={back} style={ghostBtn()}>← Rudi</button>
+        <button type="button" onClick={back} style={ghostBtn()}>{t('karibu.common.back', '← Rudi')}</button>
         {allDone
-          ? <button type="button" onClick={submit} style={primaryBtn()}>Maliza vipimo →</button>
-          : <button type="button" disabled style={{ ...primaryBtn(), opacity: 0.5, cursor: 'not-allowed' }}>Endelea kupima…</button>
+          ? <button type="button" onClick={submit} style={primaryBtn()}>{t('karibu.step4.finish', 'Maliza vipimo →')}</button>
+          : <button type="button" disabled style={{ ...primaryBtn(), opacity: 0.5, cursor: 'not-allowed' }}>{t('karibu.step4.continuing', 'Endelea kupima…')}</button>
         }
       </div>
     </div>

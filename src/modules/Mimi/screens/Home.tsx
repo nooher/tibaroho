@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { JEWEL, NEUTRAL, RADII, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 import { Card, PageShell } from '../components/Shell'
 import { MoodCheck } from '../components/MoodCheck'
 import { Pill } from '../components/Pill'
@@ -14,6 +15,7 @@ import {
 } from '../data/store'
 
 export default function Home() {
+  const { t } = useLang()
   const [tick, setTick] = useState(0)
   const [moodsAll, setMoodsAll] = useState<MoodEntry[]>(() => listMoods())
   const [resultsAll, setResultsAll] = useState<AssessmentResult[]>(() => listResults())
@@ -32,7 +34,7 @@ export default function Home() {
   const avgMood = moods.length ? (moods.reduce((s, m) => s + m.score, 0) / moods.length).toFixed(1) : '—'
 
   return (
-    <PageShell title="Karibu, Mimi" subtitle="Nafasi yako salama ya afya ya akili — Mwenza yuko hapa.">
+    <PageShell title={t('mimi.home.title', 'Karibu, Mimi')} subtitle={t('mimi.home.subtitle', 'Nafasi yako salama ya afya ya akili — Mwenza yuko hapa.')}>
       <div style={{ marginBottom: 16 }}>
         <ArchitectureBadge moduleSlug="mimi" />
       </div>
@@ -45,10 +47,10 @@ export default function Home() {
         </div>
 
         <Card jewel={JEWEL.indigoWisdom}>
-          <Pill tone="indigo">Vipimo</Pill>
-          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>Vipimo vilivyokamilika</h3>
+          <Pill tone="indigo">{t('mimi.pill.assessments', 'Vipimo')}</Pill>
+          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>{t('mimi.home.assessments-done', 'Vipimo vilivyokamilika')}</h3>
           <p style={{ margin: '0 0 12px', color: TEXT.muted, fontSize: 13 }}>
-            {results.length ? `Umekamilisha vipimo ${results.length} hivi karibuni.` : 'Bado hujachukua kipimo. Anza wakati wowote.'}
+            {results.length ? `${t('mimi.home.assessments-completed', 'Umekamilisha vipimo')} ${results.length} ${t('mimi.home.recently', 'hivi karibuni.')}` : t('mimi.home.no-assessments', 'Bado hujachukua kipimo. Anza wakati wowote.')}
           </p>
           {results.map((r) => (
             <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderTop: `1px solid ${hexToRgba(NEUTRAL.ink, 0.08)}`, fontSize: 14 }}>
@@ -56,73 +58,73 @@ export default function Home() {
               <span style={{ color: TEXT.muted }}>{r.label_sw} · {r.score}</span>
             </div>
           ))}
-          <Link to="/mimi/vipimo" style={linkBtn(JEWEL.indigoWisdom)}>Chukua kipimo →</Link>
+          <Link to="/mimi/vipimo" style={linkBtn(JEWEL.indigoWisdom)}>{t('mimi.home.take-assessment', 'Chukua kipimo →')}</Link>
         </Card>
 
         <Card jewel={JEWEL.tealRoho}>
-          <Pill tone="teal">Huduma</Pill>
-          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>Mpango wangu wa huduma</h3>
+          <Pill tone="teal">{t('mimi.pill.care', 'Huduma')}</Pill>
+          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>{t('mimi.home.my-care-plan', 'Mpango wangu wa huduma')}</h3>
           <p style={{ margin: '0 0 12px', color: TEXT.muted, fontSize: 13 }}>
-            {plan.programs.length ? `${plan.programs.length} programu hai.` : 'Bado hakuna programu hai. Tunaweza kuanza pamoja.'}
+            {plan.programs.length ? `${plan.programs.length} ${t('mimi.home.programs-active', 'programu hai.')}` : t('mimi.home.no-programs', 'Bado hakuna programu hai. Tunaweza kuanza pamoja.')}
           </p>
-          <Link to="/mimi/mpango" style={linkBtn(JEWEL.tealRoho)}>Ona mpango →</Link>
+          <Link to="/mimi/mpango" style={linkBtn(JEWEL.tealRoho)}>{t('mimi.home.view-plan', 'Ona mpango →')}</Link>
         </Card>
 
         <Card jewel={JEWEL.goldHope} alpha={0.16}>
-          <Pill tone="gold">Madawa</Pill>
-          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack, color: TEXT.heading }}>Madawa yangu</h3>
+          <Pill tone="gold">{t('mimi.pill.meds', 'Madawa')}</Pill>
+          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack, color: TEXT.heading }}>{t('mimi.home.my-meds', 'Madawa yangu')}</h3>
           <p style={{ margin: '0 0 12px', color: TEXT.muted, fontSize: 13 }}>
-            Tazama orodha ya madawa, vikumbusho, na uhakikisho wa mwingiliano (kupitia TibaAfya).
+            {t('mimi.home.meds-desc', 'Tazama orodha ya madawa, vikumbusho, na uhakikisho wa mwingiliano (kupitia TibaAfya).')}
           </p>
-          <Link to="/mimi/madawa" style={linkBtn(JEWEL.goldHope)}>Fungua TibaAfya →</Link>
+          <Link to="/mimi/madawa" style={linkBtn(JEWEL.goldHope)}>{t('mimi.home.open-tibaafya', 'Fungua TibaAfya →')}</Link>
         </Card>
 
         <Card jewel={JEWEL.indigoWisdom}>
-          <Pill tone="indigo">Mwenza</Pill>
-          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>Rafiki wako</h3>
+          <Pill tone="indigo">{t('mimi.pill.companion', 'Mwenza')}</Pill>
+          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>{t('mimi.home.your-rafiki', 'Rafiki wako')}</h3>
           <p style={{ margin: '0 0 12px', color: TEXT.muted, fontSize: 13 }}>
-            Mwenza wa AI kwa Kiswahili — akili nzuri, busara, na uangalifu.
+            {t('mimi.home.rafiki-desc', 'Mwenza wa AI kwa Kiswahili — akili nzuri, busara, na uangalifu.')}
           </p>
-          <Link to="/rafiki" style={linkBtn(JEWEL.indigoWisdom)}>Zungumza na Rafiki →</Link>
+          <Link to="/rafiki" style={linkBtn(JEWEL.indigoWisdom)}>{t('mimi.home.talk-rafiki', 'Zungumza na Rafiki →')}</Link>
         </Card>
 
         <Card jewel={JEWEL.tealRoho}>
-          <Pill tone="teal">Familia</Pill>
-          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>Watu wangu</h3>
+          <Pill tone="teal">{t('mimi.pill.family', 'Familia')}</Pill>
+          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>{t('mimi.home.my-people', 'Watu wangu')}</h3>
           <p style={{ margin: '0 0 12px', color: TEXT.muted, fontSize: 13 }}>
-            Alika familia/wahudumu kushiriki — wewe unadhibiti ridhaa.
+            {t('mimi.home.family-desc', 'Alika familia/wahudumu kushiriki — wewe unadhibiti ridhaa.')}
           </p>
-          <Link to="/mimi/familia" style={linkBtn(JEWEL.tealRoho)}>Tazama mduara →</Link>
+          <Link to="/mimi/familia" style={linkBtn(JEWEL.tealRoho)}>{t('mimi.home.view-circle', 'Tazama mduara →')}</Link>
         </Card>
 
         <Card jewel={JEWEL.indigoWisdom}>
-          <Pill tone="indigo">Hifadhi</Pill>
-          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>Hifadhi yangu</h3>
-          <p style={{ margin: '0 0 12px', color: TEXT.muted, fontSize: 13 }}>Rufaa, vidonge, ripoti za maabara — zote mahali pamoja.</p>
-          <Link to="/mimi/hifadhi" style={linkBtn(JEWEL.indigoWisdom)}>Tazama hifadhi →</Link>
+          <Pill tone="indigo">{t('mimi.pill.storage', 'Hifadhi')}</Pill>
+          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>{t('mimi.home.my-storage', 'Hifadhi yangu')}</h3>
+          <p style={{ margin: '0 0 12px', color: TEXT.muted, fontSize: 13 }}>{t('mimi.home.storage-desc', 'Rufaa, vidonge, ripoti za maabara — zote mahali pamoja.')}</p>
+          <Link to="/mimi/hifadhi" style={linkBtn(JEWEL.indigoWisdom)}>{t('mimi.home.view-storage', 'Tazama hifadhi →')}</Link>
         </Card>
 
         <Card jewel={JEWEL.tealRoho}>
-          <Pill tone="teal">Kalenda</Pill>
-          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>Kalenda yangu</h3>
-          <p style={{ margin: '0 0 12px', color: TEXT.muted, fontSize: 13 }}>Miadi, vikumbusho, na vipimo vya mara kwa mara.</p>
-          <Link to="/mimi/kalenda" style={linkBtn(JEWEL.tealRoho)}>Fungua kalenda →</Link>
+          <Pill tone="teal">{t('mimi.pill.calendar', 'Kalenda')}</Pill>
+          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>{t('mimi.home.my-calendar', 'Kalenda yangu')}</h3>
+          <p style={{ margin: '0 0 12px', color: TEXT.muted, fontSize: 13 }}>{t('mimi.home.calendar-desc', 'Miadi, vikumbusho, na vipimo vya mara kwa mara.')}</p>
+          <Link to="/mimi/kalenda" style={linkBtn(JEWEL.tealRoho)}>{t('mimi.home.open-calendar', 'Fungua kalenda →')}</Link>
         </Card>
 
         <Card jewel={JEWEL.indigoWisdom}>
-          <Pill tone="indigo">Shajara</Pill>
-          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>Shajara yangu</h3>
-          <p style={{ margin: '0 0 12px', color: TEXT.muted, fontSize: 13 }}>Andika, sema, piga picha — historia yako.</p>
-          <Link to="/mimi/shajara" style={linkBtn(JEWEL.indigoWisdom)}>Fungua shajara →</Link>
+          <Pill tone="indigo">{t('mimi.pill.journal', 'Shajara')}</Pill>
+          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>{t('mimi.home.my-journal', 'Shajara yangu')}</h3>
+          <p style={{ margin: '0 0 12px', color: TEXT.muted, fontSize: 13 }}>{t('mimi.home.journal-desc', 'Andika, sema, piga picha — historia yako.')}</p>
+          <Link to="/mimi/shajara" style={linkBtn(JEWEL.indigoWisdom)}>{t('mimi.home.open-journal', 'Fungua shajara →')}</Link>
         </Card>
 
         <Card jewel={JEWEL.tealRoho}>
-          <Pill tone="teal">Muhtasari</Pill>
-          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>Hisia za wiki</h3>
-          <p style={{ margin: 0, fontSize: 13, color: TEXT.muted }}>Wastani wa hisia</p>
+          <Pill tone="teal">{t('mimi.pill.summary', 'Muhtasari')}</Pill>
+          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '8px 0 4px', letterSpacing: TYPE.tighterTrack }}>{t('mimi.home.week-feelings', 'Hisia za wiki')}</h3>
+          <p style={{ margin: 0, fontSize: 13, color: TEXT.muted }}>{t('mimi.home.mood-average', 'Wastani wa hisia')}</p>
           <div style={{ fontFamily: TYPE.serif, fontSize: 48, lineHeight: 1, margin: '6px 0' }}>{avgMood}</div>
           <div style={{ display: 'flex', gap: 4, alignItems: 'flex-end', height: 40 }}>
-            {moods.length === 0 && <span style={{ color: TEXT.muted, fontSize: 13 }}>Hakuna data bado</span>}
+            {moods.length === 0 && <span style={{ color: TEXT.muted, fontSize: 13 }}>{t('mimi.home.no-data', 'Hakuna data bado')}</span>}
             {moods.slice().reverse().map((m, i) => (
               <div key={m.id} title={`${m.score}/10`} style={{
                 flex: 1, height: `${(m.score / 10) * 100}%`, background: m.score >= 7 ? JEWEL.goldHope : m.score >= 4 ? JEWEL.tealRoho : JEWEL.maroonCrisis,
@@ -135,7 +137,7 @@ export default function Home() {
         <div style={{ gridColumn: '1 / -1' }}>
           <Link
             to="/mimi/dharura"
-            aria-label="Kitufe cha dharura — msaada wa haraka"
+            aria-label={t('mimi.home.emergency-aria', 'Kitufe cha dharura — msaada wa haraka')}
             style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               background: JEWEL.maroonCrisis, color: TEXT.onJewel,
@@ -144,8 +146,8 @@ export default function Home() {
             }}
           >
             <div>
-              <div style={{ fontFamily: TYPE.serif, fontSize: 26, letterSpacing: TYPE.tighterTrack }}>Dharura · msaada wa haraka</div>
-              <div style={{ color: TEXT.onJewel, fontSize: 13, marginTop: 4 }}>Bonyeza ukihitaji msaada wa haraka. Mwenza atakuwa mlinzi wako.</div>
+              <div style={{ fontFamily: TYPE.serif, fontSize: 26, letterSpacing: TYPE.tighterTrack }}>{t('mimi.home.emergency-title', 'Dharura · msaada wa haraka')}</div>
+              <div style={{ color: TEXT.onJewel, fontSize: 13, marginTop: 4 }}>{t('mimi.home.emergency-desc', 'Bonyeza ukihitaji msaada wa haraka. Mwenza atakuwa mlinzi wako.')}</div>
             </div>
             <span style={{ fontSize: 30 }}>→</span>
           </Link>

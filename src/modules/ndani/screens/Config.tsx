@@ -2,6 +2,7 @@ import type React from 'react'
 import { useState } from 'react'
 import { Card, Table, Td } from '../../_shared/Layout'
 import { BRAND, CREAM, TZ_FLAG, hexToRgba, RADII, TEXT } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 
 type Lang = 'sw' | 'en' | 'sw_mtaa'
 
@@ -40,6 +41,7 @@ const DEFAULT_TEMPLATES: EmailTemplate[] = [
 ]
 
 export default function Config(): React.JSX.Element {
+  const { t } = useLang()
   const [modFlags, setModFlags] = useState<Record<string, boolean>>(() => Object.fromEntries(MODULES.map((m) => [m, true])))
   const [regionFlags, setRegionFlags] = useState<Record<string, boolean>>(() => Object.fromEntries(REGIONS.map((r) => [r, true])))
   const [langs, setLangs] = useState<Record<Lang, boolean>>({ sw: true, en: true, sw_mtaa: true })
@@ -52,15 +54,13 @@ export default function Config(): React.JSX.Element {
 
   return (
     <>
-      <Card title="Mipangilio ya jukwaa">
+      <Card title={t('ndani.config.platform_title', 'Mipangilio ya jukwaa')}>
         <p style={{ marginTop: 0 }}>
-          Vifungo vya vipengele kwa kila moduli na kila mkoa, lugha zinazotumika, sheria za njia
-          ya dharura, miunganiko ya malipo, gateway ya SMS, vielelezo vya barua pepe, na udhibiti
-          wa toleo la sera ya faragha na masharti ya matumizi.
+          {t('ndani.config.platform_body', 'Vifungo vya vipengele kwa kila moduli na kila mkoa, lugha zinazotumika, sheria za njia ya dharura, miunganiko ya malipo, gateway ya SMS, vielelezo vya barua pepe, na udhibiti wa toleo la sera ya faragha na masharti ya matumizi.')}
         </p>
       </Card>
 
-      <Card title="Feature flags kwa moduli">
+      <Card title={t('ndani.config.flags_modules', 'Feature flags kwa moduli')}>
         <div style={{ display: 'grid', gap: 8, gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
           {MODULES.map((m) => (
             <Toggle key={m} label={m} on={!!modFlags[m]} onChange={(v) => setModFlags((s) => ({ ...s, [m]: v }))} />
@@ -68,7 +68,7 @@ export default function Config(): React.JSX.Element {
         </div>
       </Card>
 
-      <Card title="Feature flags kwa mkoa">
+      <Card title={t('ndani.config.flags_regions', 'Feature flags kwa mkoa')}>
         <div style={{ display: 'grid', gap: 8, gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
           {REGIONS.map((r) => (
             <Toggle key={r} label={r} on={!!regionFlags[r]} onChange={(v) => setRegionFlags((s) => ({ ...s, [r]: v }))} />
@@ -76,7 +76,7 @@ export default function Config(): React.JSX.Element {
         </div>
       </Card>
 
-      <Card title="Lugha zinazotumika">
+      <Card title={t('ndani.config.langs_title', 'Lugha zinazotumika')}>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           {(['sw', 'en', 'sw_mtaa'] as Lang[]).map((l) => (
             <Toggle key={l}
@@ -87,27 +87,26 @@ export default function Config(): React.JSX.Element {
         </div>
       </Card>
 
-      <Card title="Sheria za njia ya dharura">
+      <Card title={t('ndani.config.crisis_rules_title', 'Sheria za njia ya dharura')}>
         <p style={{ marginTop: 0, fontSize: 13, color: TEXT.muted }}>
-          Inategemea Columbia Suicide Severity Rating Scale (Posner et al., 2011) na mwongozo wa
-          WHO mhGAP 2.0.
+          {t('ndani.config.crisis_rules_body', 'Inategemea Columbia Suicide Severity Rating Scale (Posner et al., 2011) na mwongozo wa WHO mhGAP 2.0.')}
         </p>
-        <Table headers={['Kichocheo', 'Njia ya kupelekwa', 'Hatua']}>
+        <Table headers={[t('ndani.config.col.trigger', 'Kichocheo'), t('ndani.config.col.route', 'Njia ya kupelekwa'), t('ndani.config.col.action', 'Hatua')]}>
           {rules.map((r) => (
             <tr key={r.id}>
               <Td><strong>{r.trigger}</strong></Td>
               <Td>{r.route}</Td>
               <Td>
-                <button aria-label={`Ondoa sheria ${r.trigger}`}
+                <button aria-label={`${t('ndani.config.remove_rule_aria', 'Ondoa sheria')} ${r.trigger}`}
                   onClick={() => setRules((rs) => rs.filter((x) => x.id !== r.id))}
-                  style={chipBtn(BRAND.yellow, BRAND.ink)}>Ondoa</button>
+                  style={chipBtn(BRAND.yellow, BRAND.ink)}>{t('ndani.config.remove', 'Ondoa')}</button>
               </Td>
             </tr>
           ))}
         </Table>
       </Card>
 
-      <Card title="Hali ya muunganiko wa malipo">
+      <Card title={t('ndani.config.payments_title', 'Hali ya muunganiko wa malipo')}>
         <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
           <IntegrationRow name="M-Pesa (Vodacom)"     status="connected" />
           <IntegrationRow name="Airtel Money"         status="connected" />
@@ -118,7 +117,7 @@ export default function Config(): React.JSX.Element {
         </div>
       </Card>
 
-      <Card title="Gateway ya SMS">
+      <Card title={t('ndani.config.sms_title', 'Gateway ya SMS')}>
         <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
           <ConfigField label="Provider" value="Africa's Talking" />
           <ConfigField label="Sender ID" value="TUMAINI" />
@@ -127,7 +126,7 @@ export default function Config(): React.JSX.Element {
         </div>
       </Card>
 
-      <Card title="Vielelezo vya barua pepe">
+      <Card title={t('ndani.config.email_title', 'Vielelezo vya barua pepe')}>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
           {templates.map((t) => (
             <button key={t.id} onClick={() => setTplSel(t.id)}
@@ -160,7 +159,7 @@ export default function Config(): React.JSX.Element {
         ) : null}
       </Card>
 
-      <Card title="Toleo la sera">
+      <Card title={t('ndani.config.policy_title', 'Toleo la sera')}>
         <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
           <label style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             <span style={lbl}>Sera ya faragha</span>

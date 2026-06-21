@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from 'react';
 import { CREAM, JEWEL, NEUTRAL, RADII, TYPE, TEXT, hexToRgba } from '../../../lib/glass';
+import { useLang } from '../../../lib/i18n/Provider';
 import { activeTrackers, setActiveTrackers, type TrackerId } from './types';
 import DawaEntry from './dawa/Entry'; import DawaViews from './dawa/Views';
 import DialysisEntry from './dialysis/Entry'; import DialysisViews from './dialysis/Views';
@@ -39,10 +40,11 @@ const TRACKERS: Spec[] = [
 ];
 
 export default function TrackersIndex() {
+  const { t } = useLang();
   const [active, setActive] = useState<TrackerId[]>(() => activeTrackers());
   const [mode, setMode] = useState<'catalog' | 'today'>('today');
 
-  const activeSpecs = useMemo(() => TRACKERS.filter((t) => active.includes(t.id)), [active]);
+  const activeSpecs = useMemo(() => TRACKERS.filter((tr) => active.includes(tr.id)), [active]);
 
   const toggle = (id: TrackerId): void => {
     const next = active.includes(id) ? active.filter((x) => x !== id) : [...active, id];
@@ -57,10 +59,10 @@ export default function TrackersIndex() {
     }}>
       <div style={{ maxWidth: 960, margin: '0 auto', padding: '28px 24px' }}>
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-          <h1 style={{ fontFamily: TYPE.serif, fontSize: 32, letterSpacing: TYPE.tighterTrack, margin: 0 }}>Vifuatiliaji</h1>
+          <h1 style={{ fontFamily: TYPE.serif, fontSize: 32, letterSpacing: TYPE.tighterTrack, margin: 0 }}>{t('mimi.tracker.index.title', 'Vifuatiliaji')}</h1>
           <div style={{ display: 'flex', gap: 6 }}>
-            <button type="button" onClick={() => setMode('today')} style={tabBtn(mode === 'today')}>Leo</button>
-            <button type="button" onClick={() => setMode('catalog')} style={tabBtn(mode === 'catalog')}>Katalogi</button>
+            <button type="button" onClick={() => setMode('today')} style={tabBtn(mode === 'today')}>{t('mimi.tracker.index.today', 'Leo')}</button>
+            <button type="button" onClick={() => setMode('catalog')} style={tabBtn(mode === 'catalog')}>{t('mimi.tracker.index.catalog', 'Katalogi')}</button>
           </div>
         </header>
 
@@ -68,7 +70,7 @@ export default function TrackersIndex() {
           <>
             {activeSpecs.length === 0 ? (
               <div style={{ ...glassCard, textAlign: 'center' }}>
-                <p style={{ margin: 0 }}>Hakuna kifuatiliaji kilichowashwa. Fungua katalogi kuongeza.</p>
+                <p style={{ margin: 0 }}>{t('mimi.tracker.index.empty', 'Hakuna kifuatiliaji kilichowashwa. Fungua katalogi kuongeza.')}</p>
               </div>
             ) : (
               <div style={{ display: 'grid', gap: 14, gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
@@ -85,19 +87,19 @@ export default function TrackersIndex() {
 
         {mode === 'catalog' && (
           <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
-            {TRACKERS.map((t) => {
-              const on = active.includes(t.id);
+            {TRACKERS.map((tr) => {
+              const on = active.includes(tr.id);
               return (
-                <button key={t.id} type="button" onClick={() => toggle(t.id)} aria-pressed={on} style={{
+                <button key={tr.id} type="button" onClick={() => toggle(tr.id)} aria-pressed={on} style={{
                   textAlign: 'left', padding: 14, borderRadius: RADII.card, cursor: 'pointer',
                   background: on ? JEWEL.tealMwenza : CREAM.milk,
                   color: on ? CREAM.milk : NEUTRAL.ink,
                   border: `1px solid ${on ? JEWEL.tealMwenza : hexToRgba(NEUTRAL.ink, 0.1)}`,
                 }}>
-                  <div style={{ fontWeight: 700, fontSize: 16 }}>{t.name_sw}</div>
-                  <div style={{ fontSize: 12, color: on ? CREAM.milk : TEXT.muted, marginTop: 2 }}>Kwa: {t.for_sw}</div>
-                  <div style={{ fontSize: 10, color: on ? CREAM.milk : TEXT.muted, marginTop: 6 }}>Chanzo: {t.source}</div>
-                  <div style={{ fontSize: 11, marginTop: 8, fontWeight: 600 }}>{on ? '✓ imewashwa' : '+ Washa'}</div>
+                  <div style={{ fontWeight: 700, fontSize: 16 }}>{t(`mimi.tracker.name.${tr.id}`, tr.name_sw)}</div>
+                  <div style={{ fontSize: 12, color: on ? CREAM.milk : TEXT.muted, marginTop: 2 }}>{t('mimi.tracker.index.for', 'Kwa')}: {t(`mimi.tracker.for.${tr.id}`, tr.for_sw)}</div>
+                  <div style={{ fontSize: 10, color: on ? CREAM.milk : TEXT.muted, marginTop: 6 }}>{t('mimi.tracker.index.source', 'Chanzo')}: {tr.source}</div>
+                  <div style={{ fontSize: 11, marginTop: 8, fontWeight: 600 }}>{on ? t('mimi.tracker.index.on', '✓ imewashwa') : t('mimi.tracker.index.off', '+ Washa')}</div>
                 </button>
               );
             })}

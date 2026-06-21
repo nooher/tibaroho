@@ -11,8 +11,10 @@ import {
 import { ArchitectureBadge } from '../../../components/ArchitectureBadge'
 import { subscribeTable } from '../../../lib/realtime'
 import { toast } from '../../../lib/notify'
+import { useLang } from '../../../lib/i18n/Provider'
 
 export default function Dashboard() {
+  const { t } = useLang()
   const [appts, setAppts] = useState<Appointment[]>(() => loadAppointments())
   const [outcomes, setOutcomes] = useState<OutcomeEntry[]>(() => loadOutcomes())
   const [supervision] = useState<SupervisionCase[]>(() => loadSupervision())
@@ -26,8 +28,8 @@ export default function Dashboard() {
     const offAppt = subscribeTable('tr_appointments', {}, (evt) => {
       if (!mounted) return
       void loadAppointmentsAsync().then((rows) => { if (mounted) setAppts(rows) })
-      if (evt.event === 'INSERT') toast('Miadi mpya imeingia', 'info')
-      else if (evt.event === 'UPDATE') toast('Miadi imebadilishwa', 'info')
+      if (evt.event === 'INSERT') toast(t('wataalam.dashboard.toast_new_appt', 'Miadi mpya imeingia'), 'info')
+      else if (evt.event === 'UPDATE') toast(t('wataalam.dashboard.toast_appt_changed', 'Miadi imebadilishwa'), 'info')
     })
     const offOutcome = subscribeTable('tr_outcomes', {}, () => {
       if (!mounted) return
@@ -62,7 +64,7 @@ export default function Dashboard() {
 
   return (
     <div>
-      <H1 english="Dashboard">Habari za asubuhi, Mtaalamu.</H1>
+      <H1 english="Dashboard">{t('wataalam.dashboard.greeting', 'Habari za asubuhi, Mtaalamu.')}</H1>
       <div style={{ marginTop: -6, marginBottom: 16 }}>
         <ArchitectureBadge moduleSlug="wataalam" />
       </div>
@@ -75,25 +77,25 @@ export default function Dashboard() {
           marginBottom: 18,
         }}
       >
-        <Stat label="Miadi leo" value={String(todays.length)} accent={JEWEL.tealRoho} />
-        <Stat label="Foleni" value={String(queue.length)} accent={JEWEL.goldHope} />
+        <Stat label={t('wataalam.dashboard.stat_today', 'Miadi leo')} value={String(todays.length)} accent={JEWEL.tealRoho} />
+        <Stat label={t('wataalam.dashboard.stat_queue', 'Foleni')} value={String(queue.length)} accent={JEWEL.goldHope} />
         <Stat
-          label="Wastani wa PHQ-9 (Δ)"
+          label={t('wataalam.dashboard.stat_phq9', 'Wastani wa PHQ-9 (Δ)')}
           value={phqChange === null ? '—' : phqChange.toFixed(1)}
-          subtitle={phqChange === null ? '' : 'punguzo bora ni hasi'}
+          subtitle={phqChange === null ? '' : t('wataalam.dashboard.phq9_subtitle', 'punguzo bora ni hasi')}
           accent={JEWEL.indigoWisdom}
         />
         <Stat
-          label="Usimamizi unaongoja"
+          label={t('wataalam.dashboard.stat_supervision', 'Usimamizi unaongoja')}
           value={String(pendingSup)}
           accent={pendingSup > 0 ? JEWEL.maroonCrisis : JEWEL.tealDeep}
         />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 14 }}>
-        <Card title="Miadi ya leo" english="Today">
+        <Card title={t('wataalam.dashboard.today_card', 'Miadi ya leo')} english="Today">
           {todays.length === 0 ? (
-            <p style={{ opacity: 0.7, margin: 0 }}>Hakuna miadi leo.</p>
+            <p style={{ opacity: 0.7, margin: 0 }}>{t('wataalam.dashboard.no_today', 'Hakuna miadi leo.')}</p>
           ) : (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 8 }}>
               {todays.map((a) => (
@@ -120,7 +122,7 @@ export default function Dashboard() {
                         hour: '2-digit',
                         minute: '2-digit',
                       })}{' '}
-                      · {a.mode === 'virtual' ? 'Mtandaoni' : 'Ana kwa ana'} · {a.reasonSw}
+                      · {a.mode === 'virtual' ? t('wataalam.common.virtual', 'Mtandaoni') : t('wataalam.common.in_person', 'Ana kwa ana')} · {a.reasonSw}
                     </div>
                   </div>
                   {a.mode === 'virtual' ? (
@@ -136,7 +138,7 @@ export default function Dashboard() {
                         fontWeight: 600,
                       }}
                     >
-                      Anza video
+                      {t('wataalam.dashboard.start_video', 'Anza video')}
                     </Link>
                   ) : (
                     <Link
@@ -150,7 +152,7 @@ export default function Dashboard() {
                         textDecoration: 'none',
                       }}
                     >
-                      Mapokezi
+                      {t('wataalam.dashboard.intake_link', 'Mapokezi')}
                     </Link>
                   )}
                 </li>
@@ -159,9 +161,9 @@ export default function Dashboard() {
           )}
         </Card>
 
-        <Card title="Usimamizi" english="Supervision queue" accent={JEWEL.maroonCrisis}>
+        <Card title={t('wataalam.dashboard.supervision_card', 'Usimamizi')} english="Supervision queue" accent={JEWEL.maroonCrisis}>
           {pendingSup === 0 ? (
-            <p style={{ color: '#3B3B3B', margin: 0 }}>Hakuna kesi za usimamizi.</p>
+            <p style={{ color: '#3B3B3B', margin: 0 }}>{t('wataalam.dashboard.no_supervision', 'Hakuna kesi za usimamizi.')}</p>
           ) : (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 8 }}>
               {supervision
@@ -186,7 +188,7 @@ export default function Dashboard() {
           )}
           <div style={{ marginTop: 12 }}>
             <Link to="../usimamizi" style={{ color: '#0F4D1F', fontSize: 13, fontWeight: 700, textDecoration: 'underline' }}>
-              Tazama zote →
+              {t('wataalam.dashboard.view_all', 'Tazama zote →')}
             </Link>
           </div>
         </Card>

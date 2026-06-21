@@ -5,6 +5,7 @@ import { BRAND, CREAM, NEUTRAL, RADII, TEXT, hexToRgba } from '../../../lib/glas
 import { list, insert } from '../../../lib/db'
 import type { TrAuditLog } from '../../../lib/db'
 import { getMeId } from '../../../lib/me'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -71,6 +72,7 @@ function TrendBar({ values }: { values: number[] }): React.JSX.Element {
 }
 
 export default function Fidelity(): React.JSX.Element {
+  const { t } = useLang()
   const [state, setState] = useState<State>({})
   const [program, setProgram] = useState<string>(PROGRAMS[0].id)
   const [provider, setProvider] = useState<string>(PROVIDERS[0])
@@ -122,7 +124,7 @@ export default function Fidelity(): React.JSX.Element {
 
   return (
     <>
-      <Card title="Protocol fidelity tracker" accent={BRAND.green}>
+      <Card title={t('utafiti.fidelity.title', 'Protocol fidelity tracker')} accent={BRAND.green}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 14 }}>
           <select value={program} onChange={(e) => setProgram(e.target.value)} style={{
             padding: '8px 12px', borderRadius: RADII.chip, background: CREAM.milk,
@@ -137,7 +139,7 @@ export default function Fidelity(): React.JSX.Element {
             {PROVIDERS.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
           <div style={{ marginLeft: 'auto', fontSize: 13, color: TEXT.muted, alignSelf: 'center' }}>
-            Wastani: <strong style={{ color: TEXT.body }}>{meanAdh.toFixed(0)}%</strong>
+            {t('utafiti.fidelity.mean', 'Wastani:')} <strong style={{ color: TEXT.body }}>{meanAdh.toFixed(0)}%</strong>
           </div>
         </div>
 
@@ -145,7 +147,7 @@ export default function Fidelity(): React.JSX.Element {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
             <thead>
               <tr>
-                <th style={{ textAlign: 'left', padding: '8px 6px', fontSize: 11, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.08em', borderBottom: `1px solid ${ink(0.1)}` }}>Kikao</th>
+                <th style={{ textAlign: 'left', padding: '8px 6px', fontSize: 11, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.08em', borderBottom: `1px solid ${ink(0.1)}` }}>{t('utafiti.fidelity.session', 'Kikao')}</th>
                 {CHECKLIST.map((c) => (
                   <th key={c} style={{ textAlign: 'center', padding: '8px 4px', fontSize: 10, color: TEXT.muted, letterSpacing: '0.04em', borderBottom: `1px solid ${ink(0.1)}` }}>{c}</th>
                 ))}
@@ -180,15 +182,15 @@ export default function Fidelity(): React.JSX.Element {
         </div>
       </Card>
 
-      <Card title="Mwenendo wa adherence kwa vikao" accent={BRAND.blue}>
+      <Card title={t('utafiti.fidelity.trend_title', 'Mwenendo wa adherence kwa vikao')} accent={BRAND.blue}>
         <TrendBar values={adherence.length ? adherence : [0]} />
         <div style={{ fontSize: 11, color: TEXT.muted, marginTop: 8 }}>
-          Kijani ≥ 80% · Bluu 70–80% · Njano &lt; 70%
+          {t('utafiti.fidelity.legend', 'Kijani ≥ 80% · Bluu 70–80% · Njano < 70%')}
         </div>
       </Card>
 
-      <Card title="Foleni ya ukaguzi wa supervisor" accent={BRAND.yellow}>
-        <Table headers={['Mtoa huduma', 'Programu', 'Tatizo', 'Kipaumbele']}>
+      <Card title={t('utafiti.fidelity.queue_title', 'Foleni ya ukaguzi wa supervisor')} accent={BRAND.yellow}>
+        <Table headers={[t('utafiti.fidelity.col.provider', 'Mtoa huduma'), t('utafiti.fidelity.col.program', 'Programu'), t('utafiti.fidelity.col.issue', 'Tatizo'), t('utafiti.fidelity.col.priority', 'Kipaumbele')]}>
           {reviewQueue.map((r) => (
             <tr key={r.id}>
               <Td style={{ color: TEXT.body }}><strong>{r.provider}</strong></Td>

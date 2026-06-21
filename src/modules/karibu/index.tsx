@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CREAM, JEWEL, NEUTRAL, RADII, TEXT, TYPE, TZ_FLAG, hexToRgba } from '../../lib/glass';
+import { useLang } from '../../lib/i18n/Provider';
 import { loadProfile, saveProfile, markCompleteAsync, type KaribuProfile } from './lib/storage';
 import Step1Watajulianaye from './screens/Step1Watajulianaye';
 import Step2Sababu from './screens/Step2Sababu';
@@ -17,6 +18,7 @@ const TOTAL = 8;
 
 export default function Karibu() {
   const nav = useNavigate();
+  const { t } = useLang();
   const [profile, setProfile] = useState<KaribuProfile>(() => loadProfile());
   const [step, setStep] = useState<number>(1);
   const [voice, setVoice] = useState<boolean>(false);
@@ -61,11 +63,11 @@ export default function Karibu() {
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '28px 20px 0' }}>
         <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <div style={{ fontFamily: TYPE.serif, fontSize: 22, letterSpacing: TYPE.tightTrack, color: JEWEL.tealMwenza }}>
-            Karibu — Tumaini
+            {t('karibu.shell.title', 'Karibu — Tumaini')}
           </div>
           <button
             type="button"
-            aria-label={voice ? 'Zima sauti' : 'Washa sauti'}
+            aria-label={voice ? t('karibu.shell.voice_off_aria', 'Zima sauti') : t('karibu.shell.voice_on_aria', 'Washa sauti')}
             onClick={() => setVoice((v) => !v)}
             style={{
               padding: '6px 12px', borderRadius: 999, fontSize: 12, fontWeight: 600,
@@ -73,14 +75,14 @@ export default function Karibu() {
               color: voice ? CREAM.milk : JEWEL.tealMwenza, cursor: 'pointer',
             }}
           >
-            {voice ? 'Sauti: imewashwa' : 'Sauti: imezimwa'}
+            {voice ? t('karibu.shell.voice_on_label', 'Sauti: imewashwa') : t('karibu.shell.voice_off_label', 'Sauti: imezimwa')}
           </button>
         </header>
 
-        <div role="progressbar" aria-label={`Hatua ${step} kati ya ${TOTAL}`}
+        <div role="progressbar" aria-label={`${t('karibu.shell.step_word', 'Hatua')} ${step} ${t('karibu.shell.of', 'kati ya')} ${TOTAL}`}
           style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 22 }}>
           {dots.map((s, i) => <div key={i} style={s} />)}
-          <span style={{ fontSize: 12, marginLeft: 8, color: TEXT.muted }}>Hatua {step} / {TOTAL}</span>
+          <span style={{ fontSize: 12, marginLeft: 8, color: TEXT.muted }}>{t('karibu.shell.step_word', 'Hatua')} {step} / {TOTAL}</span>
         </div>
 
         {step === 1 && <Step1Watajulianaye profile={profile} update={update} next={next} />}
@@ -99,7 +101,7 @@ export default function Karibu() {
               onClick={() => setConfirmSkip(true)}
               style={{ background: 'none', border: 'none', color: TEXT.hint, fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
             >
-              Ruka utangulizi
+              {t('karibu.shell.skip_intro', 'Ruka utangulizi')}
             </button>
           ) : (
             <div style={{
@@ -107,11 +109,11 @@ export default function Karibu() {
               border: `1px solid ${JEWEL.goldHope}`, fontSize: 13,
             }}>
               <p style={{ margin: '0 0 8px' }}>
-                Ukiruka, Mwenza atakukaribia kwa ujumla zaidi — utapoteza mapendekezo yaliyobinafsishwa.
+                {t('karibu.shell.skip_warning', 'Ukiruka, Mwenza atakukaribia kwa ujumla zaidi — utapoteza mapendekezo yaliyobinafsishwa.')}
               </p>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-                <button type="button" onClick={() => setConfirmSkip(false)} style={ghost()}>Rudi</button>
-                <button type="button" onClick={finish} style={prim()}>Ndio, ruka</button>
+                <button type="button" onClick={() => setConfirmSkip(false)} style={ghost()}>{t('karibu.shell.back', 'Rudi')}</button>
+                <button type="button" onClick={finish} style={prim()}>{t('karibu.shell.skip_confirm', 'Ndio, ruka')}</button>
               </div>
             </div>
           )}

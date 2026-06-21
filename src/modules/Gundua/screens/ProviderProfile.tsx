@@ -1,4 +1,5 @@
 import { Link, useParams } from 'react-router-dom'
+import { useLang } from '../../../lib/i18n/Provider'
 import { JEWEL, NEUTRAL, BRAND, TEXT, RADII, TYPE, hexToRgba } from '../../../lib/glass'
 import {
   PROVIDER_KIND_LABEL_SW,
@@ -12,15 +13,16 @@ import {
 import { findInsurance } from '../data/insurances'
 
 export default function ProviderProfile() {
+  const { t } = useLang()
   const { id } = useParams<{ id: string }>()
   const provider = id ? getProvider(id) : undefined
 
   if (!provider) {
     return (
       <div style={{ padding: 40, color: TEXT.body, fontFamily: TYPE.sans }}>
-        <h1 style={{ fontFamily: TYPE.serif, color: TEXT.heading }}>Mtaalamu hakupatikana.</h1>
+        <h1 style={{ fontFamily: TYPE.serif, color: TEXT.heading }}>{t('gundua.provider.not_found', 'Mtaalamu hakupatikana.')}</h1>
         <Link to="/gundua" style={{ color: TEXT.link }}>
-          ← Rudi Gundua
+          {t('gundua.provider.back_to_gundua', '← Rudi Gundua')}
         </Link>
       </div>
     )
@@ -43,7 +45,7 @@ export default function ProviderProfile() {
         to="/gundua/list"
         style={{ color: TEXT.link, fontSize: 13, textDecoration: 'none' }}
       >
-        ← Rudi kwenye orodha
+        {t('gundua.provider.back_to_list', '← Rudi kwenye orodha')}
       </Link>
 
       <header
@@ -108,16 +110,16 @@ export default function ProviderProfile() {
             }}
           >
             {provider.verified && (
-              <span style={chip(JEWEL.goldHope)}>✓ Imethibitishwa</span>
+              <span style={chip(JEWEL.goldHope)}>✓ {t('gundua.card.verified', 'Imethibitishwa')}</span>
             )}
             <span style={chip(JEWEL.tealDeep)}>
               ⭐ {provider.rating.toFixed(1)} ({provider.reviewsCount})
             </span>
             <span style={chip(provider.accepting ? JEWEL.tealRoho : JEWEL.maroonCrisis)}>
-              {provider.accepting ? 'Anapokea wagonjwa wapya' : 'Hapokei wapya'}
+              {provider.accepting ? t('gundua.provider.accepting_new', 'Anapokea wagonjwa wapya') : t('gundua.provider.not_accepting_new', 'Hapokei wapya')}
             </span>
             <span style={chip(JEWEL.indigoWisdom)}>
-              {provider.yearsExperience} miaka ya uzoefu
+              {provider.yearsExperience} {t('gundua.provider.years_experience', 'miaka ya uzoefu')}
             </span>
           </div>
         </div>
@@ -137,44 +139,44 @@ export default function ProviderProfile() {
             opacity: provider.accepting ? 1 : 0.55,
           }}
         >
-          Weka miadi →
+          {t('gundua.provider.book_appointment', 'Weka miadi →')}
         </Link>
       </header>
 
-      <Section title="Kuhusu">
+      <Section title={t('gundua.provider.section_about', 'Kuhusu')}>
         <p style={{ fontFamily: TYPE.serif, fontSize: 17, lineHeight: 1.55 }}>
           {provider.bioSw}
         </p>
         <p style={{ fontSize: 14, color: TEXT.muted, lineHeight: 1.55 }}>{provider.bioEn}</p>
       </Section>
 
-      <Section title="Utaalamu">
+      <Section title={t('gundua.provider.section_specialty', 'Utaalamu')}>
         <ChipRow items={provider.specialtiesSw} accent={JEWEL.tealRoho} />
       </Section>
 
-      <Section title="Lugha">
+      <Section title={t('gundua.provider.section_language', 'Lugha')}>
         <ChipRow
           items={provider.languages.map((l) => LANGUAGE_LABEL_SW[l])}
           accent={JEWEL.indigoWisdom}
         />
       </Section>
 
-      <Section title="Aina ya Kipindi">
+      <Section title={t('gundua.provider.section_mode', 'Aina ya Kipindi')}>
         <ChipRow
           items={[
             provider.mode === 'virtual'
-              ? 'Mtandaoni'
+              ? t('gundua.mode.virtual', 'Mtandaoni')
               : provider.mode === 'in_person'
-                ? 'Ana kwa ana'
-                : 'Mtandaoni & ana kwa ana',
+                ? t('gundua.mode.in_person', 'Ana kwa ana')
+                : t('gundua.mode.both_full', 'Mtandaoni & ana kwa ana'),
           ]}
           accent={JEWEL.tealDeep}
         />
       </Section>
 
-      <Section title="Ada & Bima">
+      <Section title={t('gundua.provider.section_fee', 'Ada & Bima')}>
         <p style={{ fontSize: 18, fontWeight: 600, margin: '0 0 8px' }}>
-          {formatTzs(provider.feeTzs)} <span style={{ color: TEXT.muted, fontSize: 13 }}>· kipindi cha dakika 45</span>
+          {formatTzs(provider.feeTzs)} <span style={{ color: TEXT.muted, fontSize: 13 }}>· {t('gundua.provider.session_45min', 'kipindi cha dakika 45')}</span>
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           {provider.insurances.map((iid) => {
@@ -189,14 +191,14 @@ export default function ProviderProfile() {
         </div>
       </Section>
 
-      <Section title="Mahali">
+      <Section title={t('gundua.provider.section_location', 'Mahali')}>
         <p style={{ margin: 0 }}>
           {provider.location.neighborhood}, {provider.location.city},{' '}
           {provider.location.region}
         </p>
       </Section>
 
-      <Section title="Leseni">
+      <Section title={t('gundua.provider.section_license', 'Leseni')}>
         <p
           style={{
             margin: 0,
@@ -210,23 +212,23 @@ export default function ProviderProfile() {
       </Section>
 
       {provider.supervisorId && (
-        <Section title="Usimamizi">
+        <Section title={t('gundua.provider.section_supervision', 'Usimamizi')}>
           <p style={{ margin: 0, color: TEXT.body }}>
-            Anasimamiwa na{' '}
+            {t('gundua.provider.supervised_by', 'Anasimamiwa na')}{' '}
             <Link
               to={`/gundua/profile/${provider.supervisorId}`}
               style={{ color: TEXT.link }}
             >
-              mtaalamu mwenza
+              {t('gundua.provider.peer_supervisor', 'mtaalamu mwenza')}
             </Link>
             .
           </p>
         </Section>
       )}
 
-      <Section title="Maoni ya Wateja">
+      <Section title={t('gundua.provider.section_reviews', 'Maoni ya Wateja')}>
         {reviews.length === 0 ? (
-          <p style={{ color: TEXT.muted, margin: 0 }}>Hakuna maoni bado.</p>
+          <p style={{ color: TEXT.muted, margin: 0 }}>{t('gundua.reviews.empty', 'Hakuna maoni bado.')}</p>
         ) : (
           <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: 10 }}>
             {reviews.map((r, i) => (

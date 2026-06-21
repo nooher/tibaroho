@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import { useLang } from '../../../lib/i18n/Provider'
 import { JEWEL, NEUTRAL, CREAM, TEXT, RADII, hexToRgba, TYPE } from '../../../lib/glass'
 import {
   PROVIDER_KIND_LABEL_SW,
@@ -65,13 +66,14 @@ const fieldStyle: CSSProperties = {
  * layout on wide screens, stacked on mobile via CSS grid auto-fit.
  */
 export function Filters({ value, onChange }: Props) {
+  const { t } = useLang()
   const set = <K extends keyof FilterState>(k: K, v: FilterState[K]) =>
     onChange({ ...value, [k]: v })
 
   return (
     <div
       role="search"
-      aria-label="Vichujio vya kutafuta mtaalamu"
+      aria-label={t('gundua.filters.aria', 'Vichujio vya kutafuta mtaalamu')}
       style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
@@ -84,19 +86,19 @@ export function Filters({ value, onChange }: Props) {
     >
       <div style={{ gridColumn: '1 / -1' }}>
         <label htmlFor="flt-q" style={labelStyle}>
-          Tafuta
+          {t('gundua.filters.search_label', 'Tafuta')}
         </label>
         <input
           id="flt-q"
           style={fieldStyle}
-          placeholder="Jina, utaalamu, mji…"
+          placeholder={t('gundua.filters.search_placeholder', 'Jina, utaalamu, mji…')}
           value={value.q}
           onChange={(e) => set('q', e.target.value)}
         />
       </div>
       <div>
         <label htmlFor="flt-kind" style={labelStyle}>
-          Aina ya Mtaalamu
+          {t('gundua.filters.kind_label', 'Aina ya Mtaalamu')}
         </label>
         <select
           id="flt-kind"
@@ -104,7 +106,7 @@ export function Filters({ value, onChange }: Props) {
           value={value.kind}
           onChange={(e) => set('kind', e.target.value as FilterState['kind'])}
         >
-          <option value="all">Zote</option>
+          <option value="all">{t('gundua.filters.all_f', 'Zote')}</option>
           {(Object.keys(PROVIDER_KIND_LABEL_SW) as ProviderKind[]).map((k) => (
             <option key={k} value={k}>
               {PROVIDER_KIND_LABEL_SW[k]}
@@ -114,7 +116,7 @@ export function Filters({ value, onChange }: Props) {
       </div>
       <div>
         <label htmlFor="flt-lang" style={labelStyle}>
-          Lugha
+          {t('gundua.filters.language_label', 'Lugha')}
         </label>
         <select
           id="flt-lang"
@@ -122,7 +124,7 @@ export function Filters({ value, onChange }: Props) {
           value={value.language}
           onChange={(e) => set('language', e.target.value as FilterState['language'])}
         >
-          <option value="all">Zote</option>
+          <option value="all">{t('gundua.filters.all_f', 'Zote')}</option>
           {(Object.keys(LANGUAGE_LABEL_SW) as LanguageCode[]).map((l) => (
             <option key={l} value={l}>
               {LANGUAGE_LABEL_SW[l]}
@@ -132,7 +134,7 @@ export function Filters({ value, onChange }: Props) {
       </div>
       <div>
         <label htmlFor="flt-mode" style={labelStyle}>
-          Aina ya Kipindi
+          {t('gundua.filters.mode_label', 'Aina ya Kipindi')}
         </label>
         <select
           id="flt-mode"
@@ -140,15 +142,15 @@ export function Filters({ value, onChange }: Props) {
           value={value.mode}
           onChange={(e) => set('mode', e.target.value as FilterState['mode'])}
         >
-          <option value="all">Zote</option>
-          <option value="virtual">Mtandaoni</option>
-          <option value="in_person">Ana kwa ana</option>
-          <option value="both">Zote mbili</option>
+          <option value="all">{t('gundua.filters.all_f', 'Zote')}</option>
+          <option value="virtual">{t('gundua.mode.virtual', 'Mtandaoni')}</option>
+          <option value="in_person">{t('gundua.mode.in_person', 'Ana kwa ana')}</option>
+          <option value="both">{t('gundua.mode.both', 'Zote mbili')}</option>
         </select>
       </div>
       <div>
         <label htmlFor="flt-region" style={labelStyle}>
-          Mkoa
+          {t('gundua.filters.region_label', 'Mkoa')}
         </label>
         <select
           id="flt-region"
@@ -156,7 +158,7 @@ export function Filters({ value, onChange }: Props) {
           value={value.region}
           onChange={(e) => set('region', e.target.value)}
         >
-          <option value="all">Yote</option>
+          <option value="all">{t('gundua.filters.all_n', 'Yote')}</option>
           {TZ_REGIONS.map((r) => (
             <option key={r} value={r}>
               {r}
@@ -166,7 +168,7 @@ export function Filters({ value, onChange }: Props) {
       </div>
       <div>
         <label htmlFor="flt-ins" style={labelStyle}>
-          Bima
+          {t('gundua.filters.insurance_label', 'Bima')}
         </label>
         <select
           id="flt-ins"
@@ -174,7 +176,7 @@ export function Filters({ value, onChange }: Props) {
           value={value.insurance}
           onChange={(e) => set('insurance', e.target.value as FilterState['insurance'])}
         >
-          <option value="all">Zote</option>
+          <option value="all">{t('gundua.filters.all_f', 'Zote')}</option>
           {INSURANCES.map((i) => (
             <option key={i.id} value={i.id}>
               {i.name}
@@ -184,7 +186,7 @@ export function Filters({ value, onChange }: Props) {
       </div>
       <div>
         <label htmlFor="flt-fee" style={labelStyle}>
-          Ada ya Juu (TSh)
+          {t('gundua.filters.max_fee_label', 'Ada ya Juu (TSh)')}
         </label>
         <input
           id="flt-fee"
@@ -201,7 +203,7 @@ export function Filters({ value, onChange }: Props) {
       </div>
       <div>
         <label htmlFor="flt-rating" style={labelStyle}>
-          Kiwango cha chini (⭐)
+          {t('gundua.filters.min_rating_label', 'Kiwango cha chini (⭐)')}
         </label>
         <select
           id="flt-rating"
@@ -209,7 +211,7 @@ export function Filters({ value, onChange }: Props) {
           value={value.minRating}
           onChange={(e) => set('minRating', Number(e.target.value))}
         >
-          <option value={0}>Bila kikomo</option>
+          <option value={0}>{t('gundua.filters.no_limit', 'Bila kikomo')}</option>
           <option value={4}>4.0+</option>
           <option value={4.5}>4.5+</option>
           <option value={4.8}>4.8+</option>
@@ -232,7 +234,7 @@ export function Filters({ value, onChange }: Props) {
           onChange={(e) => set('acceptingOnly', e.target.checked)}
           style={{ accentColor: JEWEL.goldSoft, width: 16, height: 16 }}
         />
-        Wanaopokea tu
+        {t('gundua.filters.accepting_only', 'Wanaopokea tu')}
       </label>
     </div>
   )

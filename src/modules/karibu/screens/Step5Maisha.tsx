@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { JEWEL, TEXT, hexToRgba, NEUTRAL } from '../../../lib/glass';
 import type { KaribuProfile, KaribuStep5 } from '../lib/storage';
 import { cardStyle, chipStyle, ghostBtn, inputStyle, labelStyle, primaryBtn, subStyle, titleStyle } from '../lib/ui';
+import { useLang } from '../../../lib/i18n/Provider';
 
 interface Props { profile: KaribuProfile; update: (p: Partial<KaribuProfile>) => void; next: () => void; back: () => void; }
 
@@ -20,6 +21,7 @@ const LABEL: Record<string, string> = {
 };
 
 export default function Step5Maisha({ profile, update, next, back }: Props) {
+  const { t } = useLang();
   const s = profile.step5;
   const [sleep, setSleep] = useState<number>(s?.sleep_hours ?? 7);
   const [exercise, setExercise] = useState<number>(s?.exercise_days ?? 2);
@@ -35,56 +37,56 @@ export default function Step5Maisha({ profile, update, next, back }: Props) {
 
   return (
     <div style={cardStyle}>
-      <h2 style={titleStyle}>Maisha yako</h2>
-      <p style={subStyle}>Mambo madogo ya kila siku yana athari kubwa. Majibu ni ya siri.</p>
+      <h2 style={titleStyle}>{t('karibu.step5.heading', 'Maisha yako')}</h2>
+      <p style={subStyle}>{t('karibu.step5.sub', 'Mambo madogo ya kila siku yana athari kubwa. Majibu ni ya siri.')}</p>
 
       <div style={{ display: 'grid', gap: 14 }}>
         <div>
-          <label style={labelStyle} htmlFor="k-sleep">Unalala saa ngapi kwa usiku?</label>
+          <label style={labelStyle} htmlFor="k-sleep">{t('karibu.step5.sleep_label', 'Unalala saa ngapi kwa usiku?')}</label>
           <input id="k-sleep" type="number" min={0} max={14} style={inputStyle} value={sleep} onChange={(e) => setSleep(Number(e.target.value) || 0)} />
         </div>
         <div>
-          <label style={labelStyle} htmlFor="k-ex">Mazoezi siku ngapi kwa wiki?</label>
+          <label style={labelStyle} htmlFor="k-ex">{t('karibu.step5.exercise_label', 'Mazoezi siku ngapi kwa wiki?')}</label>
           <input id="k-ex" type="number" min={0} max={7} style={inputStyle} value={exercise} onChange={(e) => setExercise(Number(e.target.value) || 0)} />
         </div>
 
         <div>
-          <label style={labelStyle}>Msaada kutoka kwa wengine</label>
+          <label style={labelStyle}>{t('karibu.step5.support_label', 'Msaada kutoka kwa wengine')}</label>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {SUPPORT.map((v) => <button key={v} type="button" onClick={() => setSupport(v)} style={chipStyle(support === v)}>{LABEL[v]}</button>)}
+            {SUPPORT.map((v) => <button key={v} type="button" onClick={() => setSupport(v)} style={chipStyle(support === v)}>{t(`karibu.step5.opt_${v}`, LABEL[v])}</button>)}
           </div>
         </div>
 
         <div>
-          <label style={labelStyle}>Ajira / kazi</label>
+          <label style={labelStyle}>{t('karibu.step5.employment_label', 'Ajira / kazi')}</label>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {EMP.map((v) => <button key={v} type="button" onClick={() => setEmp(v)} style={chipStyle(emp === v)}>{LABEL[v]}</button>)}
+            {EMP.map((v) => <button key={v} type="button" onClick={() => setEmp(v)} style={chipStyle(emp === v)}>{t(`karibu.step5.opt_${v}`, LABEL[v])}</button>)}
           </div>
         </div>
 
         <div>
-          <label style={labelStyle}>Makazi</label>
+          <label style={labelStyle}>{t('karibu.step5.housing_label', 'Makazi')}</label>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {HOUSING.map((v) => <button key={v} type="button" onClick={() => setHousing(v)} style={chipStyle(housing === v)}>{LABEL[v]}</button>)}
+            {HOUSING.map((v) => <button key={v} type="button" onClick={() => setHousing(v)} style={chipStyle(housing === v)}>{t(`karibu.step5.opt_${v}`, LABEL[v])}</button>)}
           </div>
         </div>
 
         <div style={{ background: hexToRgba(JEWEL.maroonCrisis, 0.06), padding: 14, borderRadius: 14, border: `1px solid ${hexToRgba(JEWEL.maroonCrisis, 0.2)}` }}>
           <label style={{ ...labelStyle, color: JEWEL.maroonCrisis }}>
-            Unyanyasaji wa kifamilia (swali nyeti — unaweza kuruka)
+            {t('karibu.step5.ipv_label', 'Unyanyasaji wa kifamilia (swali nyeti — unaweza kuruka)')}
           </label>
           <p style={{ margin: '0 0 10px', fontSize: 13, color: TEXT.muted }}>
-            Mtu yeyote kwenye nyumba yako amewahi kukudhuru au kukutisha?
+            {t('karibu.step5.ipv_question', 'Mtu yeyote kwenye nyumba yako amewahi kukudhuru au kukutisha?')}
           </p>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {IPV.map((v) => <button key={v} type="button" onClick={() => setIpv(v)} style={chipStyle(ipv === v)}>{LABEL[v]}</button>)}
+            {IPV.map((v) => <button key={v} type="button" onClick={() => setIpv(v)} style={chipStyle(ipv === v)}>{t(`karibu.step5.opt_${v}`, LABEL[v])}</button>)}
           </div>
         </div>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20 }}>
-        <button type="button" onClick={back} style={ghostBtn()}>← Rudi</button>
-        <button type="button" onClick={submit} style={primaryBtn()}>Endelea →</button>
+        <button type="button" onClick={back} style={ghostBtn()}>{t('karibu.common.back', '← Rudi')}</button>
+        <button type="button" onClick={submit} style={primaryBtn()}>{t('karibu.common.continue', 'Endelea →')}</button>
       </div>
     </div>
   );

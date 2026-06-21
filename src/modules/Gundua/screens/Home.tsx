@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useLang } from '../../../lib/i18n/Provider'
 import { JEWEL, NEUTRAL, TEXT, RADII, TYPE, hexToRgba } from '../../../lib/glass'
 import Filters, { DEFAULT_FILTERS, type FilterState } from '../components/Filters'
 import ProviderCard from '../components/ProviderCard'
@@ -12,6 +13,7 @@ import { applyFilters, sortProviders } from '../lib/filter'
  * Hero with search; filters; relevance-sorted snapshot; CTAs to Map and full List.
  */
 export default function GunduaHome() {
+  const { t } = useLang()
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
   const matches = useMemo(
     () => sortProviders(applyFilters(PROVIDERS, filters), 'relevance'),
@@ -40,7 +42,7 @@ export default function GunduaHome() {
             color: TEXT.heading,
           }}
         >
-          Gundua mtaalamu wa moyo wako.
+          {t('gundua.home.title', 'Gundua mtaalamu wa moyo wako.')}
         </h1>
         <p
           style={{
@@ -52,8 +54,7 @@ export default function GunduaHome() {
             lineHeight: TYPE.bodyLeading,
           }}
         >
-          Madaktari, wanasaikolojia, washauri wa kijamii na wa kidini —
-          waliothibitishwa, karibu na wewe, kwa lugha unayoielewa.
+          {t('gundua.home.subtitle', 'Madaktari, wanasaikolojia, washauri wa kijamii na wa kidini — waliothibitishwa, karibu na wewe, kwa lugha unayoielewa.')}
         </p>
         <div style={{ marginTop: 12 }}>
           <ArchitectureBadge moduleSlug="gundua" />
@@ -72,22 +73,22 @@ export default function GunduaHome() {
         }}
       >
         <span style={{ color: TEXT.muted, fontSize: 13 }}>
-          {matches.length} wataalamu wamepatikana
+          {matches.length} {t('gundua.home.providers_found', 'wataalamu wamepatikana')}
         </span>
         <div style={{ flex: 1 }} />
         <Link
           to="/gundua/list"
           style={btnStyle(JEWEL.tealRoho)}
-          aria-label="Tazama orodha kamili"
+          aria-label={t('gundua.home.full_list_aria', 'Tazama orodha kamili')}
         >
-          Orodha kamili
+          {t('gundua.home.full_list', 'Orodha kamili')}
         </Link>
         <Link
           to="/gundua/map"
           style={btnStyle(JEWEL.indigoWisdom)}
-          aria-label="Tazama ramani ya Tanzania"
+          aria-label={t('gundua.home.map_aria', 'Tazama ramani ya Tanzania')}
         >
-          Ramani ya Tanzania
+          {t('gundua.home.map', 'Ramani ya Tanzania')}
         </Link>
       </div>
 
@@ -114,8 +115,7 @@ export default function GunduaHome() {
             color: TEXT.body,
           }}
         >
-          Hakuna mtaalamu aliyepatikana kwa vichujio hivi. Jaribu kupanua mkoa au
-          ondoa kichujio cha bima.
+          {t('gundua.home.empty', 'Hakuna mtaalamu aliyepatikana kwa vichujio hivi. Jaribu kupanua mkoa au ondoa kichujio cha bima.')}
         </div>
       )}
     </div>

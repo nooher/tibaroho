@@ -3,6 +3,7 @@ import { JEWEL, NEUTRAL, RADII, TYPE, TEXT, CREAM, hexToRgba } from '../../../li
 import { PageShell, Card } from '../components/Shell'
 import { Pill } from '../components/Pill'
 import { listEvents, saveEvent, deleteEvent, uid, type CalEvent } from '../data/store'
+import { useLang } from '../../../lib/i18n/Provider'
 
 type View = 'siku' | 'wiki' | 'mwezi'
 
@@ -19,6 +20,7 @@ function addDays(d: Date, n: number) { const x = new Date(d); x.setDate(x.getDat
 function sameDay(a: Date, b: Date) { return a.toDateString() === b.toDateString() }
 
 export default function CalendarPage() {
+  const { t } = useLang()
   const [events, setEvents] = useState<CalEvent[]>(() => listEvents())
   const [view, setView] = useState<View>('wiki')
   const [cursor, setCursor] = useState<Date>(() => startOfDay(new Date()))
@@ -60,7 +62,7 @@ export default function CalendarPage() {
   function rm(id: string) { deleteEvent(id); setEvents(listEvents()) }
 
   return (
-    <PageShell title="Kalenda yangu" subtitle="Miadi, vikumbusho vya madawa, na vipimo vya mara kwa mara." back={{ to: '/mimi' }}>
+    <PageShell title={t('mimi.cal.title', 'Kalenda yangu')} subtitle={t('mimi.cal.subtitle', 'Miadi, vikumbusho vya madawa, na vipimo vya mara kwa mara.')} back={{ to: '/mimi' }}>
       <Card jewel={JEWEL.tealRoho}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -69,9 +71,9 @@ export default function CalendarPage() {
             ))}
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <button onClick={() => setCursor(addDays(cursor, view === 'mwezi' ? -30 : view === 'wiki' ? -7 : -1))} style={tab(false)} aria-label="Nyuma">←</button>
+            <button onClick={() => setCursor(addDays(cursor, view === 'mwezi' ? -30 : view === 'wiki' ? -7 : -1))} style={tab(false)} aria-label={t('mimi.cal.back', 'Nyuma')}>←</button>
             <strong style={{ fontFamily: TYPE.serif, fontSize: 18 }}>{cursor.toLocaleDateString('sw-TZ', { day: '2-digit', month: 'long', year: 'numeric' })}</strong>
-            <button onClick={() => setCursor(addDays(cursor, view === 'mwezi' ? 30 : view === 'wiki' ? 7 : 1))} style={tab(false)} aria-label="Mbele">→</button>
+            <button onClick={() => setCursor(addDays(cursor, view === 'mwezi' ? 30 : view === 'wiki' ? 7 : 1))} style={tab(false)} aria-label={t('mimi.cal.forward', 'Mbele')}>→</button>
           </div>
         </div>
       </Card>
@@ -94,7 +96,7 @@ export default function CalendarPage() {
                     <div style={{ fontWeight: 600 }}>{e.title_sw}</div>
                     <div style={{ color: TEXT.onJewel, opacity: 0.85 }}>{new Date(e.startsAt).toLocaleTimeString('sw-TZ', { hour: '2-digit', minute: '2-digit' })} · {e.kind}</div>
                   </div>
-                  <button onClick={() => rm(e.id)} aria-label="Ondoa" style={{ background: 'transparent', border: 'none', color: TEXT.onJewel, cursor: 'pointer' }}>×</button>
+                  <button onClick={() => rm(e.id)} aria-label={t('mimi.cal.remove', 'Ondoa')} style={{ background: 'transparent', border: 'none', color: TEXT.onJewel, cursor: 'pointer' }}>×</button>
                 </div>
               ))}
             </div>
@@ -103,26 +105,26 @@ export default function CalendarPage() {
       </div>
 
       <Card jewel={JEWEL.indigoWisdom} style={{ marginTop: 20 }}>
-        <Pill tone="indigo">Ongeza miadi</Pill>
+        <Pill tone="indigo">{t('mimi.cal.add', 'Ongeza miadi')}</Pill>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginTop: 12 }}>
           <input
-            placeholder="Kichwa (mfano: Mazungumzo na mshauri)"
+            placeholder={t('mimi.cal.title-ph', 'Kichwa (mfano: Mazungumzo na mshauri)')}
             value={draft.title_sw || ''}
             onChange={(e) => setDraft({ ...draft, title_sw: e.target.value })}
-            aria-label="Kichwa cha miadi"
+            aria-label={t('mimi.cal.title-aria', 'Kichwa cha miadi')}
             style={inp}
           />
           <input
             type="datetime-local"
             value={draft.startsAt || ''}
             onChange={(e) => setDraft({ ...draft, startsAt: e.target.value })}
-            aria-label="Tarehe na muda"
+            aria-label={t('mimi.cal.datetime-aria', 'Tarehe na muda')}
             style={inp}
           />
           <select
             value={draft.kind}
             onChange={(e) => setDraft({ ...draft, kind: e.target.value as CalEvent['kind'] })}
-            aria-label="Aina"
+            aria-label={t('mimi.cal.kind-aria', 'Aina')}
             style={inp}
           >
             {KINDS.map((k) => <option key={k.id} value={k.id}>{k.sw}</option>)}
@@ -131,14 +133,14 @@ export default function CalendarPage() {
             type="number" min={5} max={480}
             value={draft.durationMin || 60}
             onChange={(e) => setDraft({ ...draft, durationMin: Number(e.target.value) })}
-            aria-label="Muda (dakika)" style={inp}
+            aria-label={t('mimi.cal.duration-aria', 'Muda (dakika)')} style={inp}
           />
           <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
             <input type="checkbox" checked={!!draft.reminder} onChange={(e) => setDraft({ ...draft, reminder: e.target.checked })} />
-            Kikumbusho
+            {t('mimi.cal.reminder', 'Kikumbusho')}
           </label>
           <button onClick={add} style={{ padding: '10px 18px', borderRadius: RADII.chip, background: JEWEL.goldHope, color: NEUTRAL.ink, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
-            Hifadhi
+            {t('mimi.cal.save', 'Hifadhi')}
           </button>
         </div>
       </Card>

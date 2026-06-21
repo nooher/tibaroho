@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { JEWEL, RADII, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
 import { Card, H1, buttonStyle, fieldStyle } from '../components/Card'
+import { useLang } from '../../../lib/i18n/Provider'
 
 interface ICDCode {
   code: string
@@ -34,6 +35,7 @@ const CODES: ICDCode[] = [
 ]
 
 export default function Coding() {
+  const { t } = useLang()
   const [q, setQ] = useState('')
   const [picked, setPicked] = useState<string[]>([])
 
@@ -51,24 +53,24 @@ export default function Coding() {
 
   return (
     <div>
-      <H1 english="ICD-11 coding">Msaidizi wa kanuni za ICD-11</H1>
+      <H1 english="ICD-11 coding">{t('wataalam.coding.title', 'Msaidizi wa kanuni za ICD-11')}</H1>
 
-      <Card title="Tafuta kwa Kiswahili au Kiingereza">
+      <Card title={t('wataalam.coding.search_card', 'Tafuta kwa Kiswahili au Kiingereza')}>
         <input
           style={fieldStyle()}
-          placeholder="kwa mfano: 'sonona', 'anxiety', '6A70'"
+          placeholder={t('wataalam.coding.search_ph', "kwa mfano: 'sonona', 'anxiety', '6A70'")}
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          aria-label="Tafuta kanuni"
+          aria-label={t('wataalam.coding.search_aria', 'Tafuta kanuni')}
         />
         <p style={{ color: TEXT.muted, fontSize: 12, margin: '8px 0 0' }}>
-          {results.length} matokeo
+          {results.length} {t('wataalam.coding.results', 'matokeo')}
         </p>
       </Card>
 
-      <Card title={`Kanuni zilizochaguliwa (${picked.length})`} style={{ marginTop: 14 }}>
+      <Card title={`${t('wataalam.coding.picked', 'Kanuni zilizochaguliwa')} (${picked.length})`} style={{ marginTop: 14 }}>
         {picked.length === 0 ? (
-          <p style={{ color: TEXT.muted, margin: 0 }}>Bado hujachagua.</p>
+          <p style={{ color: TEXT.muted, margin: 0 }}>{t('wataalam.coding.none_picked', 'Bado hujachagua.')}</p>
         ) : (
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {picked.map((code) => {
@@ -89,7 +91,7 @@ export default function Coding() {
                   {c.code} — {c.sw}
                   <button
                     onClick={() => setPicked((p) => p.filter((x) => x !== code))}
-                    aria-label="Toa"
+                    aria-label={t('wataalam.coding.remove', 'Toa')}
                     style={{
                       marginLeft: 6,
                       background: 'transparent',
@@ -113,11 +115,11 @@ export default function Coding() {
             opacity: picked.length === 0 ? 0.5 : 1,
           }}
         >
-          Ongeza kwenye kipindi hiki
+          {t('wataalam.coding.add_to_session', 'Ongeza kwenye kipindi hiki')}
         </button>
       </Card>
 
-      <Card title="Matokeo" style={{ marginTop: 14 }}>
+      <Card title={t('wataalam.coding.results_card', 'Matokeo')} style={{ marginTop: 14 }}>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 6 }}>
           {results.map((c) => {
             const sel = picked.includes(c.code)

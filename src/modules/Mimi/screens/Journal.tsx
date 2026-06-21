@@ -4,6 +4,7 @@ import { PageShell, Card } from '../components/Shell'
 import { Pill } from '../components/Pill'
 import { MicButton } from '../../../components/MicButton'
 import { listJournal, listJournalAsync, saveJournal, uid, type JournalEntry } from '../data/store'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const TOPICS = ['kazi', 'familia', 'afya', 'fedha', 'mahusiano', 'usingizi', 'matumaini']
 
@@ -15,6 +16,7 @@ type SpeechRec = {
 }
 
 export default function JournalPage() {
+  const { t } = useLang()
   const [text, setText] = useState('')
   const [topics, setTopics] = useState<Set<string>>(new Set())
   const [mood, setMood] = useState<number>(6)
@@ -36,9 +38,9 @@ export default function JournalPage() {
     return () => { on = false }
   }, [])
 
-  function toggleTopic(t: string) {
+  function toggleTopic(tag: string) {
     const next = new Set(topics)
-    if (next.has(t)) next.delete(t); else next.add(t)
+    if (next.has(tag)) next.delete(tag); else next.add(tag)
     setTopics(next)
   }
 
@@ -54,9 +56,9 @@ export default function JournalPage() {
     const rec = new Ctor()
     rec.lang = 'sw-TZ'; rec.interimResults = true; rec.continuous = true
     rec.onresult = (e) => {
-      let t = ''
-      for (let k = 0; k < e.results.length; k++) t += e.results[k][0].transcript
-      setTranscript(t)
+      let txt = ''
+      for (let k = 0; k < e.results.length; k++) txt += e.results[k][0].transcript
+      setTranscript(txt)
     }
     rec.onend = () => setListening(false)
     recRef.current = rec
@@ -73,7 +75,7 @@ export default function JournalPage() {
       mr.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' })
         const r = new FileReader(); r.onload = () => setAudio(String(r.result)); r.readAsDataURL(blob)
-        stream.getTracks().forEach((t) => t.stop())
+        stream.getTracks().forEach((tr) => tr.stop())
       }
       mediaRef.current = mr; mr.start(); setRecAudio(true)
     } catch { alert('Imeshindikana kufikia maikrofoni.') }
@@ -108,18 +110,18 @@ export default function JournalPage() {
   }, [entries])
 
   return (
-    <PageShell title="Shajara yangu" subtitle="Andika, sema, piga picha — historia yako ya hisia." back={{ to: '/mimi' }}>
+    <PageShell title={t('mimi.jr.title', 'Shajara yangu')} subtitle={t('mimi.jr.subtitle', 'Andika, sema, piga picha — historia yako ya hisia.')} back={{ to: '/mimi' }}>
       <Card jewel={JEWEL.tealRoho}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Pill tone="teal">Ingizo jipya</Pill>
-          <MicButton onTranscript={(t) => setText((cur) => (cur ? cur + ' ' + t : t))} />
+          <Pill tone="teal">{t('mimi.jr.new', 'Ingizo jipya')}</Pill>
+          <MicButton onTranscript={(txt) => setText((cur) => (cur ? cur + ' ' + txt : txt))} />
         </div>
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={5}
-          placeholder="Leo nimehisi…"
-          aria-label="Andika ingizo lako la shajara"
+          placeholder={t('mimi.jr.placeholder', 'Leo nimehisi…')}
+          aria-label={t('mimi.jr.text-aria', 'Andika ingizo lako la shajara')}
           style={{
             width: '100%', marginTop: 14, padding: 14, borderRadius: RADII.card,
             background: CREAM.milk,
@@ -135,58 +137,58 @@ export default function JournalPage() {
         )}
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
-          {TOPICS.map((t) => {
-            const on = topics.has(t)
+          {TOPICS.map((tag) => {
+            const on = topics.has(tag)
             return (
-              <button key={t} onClick={() => toggleTopic(t)} aria-pressed={on} style={chipStyle(on)}>#{t}</button>
+              <button key={tag} onClick={() => toggleTopic(tag)} aria-pressed={on} style={chipStyle(on)}>#{tag}</button>
             )
           })}
         </div>
 
         <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginTop: 14 }}>
-          <label style={{ fontSize: 13, color: TEXT.muted }}>Hisia: {mood}</label>
-          <input type="range" min={0} max={10} value={mood} onChange={(e) => setMood(Number(e.target.value))} aria-label="Hisia za sasa" style={{ flex: 1, accentColor: JEWEL.goldHope }} />
+          <label style={{ fontSize: 13, color: TEXT.muted }}>{t('mimi.jr.mood', 'Hisia')}: {mood}</label>
+          <input type="range" min={0} max={10} value={mood} onChange={(e) => setMood(Number(e.target.value))} aria-label={t('mimi.jr.mood-aria', 'Hisia za sasa')} style={{ flex: 1, accentColor: JEWEL.goldHope }} />
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 16 }}>
           <button onClick={listening ? stopVoice : startVoice} style={btn(listening ? JEWEL.maroonCrisis : JEWEL.indigoWisdom)}>
-            {listening ? '● Inasikiliza…' : '🎤 Sema'}
+            {listening ? t('mimi.jr.listening', '● Inasikiliza…') : t('mimi.jr.speak', '🎤 Sema')}
           </button>
           <button onClick={recAudio ? stopAudio : startAudio} style={btn(recAudio ? JEWEL.maroonCrisis : JEWEL.tealRoho)}>
-            {recAudio ? '● Inarekodi…' : '🎵 Rekodi sauti'}
+            {recAudio ? t('mimi.jr.recording', '● Inarekodi…') : t('mimi.jr.record-audio', '🎵 Rekodi sauti')}
           </button>
           <label style={{ ...btn(JEWEL.tealRoho), cursor: 'pointer' }}>
-            🖼 Picha
-            <input type="file" accept="image/*" onChange={onImage} style={{ display: 'none' }} aria-label="Pakia picha" />
+            {t('mimi.jr.image', '🖼 Picha')}
+            <input type="file" accept="image/*" onChange={onImage} style={{ display: 'none' }} aria-label={t('mimi.jr.upload-image', 'Pakia picha')} />
           </label>
           {(audio || image) && (
             <div style={{ display: 'flex', gap: 8, alignItems: 'center', color: TEXT.muted, fontSize: 12 }}>
-              {audio && '🎵 sauti tayari'} {image && '🖼 picha tayari'}
+              {audio && t('mimi.jr.audio-ready', '🎵 sauti tayari')} {image && t('mimi.jr.image-ready', '🖼 picha tayari')}
             </div>
           )}
-          <button onClick={save} style={{ ...btn(JEWEL.goldHope), color: NEUTRAL.ink, fontWeight: 700, marginLeft: 'auto' }}>Hifadhi</button>
+          <button onClick={save} style={{ ...btn(JEWEL.goldHope), color: NEUTRAL.ink, fontWeight: 700, marginLeft: 'auto' }}>{t('mimi.jr.save', 'Hifadhi')}</button>
         </div>
       </Card>
 
-      <h2 style={{ fontFamily: TYPE.serif, fontSize: 26, letterSpacing: TYPE.tighterTrack, margin: '32px 0 14px' }}>Kalenda ya shajara</h2>
-      {grouped.length === 0 && <p style={{ color: TEXT.muted }}>Bado hakuna ingizo. Anza leo.</p>}
+      <h2 style={{ fontFamily: TYPE.serif, fontSize: 26, letterSpacing: TYPE.tighterTrack, margin: '32px 0 14px' }}>{t('mimi.jr.cal-heading', 'Kalenda ya shajara')}</h2>
+      {grouped.length === 0 && <p style={{ color: TEXT.muted }}>{t('mimi.jr.empty', 'Bado hakuna ingizo. Anza leo.')}</p>}
       {grouped.map(([day, es]) => (
         <Card key={day} jewel={JEWEL.indigoWisdom} style={{ marginBottom: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
             <strong style={{ fontFamily: TYPE.serif, fontSize: 18 }}>{day}</strong>
-            <Pill tone="indigo">{es.length} ingizo</Pill>
+            <Pill tone="indigo">{es.length} {t('mimi.jr.entry-word', 'ingizo')}</Pill>
           </div>
           {es.map((e) => (
             <div key={e.id} style={{ padding: '12px 0', borderTop: `1px solid ${hexToRgba(NEUTRAL.ink, 0.10)}` }}>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6, color: TEXT.muted, fontSize: 12 }}>
                 <span>{new Date(e.takenAt).toLocaleTimeString('sw-TZ', { hour: '2-digit', minute: '2-digit' })}</span>
-                {typeof e.mood === 'number' && <Pill tone={e.mood >= 7 ? 'gold' : e.mood >= 4 ? 'teal' : 'maroon'}>hisia {e.mood}</Pill>}
-                {e.topics.map((t) => <span key={t} style={{ color: TEXT.muted }}>#{t}</span>)}
+                {typeof e.mood === 'number' && <Pill tone={e.mood >= 7 ? 'gold' : e.mood >= 4 ? 'teal' : 'maroon'}>{t('mimi.jr.mood-pill', 'hisia')} {e.mood}</Pill>}
+                {e.topics.map((tag) => <span key={tag} style={{ color: TEXT.muted }}>#{tag}</span>)}
               </div>
               {e.text && <p style={{ margin: '4px 0', fontFamily: TYPE.serif, fontSize: 15 }}>{e.text}</p>}
               {e.voiceTranscript && <p style={{ fontSize: 13, color: TEXT.body }}>🎙 {e.voiceTranscript}</p>}
               {e.audioDataUrl && <audio controls src={e.audioDataUrl} style={{ width: '100%', marginTop: 6 }} />}
-              {e.imageDataUrl && <img src={e.imageDataUrl} alt="Picha ya shajara" style={{ maxWidth: 240, borderRadius: RADII.card, marginTop: 6 }} />}
+              {e.imageDataUrl && <img src={e.imageDataUrl} alt={t('mimi.jr.image-alt', 'Picha ya shajara')} style={{ maxWidth: 240, borderRadius: RADII.card, marginTop: 6 }} />}
             </div>
           ))}
         </Card>

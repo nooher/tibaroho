@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { JEWEL, RADII, TYPE, TEXT, CREAM, hexToRgba } from '../../../lib/glass'
 import { Card, H1, buttonStyle } from '../components/Card'
+import { useLang } from '../../../lib/i18n/Provider'
 
 interface AssessmentResult {
   instrument: string
@@ -22,6 +23,7 @@ const SEED_PRESENTING = [
 ]
 
 export default function Intake() {
+  const { t } = useLang()
   const [pseudonym] = useState('Mteja A')
   const [brief, setBrief] = useState(
     'Mteja wa kike, miaka 32, mwalimu. Anatafuta msaada baada ya kutaka kujiua wiki mbili zilizopita.\n\n' +
@@ -31,10 +33,10 @@ export default function Intake() {
 
   return (
     <div>
-      <H1 english="Intake">Mapokezi ya {pseudonym}</H1>
+      <H1 english="Intake">{t('wataalam.intake.title', 'Mapokezi ya')} {pseudonym}</H1>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-        <Card title="Matokeo ya tathmini">
+        <Card title={t('wataalam.intake.assessment_results', 'Matokeo ya tathmini')}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 8 }}>
             {SEED_RESULTS.map((r) => (
               <li
@@ -64,7 +66,7 @@ export default function Intake() {
           </ul>
         </Card>
 
-        <Card title="Malalamiko ya kuanzia">
+        <Card title={t('wataalam.intake.presenting', 'Malalamiko ya kuanzia')}>
           <ul style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 6 }}>
             {SEED_PRESENTING.map((p, i) => (
               <li key={i} style={{ fontFamily: TYPE.serif, lineHeight: 1.55 }}>
@@ -75,7 +77,7 @@ export default function Intake() {
         </Card>
       </div>
 
-      <Card title="Muhtasari wa kliniki — uliojazwa awali" style={{ marginTop: 14 }}>
+      <Card title={t('wataalam.intake.brief_card', 'Muhtasari wa kliniki — uliojazwa awali')} style={{ marginTop: 14 }}>
         <textarea
           value={brief}
           onChange={(e) => setBrief(e.target.value)}
@@ -95,8 +97,8 @@ export default function Intake() {
           }}
         />
         <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
-          <button style={buttonStyle(JEWEL.goldHope, true)}>Hifadhi muhtasari</button>
-          <button style={buttonStyle(JEWEL.indigoWisdom)}>Tuma kwenye Kumbukumbu →</button>
+          <button style={buttonStyle(JEWEL.goldHope, true)}>{t('wataalam.intake.save_brief', 'Hifadhi muhtasari')}</button>
+          <button style={buttonStyle(JEWEL.indigoWisdom)}>{t('wataalam.intake.send_notes', 'Tuma kwenye Kumbukumbu →')}</button>
         </div>
       </Card>
     </div>

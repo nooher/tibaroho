@@ -6,8 +6,10 @@ import {
   saveSupervision,
   type SupervisionCase,
 } from '../lib/storage'
+import { useLang } from '../../../lib/i18n/Provider'
 
 export default function Supervision() {
+  const { t } = useLang()
   const [cases, setCases] = useState<SupervisionCase[]>(() => loadSupervision())
   const [feedback, setFeedback] = useState<Record<string, string>>({})
 
@@ -35,17 +37,17 @@ export default function Supervision() {
 
   return (
     <div>
-      <H1 english="Supervision">Usimamizi wa washauri wa kijamii</H1>
+      <H1 english="Supervision">{t('wataalam.supervision.title', 'Usimamizi wa washauri wa kijamii')}</H1>
 
       {(['pending', 'reviewed', 'signed_off'] as const).map((g) => (
         <Card
           key={g}
           title={
             g === 'pending'
-              ? `Zinazongoja (${groups[g].length})`
+              ? `${t('wataalam.supervision.pending', 'Zinazongoja')} (${groups[g].length})`
               : g === 'reviewed'
-                ? `Zilizopitiwa (${groups[g].length})`
-                : `Zilizosainiwa (${groups[g].length})`
+                ? `${t('wataalam.supervision.reviewed', 'Zilizopitiwa')} (${groups[g].length})`
+                : `${t('wataalam.supervision.signed', 'Zilizosainiwa')} (${groups[g].length})`
           }
           accent={
             g === 'pending' ? JEWEL.maroonCrisis : g === 'reviewed' ? JEWEL.indigoWisdom : JEWEL.tealRoho
@@ -53,7 +55,7 @@ export default function Supervision() {
           style={{ marginBottom: 12 }}
         >
           {groups[g].length === 0 ? (
-            <p style={{ color: TEXT.muted, margin: 0 }}>Hakuna kesi.</p>
+            <p style={{ color: TEXT.muted, margin: 0 }}>{t('wataalam.supervision.none', 'Hakuna kesi.')}</p>
           ) : (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 10 }}>
               {groups[g].map((c) => (
@@ -82,7 +84,7 @@ export default function Supervision() {
                     <>
                       <textarea
                         rows={3}
-                        placeholder="Toa maoni / mwongozo…"
+                        placeholder={t('wataalam.supervision.feedback_ph', 'Toa maoni / mwongozo…')}
                         value={feedback[c.id] ?? ''}
                         onChange={(e) => setFeedback({ ...feedback, [c.id]: e.target.value })}
                         style={{
@@ -101,7 +103,7 @@ export default function Supervision() {
                       />
                       <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                         <button onClick={() => review(c.id)} style={buttonStyle(JEWEL.indigoWisdom, true)}>
-                          Pitisha
+                          {t('wataalam.supervision.approve', 'Pitisha')}
                         </button>
                       </div>
                     </>
@@ -110,17 +112,17 @@ export default function Supervision() {
                   {c.status === 'reviewed' && (
                     <>
                       <p style={{ color: TEXT.body, fontSize: 13 }}>
-                        Maoni: {c.feedbackSw}
+                        {t('wataalam.supervision.feedback_label', 'Maoni:')} {c.feedbackSw}
                       </p>
                       <button onClick={() => signOff(c.id)} style={buttonStyle(JEWEL.goldHope, true)}>
-                        ✓ Saini
+                        {t('wataalam.supervision.sign', '✓ Saini')}
                       </button>
                     </>
                   )}
 
                   {c.status === 'signed_off' && (
                     <p style={{ color: TEXT.link, fontWeight: 600, fontSize: 13 }}>
-                      ✓ Imesainiwa — kesi imekamilika.
+                      {t('wataalam.supervision.signed_msg', '✓ Imesainiwa — kesi imekamilika.')}
                     </p>
                   )}
                 </li>

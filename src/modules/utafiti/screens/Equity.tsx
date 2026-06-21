@@ -5,6 +5,7 @@ import { BRAND, CREAM, NEUTRAL, RADII, TEXT, hexToRgba } from '../../../lib/glas
 import { EQUITY_VARS } from '../data/equityVars'
 import { list } from '../../../lib/db'
 import type { TrUser, TrOutcome } from '../../../lib/db'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -29,6 +30,7 @@ function ci95(p: number, n: number): [number, number] {
 }
 
 export default function Equity(): React.JSX.Element {
+  const { t } = useLang()
   const [selectedId, setSelectedId] = useState<string>(EQUITY_VARS[0].id)
   const variable = EQUITY_VARS.find((v) => v.id === selectedId) ?? EQUITY_VARS[0]
   const [usersByRegion, setUsersByRegion] = useState<Record<string, number>>({})
@@ -82,10 +84,10 @@ export default function Equity(): React.JSX.Element {
 
   return (
     <>
-      <Card title="Equity stratifier — PROGRESS-Plus" accent={BRAND.green}>
+      <Card title={t('utafiti.equity.title', 'Equity stratifier — PROGRESS-Plus')} accent={BRAND.green}>
         <p style={{ margin: '0 0 14px', fontSize: 13, color: TEXT.muted }}>
-          O&apos;Neill et al. 2014 — Vipimo {EQUITY_VARS.length} kwa stratification ya outcome ya msingi (PHQ-9 remission wiki 12).
-          {' '}Live: <strong style={{ color: TEXT.body }}>{Object.values(usersByRegion).reduce((a, b) => a + b, 0)}</strong> watumiaji kwenye mikoa {Object.keys(usersByRegion).length}, {totalPatients} na outcomes.
+          {t('utafiti.equity.intro_prefix', 'O’Neill et al. 2014 — Vipimo')} {EQUITY_VARS.length} {t('utafiti.equity.intro_suffix', 'kwa stratification ya outcome ya msingi (PHQ-9 remission wiki 12).')}
+          {' '}Live: <strong style={{ color: TEXT.body }}>{Object.values(usersByRegion).reduce((a, b) => a + b, 0)}</strong> {t('utafiti.equity.users_in_regions', 'watumiaji kwenye mikoa')} {Object.keys(usersByRegion).length}, {totalPatients} {t('utafiti.equity.with_outcomes', 'na outcomes.')}
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {EQUITY_VARS.map((v) => (
@@ -125,22 +127,22 @@ export default function Equity(): React.JSX.Element {
         </div>
       </Card>
 
-      <Card title="Pengo la equity" accent={NEUTRAL.ink}>
+      <Card title={t('utafiti.equity.gap_title', 'Pengo la equity')} accent={NEUTRAL.ink}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
           <div style={{ background: CREAM.cream, border: `1px solid ${ink(0.08)}`, borderRadius: 12, padding: 14 }}>
-            <div style={{ fontSize: 11, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Pengo kamili</div>
+            <div style={{ fontSize: 11, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>{t('utafiti.equity.abs_gap', 'Pengo kamili')}</div>
             <div className="serif" style={{ fontSize: 30, color: TEXT.heading, marginTop: 4 }}>{absGap.toFixed(1)}<span style={{ fontSize: 12, color: TEXT.muted, marginLeft: 4 }}>pp</span></div>
           </div>
           <div style={{ background: CREAM.cream, border: `1px solid ${ink(0.08)}`, borderRadius: 12, padding: 14 }}>
-            <div style={{ fontSize: 11, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Pengo la uwiano</div>
+            <div style={{ fontSize: 11, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>{t('utafiti.equity.rel_gap', 'Pengo la uwiano')}</div>
             <div className="serif" style={{ fontSize: 30, color: TEXT.heading, marginTop: 4 }}>{relGap.toFixed(2)}×</div>
           </div>
           <div style={{ background: CREAM.cream, border: `1px solid ${ink(0.08)}`, borderRadius: 12, padding: 14 }}>
-            <div style={{ fontSize: 11, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Bora zaidi</div>
+            <div style={{ fontSize: 11, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>{t('utafiti.equity.best', 'Bora zaidi')}</div>
             <div className="serif" style={{ fontSize: 20, color: BRAND.green, marginTop: 4 }}>{rows.find((r) => r.remission === maxRem)?.level}</div>
           </div>
           <div style={{ background: CREAM.cream, border: `1px solid ${ink(0.08)}`, borderRadius: 12, padding: 14 }}>
-            <div style={{ fontSize: 11, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>Pungufu zaidi</div>
+            <div style={{ fontSize: 11, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>{t('utafiti.equity.worst', 'Pungufu zaidi')}</div>
             <div className="serif" style={{ fontSize: 20, color: TEXT.heading, marginTop: 4 }}>{rows.find((r) => r.remission === minRem)?.level}</div>
           </div>
         </div>

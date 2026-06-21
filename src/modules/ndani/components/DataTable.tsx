@@ -1,6 +1,7 @@
 import type React from 'react'
 import { useMemo, useState } from 'react'
 import { RADII, TEXT, CREAM } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 
 export interface Column<T> {
   key: keyof T & string
@@ -21,7 +22,8 @@ export interface DataTableProps<T> {
 }
 
 export default function DataTable<T extends { id?: string }>(props: DataTableProps<T>): React.JSX.Element {
-  const { columns, rows, pageSize = 10, emptyText = 'Hakuna data', onRowClick, searchKeys, filters } = props
+  const { t } = useLang()
+  const { columns, rows, pageSize = 10, emptyText = t('ndani.table.empty', 'Hakuna data'), onRowClick, searchKeys, filters } = props
   const [q, setQ] = useState('')
   const [page, setPage] = useState(0)
   const [sortKey, setSortKey] = useState<string | null>(null)
@@ -66,7 +68,7 @@ export default function DataTable<T extends { id?: string }>(props: DataTablePro
           <input
             value={q}
             onChange={(e) => { setQ(e.target.value); setPage(0) }}
-            placeholder="Tafuta…"
+            placeholder={t('ndani.table.search_placeholder', 'Tafuta…')}
             style={{ ...inputStyle, flex: '1 1 240px' }}
           />
         ) : null}
@@ -77,7 +79,7 @@ export default function DataTable<T extends { id?: string }>(props: DataTablePro
             onChange={(e) => { setFilterVals({ ...filterVals, [f.key]: e.target.value }); setPage(0) }}
             style={inputStyle}
           >
-            <option value="">{f.label}: zote</option>
+            <option value="">{f.label}: {t('ndani.table.filter_all', 'zote')}</option>
             {f.options.map((o) => <option key={o} value={o}>{o}</option>)}
           </select>
         ))}
@@ -129,7 +131,7 @@ export default function DataTable<T extends { id?: string }>(props: DataTablePro
         </table>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, fontSize: 12, color: TEXT.muted }}>
-        <span>{filtered.length} mistari · ukurasa {page + 1} / {totalPages}</span>
+        <span>{filtered.length} {t('ndani.table.rows_page', 'mistari · ukurasa')} {page + 1} / {totalPages}</span>
         <div style={{ display: 'flex', gap: 6 }}>
           <button disabled={page === 0} onClick={() => setPage(page - 1)} style={pageBtn}>‹</button>
           <button disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)} style={pageBtn}>›</button>

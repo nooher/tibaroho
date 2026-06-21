@@ -3,6 +3,7 @@ import { JEWEL, NEUTRAL, RADII, TYPE, TEXT, CREAM } from '../../../lib/glass'
 import { PageShell, Card } from '../components/Shell'
 import { Pill } from '../components/Pill'
 import { listCircle, saveMember, removeMember, uid, type CircleMember } from '../data/store'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const RELATIONS = ['Mzazi', 'Mwenzi', 'Ndugu', 'Rafiki', 'Mtaalamu', 'Mlezi']
 
@@ -11,6 +12,7 @@ const EMPTY_CONSENTS: CircleMember['consents'] = {
 }
 
 export default function CirclePage() {
+  const { t } = useLang()
   const [list, setList] = useState<CircleMember[]>(() => listCircle())
   const [draft, setDraft] = useState<Partial<CircleMember>>({ relation_sw: 'Rafiki', consents: EMPTY_CONSENTS })
 
@@ -35,22 +37,22 @@ export default function CirclePage() {
   }
 
   return (
-    <PageShell title="Watu wangu" subtitle="Mduara wa familia na walezi — wewe unadhibiti ridhaa." back={{ to: '/mimi' }}>
+    <PageShell title={t('mimi.circle.page-title', 'Watu wangu')} subtitle={t('mimi.circle.subtitle', 'Mduara wa familia na walezi — wewe unadhibiti ridhaa.')} back={{ to: '/mimi' }}>
       <Card jewel={JEWEL.tealRoho}>
-        <Pill tone="teal">Alika mtu mpya</Pill>
+        <Pill tone="teal">{t('mimi.circle.invite-new', 'Alika mtu mpya')}</Pill>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginTop: 14 }}>
-          <input placeholder="Jina" value={draft.name || ''} onChange={(e) => setDraft({ ...draft, name: e.target.value })} aria-label="Jina la mwaliko" style={inp} />
-          <select value={draft.relation_sw} onChange={(e) => setDraft({ ...draft, relation_sw: e.target.value })} aria-label="Uhusiano" style={inp}>
+          <input placeholder={t('mimi.circle.name-ph', 'Jina')} value={draft.name || ''} onChange={(e) => setDraft({ ...draft, name: e.target.value })} aria-label={t('mimi.circle.name-aria', 'Jina la mwaliko')} style={inp} />
+          <select value={draft.relation_sw} onChange={(e) => setDraft({ ...draft, relation_sw: e.target.value })} aria-label={t('mimi.circle.relation-aria', 'Uhusiano')} style={inp}>
             {RELATIONS.map((r) => <option key={r}>{r}</option>)}
           </select>
-          <input placeholder="Simu (hiari)" value={draft.phone || ''} onChange={(e) => setDraft({ ...draft, phone: e.target.value })} aria-label="Namba ya simu" style={inp} />
-          <input placeholder="Barua pepe (hiari)" value={draft.email || ''} onChange={(e) => setDraft({ ...draft, email: e.target.value })} aria-label="Barua pepe" style={inp} />
-          <button onClick={invite} style={{ padding: '10px 18px', borderRadius: RADII.chip, background: JEWEL.goldHope, color: NEUTRAL.ink, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Alika</button>
+          <input placeholder={t('mimi.circle.phone-ph', 'Simu (hiari)')} value={draft.phone || ''} onChange={(e) => setDraft({ ...draft, phone: e.target.value })} aria-label={t('mimi.circle.phone-aria', 'Namba ya simu')} style={inp} />
+          <input placeholder={t('mimi.circle.email-ph', 'Barua pepe (hiari)')} value={draft.email || ''} onChange={(e) => setDraft({ ...draft, email: e.target.value })} aria-label={t('mimi.circle.email-aria', 'Barua pepe')} style={inp} />
+          <button onClick={invite} style={{ padding: '10px 18px', borderRadius: RADII.chip, background: JEWEL.goldHope, color: NEUTRAL.ink, fontWeight: 700, border: 'none', cursor: 'pointer' }}>{t('mimi.circle.invite', 'Alika')}</button>
         </div>
       </Card>
 
-      <h2 style={{ fontFamily: TYPE.serif, fontSize: 26, letterSpacing: TYPE.tighterTrack, margin: '28px 0 12px' }}>Mduara wangu</h2>
-      {list.length === 0 && <p style={{ color: TEXT.muted }}>Bado hujamwalika mtu yeyote.</p>}
+      <h2 style={{ fontFamily: TYPE.serif, fontSize: 26, letterSpacing: TYPE.tighterTrack, margin: '28px 0 12px' }}>{t('mimi.circle.my-circle', 'Mduara wangu')}</h2>
+      {list.length === 0 && <p style={{ color: TEXT.muted }}>{t('mimi.circle.empty', 'Bado hujamwalika mtu yeyote.')}</p>}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
         {list.map((m) => (
           <Card key={m.id} jewel={JEWEL.indigoWisdom}>
@@ -60,9 +62,9 @@ export default function CirclePage() {
                 <p style={{ margin: '2px 0', color: TEXT.muted, fontSize: 13 }}>{m.relation_sw}</p>
                 <p style={{ margin: 0, color: TEXT.muted, fontSize: 12 }}>{m.phone || m.email || '—'}</p>
               </div>
-              <button onClick={() => { removeMember(m.id); setList(listCircle()) }} aria-label={`Ondoa ${m.name}`} style={{ background: 'transparent', border: 'none', color: JEWEL.maroonCrisis, cursor: 'pointer', fontSize: 18 }}>×</button>
+              <button onClick={() => { removeMember(m.id); setList(listCircle()) }} aria-label={`${t('mimi.circle.remove', 'Ondoa')} ${m.name}`} style={{ background: 'transparent', border: 'none', color: JEWEL.maroonCrisis, cursor: 'pointer', fontSize: 18 }}>×</button>
             </div>
-            <p style={{ margin: '14px 0 8px', fontSize: 12, color: TEXT.muted }}>Wanaweza kuona:</p>
+            <p style={{ margin: '14px 0 8px', fontSize: 12, color: TEXT.muted }}>{t('mimi.circle.can-see', 'Wanaweza kuona:')}</p>
             {(['viewMoods', 'viewAssessments', 'viewCarePlan', 'notifyCrisis'] as const).map((k) => (
               <label key={k} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', fontSize: 13 }}>
                 <input type="checkbox" checked={m.consents[k]} onChange={() => toggleConsent(m.id, k)} aria-label={LABELS[k]} />

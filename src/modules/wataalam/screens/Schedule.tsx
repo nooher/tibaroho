@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { JEWEL, RADII, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
 import { Card, FieldLabel, fieldStyle, buttonStyle, H1 } from '../components/Card'
 import { loadSlots, saveSlots, type SlotRule } from '../lib/storage'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const DAYS = ['Jumapili', 'Jumatatu', 'Jumanne', 'Jumatano', 'Alhamisi', 'Ijumaa', 'Jumamosi']
 
 export default function Schedule() {
+  const { t } = useLang()
   const [slots, setSlots] = useState<SlotRule[]>(() => loadSlots())
   const [draft, setDraft] = useState<Omit<SlotRule, 'id'>>({
     dayOfWeek: 1,
@@ -32,13 +34,13 @@ export default function Schedule() {
 
   return (
     <div>
-      <H1 english="Schedule">Ratiba ya wiki</H1>
+      <H1 english="Schedule">{t('wataalam.schedule.title', 'Ratiba ya wiki')}</H1>
 
       <div style={{ display: 'grid', gap: 14, gridTemplateColumns: '2fr 1fr' }}>
-        <Card title="Kalenda ya wiki">
+        <Card title={t('wataalam.schedule.week_calendar', 'Kalenda ya wiki')}>
           <div
             role="grid"
-            aria-label="Kalenda ya wiki"
+            aria-label={t('wataalam.schedule.week_calendar', 'Kalenda ya wiki')}
             style={{
               display: 'grid',
               gridTemplateColumns: '60px repeat(7, 1fr)',
@@ -67,8 +69,8 @@ export default function Schedule() {
           </div>
         </Card>
 
-        <Card title="Ongeza muda">
-          <FieldLabel>Siku</FieldLabel>
+        <Card title={t('wataalam.schedule.add_slot', 'Ongeza muda')}>
+          <FieldLabel>{t('wataalam.schedule.day', 'Siku')}</FieldLabel>
           <select
             value={draft.dayOfWeek}
             style={fieldStyle()}
@@ -82,7 +84,7 @@ export default function Schedule() {
           </select>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 10 }}>
             <div>
-              <FieldLabel>Anza</FieldLabel>
+              <FieldLabel>{t('wataalam.schedule.start', 'Anza')}</FieldLabel>
               <input
                 type="time"
                 style={fieldStyle()}
@@ -91,7 +93,7 @@ export default function Schedule() {
               />
             </div>
             <div>
-              <FieldLabel>Mwisho</FieldLabel>
+              <FieldLabel>{t('wataalam.schedule.end', 'Mwisho')}</FieldLabel>
               <input
                 type="time"
                 style={fieldStyle()}
@@ -100,22 +102,22 @@ export default function Schedule() {
               />
             </div>
           </div>
-          <FieldLabel>Aina</FieldLabel>
+          <FieldLabel>{t('wataalam.schedule.mode', 'Aina')}</FieldLabel>
           <select
             value={draft.mode}
             style={fieldStyle()}
             onChange={(e) => setDraft({ ...draft, mode: e.target.value as SlotRule['mode'] })}
           >
-            <option value="both">Zote mbili</option>
-            <option value="virtual">Mtandaoni</option>
-            <option value="in_person">Ana kwa ana</option>
+            <option value="both">{t('wataalam.schedule.both', 'Zote mbili')}</option>
+            <option value="virtual">{t('wataalam.common.virtual', 'Mtandaoni')}</option>
+            <option value="in_person">{t('wataalam.common.in_person', 'Ana kwa ana')}</option>
           </select>
           <button onClick={add} style={{ ...buttonStyle(JEWEL.goldHope, true), marginTop: 14 }}>
-            + Ongeza
+            {t('wataalam.schedule.add', '+ Ongeza')}
           </button>
 
           <h3 style={{ fontFamily: TYPE.serif, fontSize: 14, marginTop: 22 }}>
-            Sheria zinazoendelea
+            {t('wataalam.schedule.active_rules', 'Sheria zinazoendelea')}
           </h3>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 6 }}>
             {slots.map((s) => (
@@ -134,11 +136,11 @@ export default function Schedule() {
               >
                 <span>
                   {DAYS[s.dayOfWeek]} · {s.startHHMM}–{s.endHHMM} ·{' '}
-                  {s.mode === 'virtual' ? 'mtandaoni' : s.mode === 'in_person' ? 'ana kwa ana' : 'zote'}
+                  {s.mode === 'virtual' ? t('wataalam.common.virtual_lc', 'mtandaoni') : s.mode === 'in_person' ? t('wataalam.common.in_person_lc', 'ana kwa ana') : t('wataalam.schedule.all_lc', 'zote')}
                 </span>
                 <button
                   onClick={() => remove(s.id)}
-                  aria-label="Futa"
+                  aria-label={t('wataalam.common.delete', 'Futa')}
                   style={{
                     background: 'transparent',
                     border: 'none',

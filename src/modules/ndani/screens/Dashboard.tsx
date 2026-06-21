@@ -5,6 +5,7 @@ import KpiCard, { KpiGrid } from '../components/KpiCard'
 import DataTable from '../components/DataTable'
 import { list } from '../../../lib/db'
 import { JEWEL, TEXT } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 
 interface InboxItem { id: string; kind: string; subject: string; age: string; priority: 'high' | 'med' | 'low' }
 interface HealthRow { id: string; service: string; status: 'OK' | 'DEGRADED' | 'DOWN'; latency: string }
@@ -32,6 +33,7 @@ const WEEK_REMISS = [4, 6, 5, 8, 11, 9, 14]
 const WEEK_CRISIS = [2, 1, 3, 2, 4, 2, 3]
 
 export default function Dashboard(): React.JSX.Element {
+  const { t } = useLang()
   const [counts, setCounts] = useState({ users: 0, providers: 0, programs: 0 })
   useEffect(() => {
     void Promise.all([list('tr_users'), list('tr_providers'), list('tr_programs')]).then(([u, p, pr]) => {
@@ -41,37 +43,37 @@ export default function Dashboard(): React.JSX.Element {
   return (
     <>
       <PageHeader
-        title="Dashibodi"
-        subtitle="Mwongozo wa wakati halisi — afya ya jukwaa zima."
-        actions={<GhostButton>Burudisha</GhostButton>}
+        title={t('ndani.dash.title', 'Dashibodi')}
+        subtitle={t('ndani.dash.subtitle', 'Mwongozo wa wakati halisi — afya ya jukwaa zima.')}
+        actions={<GhostButton>{t('ndani.dash.refresh', 'Burudisha')}</GhostButton>}
       />
       <KpiGrid>
-        <KpiCard label="Watumiaji" value={counts.users || 18_420} hint="+412 wiki hii" accent={JEWEL.tealMwenza} />
-        <KpiCard label="Wahudumu" value={counts.providers || 287} hint="14 wanasubiri" accent={JEWEL.goldHope} />
-        <KpiCard label="Programu" value={counts.programs || 12} hint="2 mpya" accent={JEWEL.indigoWisdom} />
-        <KpiCard label="Tafiti zinazoendelea" value={3} hint="1 IRB inasubiri" accent={JEWEL.indigoWisdom} />
-        <KpiCard label="Usajili leo" value={68} hint="lengo 60" accent={JEWEL.tealMwenza} trend={WEEK_ENROL} />
-        <KpiCard label="Dharura wazi" value={3} hint="zote zimepokelewa" accent={JEWEL.maroonCrisis} trend={WEEK_CRISIS} />
-        <KpiCard label="Malipo yanasubiri" value="TZS 4.2M" hint="42 wahudumu" accent={JEWEL.goldHope} />
-        <KpiCard label="IRB inasubiri" value={1} hint="TR-003" accent={JEWEL.indigoWisdom} />
+        <KpiCard label={t('ndani.dash.kpi.users', 'Watumiaji')} value={counts.users || 18_420} hint={t('ndani.dash.kpi.users_hint', '+412 wiki hii')} accent={JEWEL.tealMwenza} />
+        <KpiCard label={t('ndani.dash.kpi.providers', 'Wahudumu')} value={counts.providers || 287} hint={t('ndani.dash.kpi.providers_hint', '14 wanasubiri')} accent={JEWEL.goldHope} />
+        <KpiCard label={t('ndani.dash.kpi.programs', 'Programu')} value={counts.programs || 12} hint={t('ndani.dash.kpi.programs_hint', '2 mpya')} accent={JEWEL.indigoWisdom} />
+        <KpiCard label={t('ndani.dash.kpi.studies', 'Tafiti zinazoendelea')} value={3} hint={t('ndani.dash.kpi.studies_hint', '1 IRB inasubiri')} accent={JEWEL.indigoWisdom} />
+        <KpiCard label={t('ndani.dash.kpi.signups', 'Usajili leo')} value={68} hint={t('ndani.dash.kpi.signups_hint', 'lengo 60')} accent={JEWEL.tealMwenza} trend={WEEK_ENROL} />
+        <KpiCard label={t('ndani.dash.kpi.crisis_open', 'Dharura wazi')} value={3} hint={t('ndani.dash.kpi.crisis_hint', 'zote zimepokelewa')} accent={JEWEL.maroonCrisis} trend={WEEK_CRISIS} />
+        <KpiCard label={t('ndani.dash.kpi.pending_pay', 'Malipo yanasubiri')} value="TZS 4.2M" hint={t('ndani.dash.kpi.pending_pay_hint', '42 wahudumu')} accent={JEWEL.goldHope} />
+        <KpiCard label={t('ndani.dash.kpi.irb_pending', 'IRB inasubiri')} value={1} hint="TR-003" accent={JEWEL.indigoWisdom} />
       </KpiGrid>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
-        <Section title="Mwenendo wa wiki">
-          <Trend label="Usajili" data={WEEK_ENROL} color={JEWEL.tealMwenza} />
-          <Trend label="Tathmini (PHQ-9/GAD-7)" data={WEEK_SCREEN} color={JEWEL.indigoWisdom} />
-          <Trend label="Kupona (remission)" data={WEEK_REMISS} color={JEWEL.goldHope} />
-          <Trend label="Matukio ya dharura" data={WEEK_CRISIS} color={JEWEL.maroonCrisis} />
+        <Section title={t('ndani.dash.trend_title', 'Mwenendo wa wiki')}>
+          <Trend label={t('ndani.dash.trend.signups', 'Usajili')} data={WEEK_ENROL} color={JEWEL.tealMwenza} />
+          <Trend label={t('ndani.dash.trend.screen', 'Tathmini (PHQ-9/GAD-7)')} data={WEEK_SCREEN} color={JEWEL.indigoWisdom} />
+          <Trend label={t('ndani.dash.trend.remission', 'Kupona (remission)')} data={WEEK_REMISS} color={JEWEL.goldHope} />
+          <Trend label={t('ndani.dash.trend.crisis', 'Matukio ya dharura')} data={WEEK_CRISIS} color={JEWEL.maroonCrisis} />
         </Section>
 
-        <Section title="Afya ya jukwaa">
+        <Section title={t('ndani.dash.health_title', 'Afya ya jukwaa')}>
           <DataTable<HealthRow>
             columns={[
-              { key: 'service', label: 'Huduma' },
-              { key: 'status', label: 'Hali', render: (r) => (
+              { key: 'service', label: t('ndani.dash.col.service', 'Huduma') },
+              { key: 'status', label: t('ndani.dash.col.status', 'Hali'), render: (r) => (
                 <Pill tone={r.status === 'OK' ? 'good' : r.status === 'DEGRADED' ? 'warn' : 'bad'}>{r.status}</Pill>
               )},
-              { key: 'latency', label: 'Latency' },
+              { key: 'latency', label: t('ndani.dash.col.latency', 'Latency') },
             ]}
             rows={HEALTH}
             pageSize={10}
@@ -79,13 +81,13 @@ export default function Dashboard(): React.JSX.Element {
         </Section>
       </div>
 
-      <Section title="Inbox — hatua zinazohitajika">
+      <Section title={t('ndani.dash.inbox_title', 'Inbox — hatua zinazohitajika')}>
         <DataTable<InboxItem>
           columns={[
-            { key: 'kind', label: 'Aina' },
-            { key: 'subject', label: 'Mada' },
-            { key: 'age', label: 'Umri' },
-            { key: 'priority', label: 'Kipaumbele', render: (r) => (
+            { key: 'kind', label: t('ndani.dash.col.kind', 'Aina') },
+            { key: 'subject', label: t('ndani.dash.col.subject', 'Mada') },
+            { key: 'age', label: t('ndani.dash.col.age', 'Umri') },
+            { key: 'priority', label: t('ndani.dash.col.priority', 'Kipaumbele'), render: (r) => (
               <Pill tone={r.priority === 'high' ? 'bad' : r.priority === 'med' ? 'warn' : 'neutral'}>{r.priority}</Pill>
             )},
           ]}

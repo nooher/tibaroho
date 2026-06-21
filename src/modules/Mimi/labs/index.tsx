@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PageShell, Card } from '../components/Shell'
 import { JEWEL, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 import { db } from '../../../lib/db'
 import { getMeId } from '../../../lib/me'
 
@@ -50,6 +51,7 @@ async function readUploadsAsync(): Promise<LabUpload[]> {
 }
 
 export default function LabsHub() {
+  const { t } = useLang()
   const [items, setItems] = useState<LabUpload[]>(() => readUploads().sort((a, b) => b.ts - a.ts))
   useEffect(() => {
     let on = true
@@ -58,9 +60,9 @@ export default function LabsHub() {
   }, [])
   return (
     <PageShell
-      title="Vipimo vya maabara"
-      subtitle="Pakia matokeo, weka tafsiri rahisi ya Kiswahili, na uliza maswali ya kumuuliza daktari."
-      back={{ to: '/mimi', label: 'Mimi' }}
+      title={t('mimi.labs.title', 'Vipimo vya maabara')}
+      subtitle={t('mimi.labs.subtitle', 'Pakia matokeo, weka tafsiri rahisi ya Kiswahili, na uliza maswali ya kumuuliza daktari.')}
+      back={{ to: '/mimi', label: t('mimi.nav.back', 'Mimi') }}
     >
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
         <Link
@@ -76,13 +78,13 @@ export default function LabsHub() {
             fontWeight: 600,
           }}
         >
-          + Pakia kipimo kipya
+          {t('mimi.labs.upload', '+ Pakia kipimo kipya')}
         </Link>
       </div>
       {items.length === 0 ? (
         <Card>
           <p style={{ margin: 0, color: JEWEL.tealMwenza }}>
-            Bado hujapakia matokeo yoyote. Bonyeza "Pakia kipimo kipya" ili uanze.
+            {t('mimi.labs.empty', 'Bado hujapakia matokeo yoyote. Bonyeza "Pakia kipimo kipya" ili uanze.')}
           </p>
         </Card>
       ) : (
@@ -100,10 +102,10 @@ export default function LabsHub() {
                       {u.title}
                     </div>
                     <div style={{ fontSize: 13, color: TEXT.muted }}>
-                      {new Date(u.ts).toLocaleString('sw-TZ')} · {u.rows} thamani
+                      {new Date(u.ts).toLocaleString('sw-TZ')} · {u.rows} {t('mimi.labs.values', 'thamani')}
                     </div>
                   </div>
-                  <span style={{ color: JEWEL.goldHope, fontWeight: 700 }}>Fungua →</span>
+                  <span style={{ color: JEWEL.goldHope, fontWeight: 700 }}>{t('mimi.labs.open', 'Fungua →')}</span>
                 </div>
               </Card>
             </Link>
@@ -111,7 +113,7 @@ export default function LabsHub() {
         </div>
       )}
       <div style={{ marginTop: 24, padding: 14, borderRadius: 12, background: hexToRgba(JEWEL.goldHope, 0.08), border: `1px solid ${hexToRgba(JEWEL.goldHope, 0.25)}` }}>
-        <strong style={{ color: JEWEL.goldHope }}>Kumbuka:</strong> Tafsiri hizi ni za kielimu. Daktari wako ndiye anayepaswa kufanya maamuzi ya mwisho.
+        <strong style={{ color: JEWEL.goldHope }}>{t('mimi.labs.note', 'Kumbuka')}:</strong> {t('mimi.labs.disclaimer', 'Tafsiri hizi ni za kielimu. Daktari wako ndiye anayepaswa kufanya maamuzi ya mwisho.')}
       </div>
     </PageShell>
   )

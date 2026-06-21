@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { JEWEL, TYPE, TEXT } from '../../../lib/glass'
 import { Card, H1, buttonStyle } from '../components/Card'
+import { useLang } from '../../../lib/i18n/Provider'
 
 interface Template {
   id: string
@@ -101,12 +102,13 @@ const TEMPLATES: Template[] = [
 ]
 
 export default function CarePlanTemplates() {
+  const { t: tr } = useLang()
   const [openId, setOpenId] = useState<string | null>(null)
   const [applied, setApplied] = useState<Set<string>>(new Set())
 
   return (
     <div>
-      <H1 english="Care plan templates">Maktaba ya mipango ya tiba</H1>
+      <H1 english="Care plan templates">{tr('wataalam.careplan.title', 'Maktaba ya mipango ya tiba')}</H1>
 
       <div
         style={{
@@ -123,7 +125,7 @@ export default function CarePlanTemplates() {
               key={t.id}
               accent={isApplied ? JEWEL.goldHope : JEWEL.tealRoho}
               title={t.name}
-              english={`${t.sessions} vipindi`}
+              english={`${t.sessions} ${tr('wataalam.careplan.sessions', 'vipindi')}`}
             >
               <p style={{ fontSize: 12, color: TEXT.muted, margin: '0 0 4px' }}>{t.source}</p>
               <p style={{ fontFamily: TYPE.serif, fontSize: 14, lineHeight: 1.5, margin: 0 }}>
@@ -149,7 +151,7 @@ export default function CarePlanTemplates() {
                   onClick={() => setOpenId(isOpen ? null : t.id)}
                   style={buttonStyle(JEWEL.tealDeep)}
                 >
-                  {isOpen ? 'Funga' : 'Tazama muhtasari'}
+                  {isOpen ? tr('wataalam.careplan.close', 'Funga') : tr('wataalam.careplan.view_outline', 'Tazama muhtasari')}
                 </button>
                 <div style={{ flex: 1 }} />
                 <button
@@ -160,7 +162,7 @@ export default function CarePlanTemplates() {
                     opacity: isApplied ? 0.6 : 1,
                   }}
                 >
-                  {isApplied ? '✓ Umewekwa' : '+ Weka kwa mteja'}
+                  {isApplied ? tr('wataalam.careplan.applied', '✓ Umewekwa') : tr('wataalam.careplan.apply', '+ Weka kwa mteja')}
                 </button>
               </div>
             </Card>
@@ -176,7 +178,7 @@ export default function CarePlanTemplates() {
           textAlign: 'center',
         }}
       >
-        Templates zinaweza kuhaririwa kwa kila mteja kwenye Kumbukumbu.
+        {tr('wataalam.careplan.editable_note', 'Templates zinaweza kuhaririwa kwa kila mteja kwenye Kumbukumbu.')}
       </p>
     </div>
   )

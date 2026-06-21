@@ -5,6 +5,7 @@ import { BRAND, CREAM, TZ_FLAG, hexToRgba, RADII, TEXT } from '../../../lib/glas
 import { list, update } from '../../../lib/db'
 import type { TrProvider, TrUser } from '../../../lib/db'
 import { auditEvent } from '../audit'
+import { useLang } from '../../../lib/i18n/Provider'
 
 type ProviderStatus = 'active' | 'locked' | 'suspended' | 'pending'
 
@@ -86,6 +87,7 @@ function dbToProvider(p: TrProvider, users: Map<string, TrUser>): Provider {
 }
 
 export default function Providers(): React.JSX.Element {
+  const { t } = useLang()
   const [rows, setRows] = useState<Provider[]>(SEED)
   const [q, setQ] = useState('')
   const [spec, setSpec] = useState('All')
@@ -134,25 +136,23 @@ export default function Providers(): React.JSX.Element {
 
   return (
     <>
-      <Card title="Soko la wahudumu">
+      <Card title={t('ndani.prov.market_title', 'Soko la wahudumu')}>
         <p style={{ marginTop: 0 }}>
-          Mfumo wa kuwasimamia wahudumu wote walioidhinishwa — wataalam wa afya ya akili,
-          wahudumu wa imani, washauri wa shule, na watoa-huduma wa rika. Tunapima ubora kwa
-          mabadiliko ya PHQ-9 (Kroenke et al., 2001), kiwango cha kuacha tiba (dropout), na NPS.
+          {t('ndani.prov.market_body', 'Mfumo wa kuwasimamia wahudumu wote walioidhinishwa — wataalam wa afya ya akili, wahudumu wa imani, washauri wa shule, na watoa-huduma wa rika. Tunapima ubora kwa mabadiliko ya PHQ-9 (Kroenke et al., 2001), kiwango cha kuacha tiba (dropout), na NPS.')}
         </p>
         <div style={{
           display: 'grid', gap: 10, marginTop: 12,
           gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
         }}>
-          <Filter value={q} onChange={setQ} placeholder="Tafuta mhudumu…" />
-          <SelectFilter label="Utaalamu" value={spec} onChange={setSpec} options={SPECIALTIES} />
-          <SelectFilter label="Mkoa" value={region} onChange={setRegion} options={REGIONS} />
-          <SelectFilter label="Hali" value={status} onChange={(v) => setStatus(v as ProviderStatus | 'All')} options={STATUSES as readonly string[]} />
+          <Filter value={q} onChange={setQ} placeholder={t('ndani.prov.search_placeholder', 'Tafuta mhudumu…')} />
+          <SelectFilter label={t('ndani.prov.filter.specialty', 'Utaalamu')} value={spec} onChange={setSpec} options={SPECIALTIES} />
+          <SelectFilter label={t('ndani.prov.filter.region', 'Mkoa')} value={region} onChange={setRegion} options={REGIONS} />
+          <SelectFilter label={t('ndani.prov.filter.status', 'Hali')} value={status} onChange={(v) => setStatus(v as ProviderStatus | 'All')} options={STATUSES as readonly string[]} />
         </div>
       </Card>
 
-      <Card title={`Orodha (${filtered.length})`}>
-        <Table headers={['Jina', 'Utaalamu', 'Mkoa', 'Hali', 'PHQ-9 Δ', 'Dropout %', 'NPS', 'Flags', 'Caseload']}>
+      <Card title={`${t('ndani.prov.list_title', 'Orodha')} (${filtered.length})`}>
+        <Table headers={[t('ndani.prov.col.name', 'Jina'), t('ndani.prov.col.specialty', 'Utaalamu'), t('ndani.prov.col.region', 'Mkoa'), t('ndani.prov.col.status', 'Hali'), 'PHQ-9 Δ', 'Dropout %', 'NPS', t('ndani.prov.col.flags', 'Flags'), t('ndani.prov.col.caseload', 'Caseload')]}>
           {filtered.map((r) => (
             <tr key={r.id} onClick={() => { setSel(r); setFeeDraft(String(r.fee)) }}
                 style={{ cursor: 'pointer', background: sel?.id === r.id ? hexToRgba(BRAND.green, 0.10) : 'transparent' }}>
@@ -171,33 +171,33 @@ export default function Providers(): React.JSX.Element {
       </Card>
 
       {sel ? (
-        <Card title={`Maelezo — ${sel.name}`}>
+        <Card title={`${t('ndani.prov.details_prefix', 'Maelezo —')} ${sel.name}`}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, marginBottom: 14 }}>
-            <KV k="Leseni" v={sel.license} />
-            <KV k="Utaalamu" v={sel.specialty} />
-            <KV k="Mkoa" v={sel.region} />
-            <KV k="Hali" v={sel.status} />
-            <KV k="Caseload" v={String(sel.caseload)} />
-            <KV k="Ada (kwa kipindi)" v={`TZS ${sel.fee.toLocaleString()}`} />
+            <KV k={t('ndani.prov.kv.license', 'Leseni')} v={sel.license} />
+            <KV k={t('ndani.prov.kv.specialty', 'Utaalamu')} v={sel.specialty} />
+            <KV k={t('ndani.prov.kv.region', 'Mkoa')} v={sel.region} />
+            <KV k={t('ndani.prov.kv.status', 'Hali')} v={sel.status} />
+            <KV k={t('ndani.prov.kv.caseload', 'Caseload')} v={String(sel.caseload)} />
+            <KV k={t('ndani.prov.kv.fee', 'Ada (kwa kipindi)')} v={`TZS ${sel.fee.toLocaleString()}`} />
             <KV k="PHQ-9 Δ" v={sel.phq9Change.toFixed(1)} />
-            <KV k="Dropout %" v={`${sel.dropoutPct}%`} />
+            <KV k={t('ndani.prov.kv.dropout', 'Dropout %')} v={`${sel.dropoutPct}%`} />
             <KV k="NPS" v={String(sel.nps)} />
-            <KV k="Flags za msimamizi" v={String(sel.supervisorFlags)} />
+            <KV k={t('ndani.prov.kv.flags', 'Flags za msimamizi')} v={String(sel.supervisorFlags)} />
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
-            {sel.status !== 'active' && <Btn aria-label="Wezesha tena" onClick={() => setProviderStatus(sel.id, 'active')}>Wezesha tena</Btn>}
-            {sel.status === 'active' && <Btn aria-label="Funga akaunti" tone="warn" onClick={() => setProviderStatus(sel.id, 'locked')}>Funga akaunti</Btn>}
-            {sel.status !== 'suspended' && <Btn aria-label="Simamisha" tone="warn" onClick={() => setProviderStatus(sel.id, 'suspended')}>Simamisha (review)</Btn>}
-            {sel.status === 'suspended' && <Btn aria-label="Rejesha" onClick={() => setProviderStatus(sel.id, 'active')}>Rejesha</Btn>}
-            <Btn aria-label="Tazama audit" tone="ghost" onClick={() => { /* audit link */ }}>Tazama audit</Btn>
+            {sel.status !== 'active' && <Btn aria-label={t('ndani.prov.btn.reenable', 'Wezesha tena')} onClick={() => setProviderStatus(sel.id, 'active')}>{t('ndani.prov.btn.reenable', 'Wezesha tena')}</Btn>}
+            {sel.status === 'active' && <Btn aria-label={t('ndani.prov.btn.lock', 'Funga akaunti')} tone="warn" onClick={() => setProviderStatus(sel.id, 'locked')}>{t('ndani.prov.btn.lock', 'Funga akaunti')}</Btn>}
+            {sel.status !== 'suspended' && <Btn aria-label={t('ndani.prov.btn.suspend', 'Simamisha (review)')} tone="warn" onClick={() => setProviderStatus(sel.id, 'suspended')}>{t('ndani.prov.btn.suspend', 'Simamisha (review)')}</Btn>}
+            {sel.status === 'suspended' && <Btn aria-label={t('ndani.prov.btn.restore', 'Rejesha')} onClick={() => setProviderStatus(sel.id, 'active')}>{t('ndani.prov.btn.restore', 'Rejesha')}</Btn>}
+            <Btn aria-label={t('ndani.prov.btn.view_audit', 'Tazama audit')} tone="ghost" onClick={() => { /* audit link */ }}>{t('ndani.prov.btn.view_audit', 'Tazama audit')}</Btn>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <label htmlFor={`fee-${sel.id}`} style={{ fontSize: 12, color: TEXT.muted }}>Badili ada (TZS):</label>
+            <label htmlFor={`fee-${sel.id}`} style={{ fontSize: 12, color: TEXT.muted }}>{t('ndani.prov.change_fee_label', 'Badili ada (TZS):')}</label>
             <input
               id={`fee-${sel.id}`}
-              aria-label="Ada mpya kwa kipindi"
+              aria-label={t('ndani.prov.new_fee_aria', 'Ada mpya kwa kipindi')}
               value={feeDraft}
               onChange={(e) => setFeeDraft(e.target.value)}
               inputMode="numeric"
@@ -207,7 +207,7 @@ export default function Providers(): React.JSX.Element {
                 border: `1px solid ${hexToRgba(BRAND.ink, 0.15)}`, outline: 'none', width: 140,
               }}
             />
-            <Btn aria-label="Hifadhi ada" onClick={saveFee}>Hifadhi ada</Btn>
+            <Btn aria-label={t('ndani.prov.save_fee_aria', 'Hifadhi ada')} onClick={saveFee}>{t('ndani.prov.save_fee', 'Hifadhi ada')}</Btn>
           </div>
         </Card>
       ) : null}

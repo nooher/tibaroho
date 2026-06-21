@@ -1,6 +1,7 @@
 import type React from 'react'
 import { useMemo, useState } from 'react'
 import { BRAND, CREAM, JEWEL, RADII, TEXT, TYPE, hexToRgba } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 import {
   listResults, listMoods, listJournal, listEvents, listDocs,
 } from '../data/store'
@@ -142,12 +143,13 @@ function gather(): TimelineEntry[] {
 }
 
 export function PatientTimeline(): React.JSX.Element {
+  const { t } = useLang()
   const entries = useMemo(() => gather(), [])
   const [expanded, setExpanded] = useState<string | null>(null)
 
   return (
     <section
-      aria-label="Mstari wa muda wa mgonjwa"
+      aria-label={t('mimi.timeline.aria', 'Mstari wa muda wa mgonjwa')}
       style={{
         background: CREAM.milk,
         border: `1px solid ${hexToRgba(BRAND.ink, 0.1)}`,
@@ -164,7 +166,7 @@ export function PatientTimeline(): React.JSX.Element {
             color: TEXT.hint, fontWeight: 700,
           }}
         >
-          Yote mahali pamoja · Single-pane
+          {t('mimi.timeline.eyebrow', 'Yote mahali pamoja · Single-pane')}
         </div>
         <h2
           style={{
@@ -175,13 +177,13 @@ export function PatientTimeline(): React.JSX.Element {
             color: BRAND.ink,
           }}
         >
-          Mstari wa muda
+          {t('mimi.timeline.title', 'Mstari wa muda')}
         </h2>
       </header>
 
       {entries.length === 0 ? (
         <p style={{ margin: 0, color: TEXT.muted, fontSize: 14 }}>
-          Bado hakuna shughuli. Anza kwa kuandika hisia au kuchukua kipimo.
+          {t('mimi.timeline.empty', 'Bado hakuna shughuli. Anza kwa kuandika hisia au kuchukua kipimo.')}
         </p>
       ) : (
         <ol style={{ listStyle: 'none', margin: 0, padding: 0, position: 'relative' }}>

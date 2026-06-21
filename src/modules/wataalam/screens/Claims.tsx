@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { JEWEL, RADII, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
 import { Card, H1, buttonStyle, FieldLabel, fieldStyle } from '../components/Card'
 import { INSURANCES } from '../../Gundua/data/insurances'
+import { useLang } from '../../../lib/i18n/Provider'
 
 export default function Claims() {
+  const { t } = useLang()
   const [patient, setPatient] = useState('Mteja A')
   const [insurance, setInsurance] = useState('nhif')
   const [icd, setICD] = useState('6A70')
@@ -44,14 +46,14 @@ export default function Claims() {
 
   return (
     <div>
-      <H1 english="Insurance claims">Madai ya bima</H1>
+      <H1 english="Insurance claims">{t('wataalam.claims.title', 'Madai ya bima')}</H1>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-        <Card title="Maelezo ya madai">
-          <FieldLabel>Mteja (jina la kificho)</FieldLabel>
+        <Card title={t('wataalam.claims.details', 'Maelezo ya madai')}>
+          <FieldLabel>{t('wataalam.claims.patient_code', 'Mteja (jina la kificho)')}</FieldLabel>
           <input style={fieldStyle()} value={patient} onChange={(e) => setPatient(e.target.value)} />
 
-          <FieldLabel>Bima</FieldLabel>
+          <FieldLabel>{t('wataalam.claims.insurance', 'Bima')}</FieldLabel>
           <select
             style={fieldStyle()}
             value={insurance}
@@ -67,7 +69,7 @@ export default function Claims() {
           <FieldLabel>ICD-11</FieldLabel>
           <input style={fieldStyle()} value={icd} onChange={(e) => setICD(e.target.value)} />
 
-          <FieldLabel>Ada ya kipindi (TSh)</FieldLabel>
+          <FieldLabel>{t('wataalam.onboarding.fee', 'Ada ya kipindi (TSh)')}</FieldLabel>
           <input
             type="number"
             style={fieldStyle()}
@@ -76,7 +78,7 @@ export default function Claims() {
             onChange={(e) => setFee(Number(e.target.value))}
           />
 
-          <FieldLabel>Asilimia ya bima (%)</FieldLabel>
+          <FieldLabel>{t('wataalam.claims.coverage_pct', 'Asilimia ya bima (%)')}</FieldLabel>
           <input
             type="range"
             min={0}
@@ -85,15 +87,15 @@ export default function Claims() {
             onChange={(e) => setCoverage(Number(e.target.value))}
             style={{ width: '100%', accentColor: JEWEL.goldSoft }}
           />
-          <p style={{ fontSize: 13, color: TEXT.muted }}>{coverage}% imefunikwa na bima</p>
+          <p style={{ fontSize: 13, color: TEXT.muted }}>{coverage}% {t('wataalam.claims.covered', 'imefunikwa na bima')}</p>
         </Card>
 
-        <Card title="Muhtasari wa madai" accent={JEWEL.goldHope}>
-          <Row k="Mteja" v={patient} />
-          <Row k="Bima" v={INSURANCES.find((i) => i.id === insurance)?.name ?? ''} />
-          <Row k="Kanuni" v={icd} />
-          <Row k="Ada jumla" v={`TSh ${fee.toLocaleString('sw-TZ')}`} />
-          <Row k="Bima inalipa" v={`TSh ${insurerPays.toLocaleString('sw-TZ')}`} />
+        <Card title={t('wataalam.claims.summary', 'Muhtasari wa madai')} accent={JEWEL.goldHope}>
+          <Row k={t('wataalam.claims.patient', 'Mteja')} v={patient} />
+          <Row k={t('wataalam.claims.insurance', 'Bima')} v={INSURANCES.find((i) => i.id === insurance)?.name ?? ''} />
+          <Row k={t('wataalam.claims.code', 'Kanuni')} v={icd} />
+          <Row k={t('wataalam.claims.fee_total', 'Ada jumla')} v={`TSh ${fee.toLocaleString('sw-TZ')}`} />
+          <Row k={t('wataalam.claims.insurer_pays', 'Bima inalipa')} v={`TSh ${insurerPays.toLocaleString('sw-TZ')}`} />
           <div
             style={{
               padding: 14,
@@ -108,14 +110,14 @@ export default function Claims() {
               color: TEXT.heading,
             }}
           >
-            <span>Mteja anachangia</span>
+            <span>{t('wataalam.claims.patient_pays', 'Mteja anachangia')}</span>
             <span>TSh {copay.toLocaleString('sw-TZ')}</span>
           </div>
           <button
             onClick={downloadPdf}
             style={{ ...buttonStyle(JEWEL.goldHope, true), marginTop: 16, width: '100%' }}
           >
-            📄 Pakua fomu ya madai
+            {t('wataalam.claims.download', '📄 Pakua fomu ya madai')}
           </button>
         </Card>
       </div>

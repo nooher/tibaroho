@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useLang } from '../../../lib/i18n/Provider'
 import { JEWEL, NEUTRAL, BRAND, CREAM, TEXT, RADII, TYPE, hexToRgba } from '../../../lib/glass'
 import { formatTzs, getProvider } from '../data/providers'
 import { insert, audit, list } from '../../../lib/db'
@@ -98,6 +99,7 @@ function generateSlots(): string[] {
 }
 
 export default function Book() {
+  const { t } = useLang()
   const { id } = useParams<{ id: string }>()
   const provider = id ? getProvider(id) : undefined
   const nav = useNavigate()
@@ -111,9 +113,9 @@ export default function Book() {
   if (!provider) {
     return (
       <div style={{ padding: 40, color: TEXT.body, fontFamily: TYPE.sans }}>
-        <h1 style={{ fontFamily: TYPE.serif, color: TEXT.heading }}>Mtaalamu hakupatikana.</h1>
+        <h1 style={{ fontFamily: TYPE.serif, color: TEXT.heading }}>{t('gundua.provider.not_found', 'Mtaalamu hakupatikana.')}</h1>
         <Link to="/gundua" style={{ color: TEXT.link }}>
-          ← Rudi Gundua
+          {t('gundua.provider.back_to_gundua', '← Rudi Gundua')}
         </Link>
       </div>
     )
@@ -121,16 +123,16 @@ export default function Book() {
 
   async function confirm() {
     if (!slot) {
-      setError('Tafadhali chagua muda.')
+      setError(t('gundua.book.err_slot', 'Tafadhali chagua muda.'))
       return
     }
     if (!consent) {
-      setError('Tafadhali kubali kibali cha matibabu.')
+      setError(t('gundua.book.err_consent', 'Tafadhali kubali kibali cha matibabu.'))
       return
     }
     const cleanPhone = phone.replace(/\s+/g, '')
     if (provider!.feeTzs > 0 && !/^\+?255\d{9}$/.test(cleanPhone)) {
-      setError('Tafadhali weka nambari ya simu sahihi (+255…) kwa malipo.')
+      setError(t('gundua.book.err_phone', 'Tafadhali weka nambari ya simu sahihi (+255…) kwa malipo.'))
       return
     }
     setError(null)
@@ -185,7 +187,7 @@ export default function Book() {
         to={`/gundua/profile/${provider.id}`}
         style={{ color: TEXT.link, fontSize: 13, textDecoration: 'none' }}
       >
-        ← Rudi kwenye wasifu
+        {t('gundua.book.back_to_profile', '← Rudi kwenye wasifu')}
       </Link>
 
       <h1
@@ -197,10 +199,10 @@ export default function Book() {
           color: TEXT.heading,
         }}
       >
-        Weka miadi
+        {t('gundua.book.title', 'Weka miadi')}
       </h1>
       <p style={{ margin: 0, color: TEXT.muted }}>
-        na {provider.honorific} {provider.name}
+        {t('gundua.book.with', 'na')} {provider.honorific} {provider.name}
       </p>
 
       <ol
@@ -211,7 +213,7 @@ export default function Book() {
           padding: 0,
           margin: '20px 0',
         }}
-        aria-label="Hatua"
+        aria-label={t('gundua.book.steps', 'Hatua')}
       >
         {[1, 2, 3].map((n) => (
           <li
@@ -227,10 +229,10 @@ export default function Book() {
       </ol>
 
       {step === 1 && (
-        <Card title="1. Chagua muda">
+        <Card title={t('gundua.book.step1_title', '1. Chagua muda')}>
           <div
             role="radiogroup"
-            aria-label="Nyakati zinazopatikana"
+            aria-label={t('gundua.book.slots_aria', 'Nyakati zinazopatikana')}
             style={{ display: 'grid', gap: 8, gridTemplateColumns: '1fr 1fr' }}
           >
             {slots.map((s) => {
@@ -261,18 +263,16 @@ export default function Book() {
           <NavRow
             onNext={() => slot && setStep(2)}
             disabled={!slot}
-            nextLabel="Endelea →"
+            nextLabel={t('gundua.book.continue', 'Endelea →')}
           />
         </Card>
       )}
 
       {step === 2 && (
-        <Card title="2. Kibali">
+        <Card title={t('gundua.book.step2_title', '2. Kibali')}>
           <p style={{ fontFamily: TYPE.serif, lineHeight: 1.55, fontSize: 15 }}>
-            Ninakubali kuhudhuria kipindi na {provider.honorific} {provider.name}.
-            Habari zangu zitabaki za siri kati yangu na mtaalamu, isipokuwa kuna
-            hatari kwa maisha yangu au ya mwingine. Naelewa ninaweza kuondoa kibali
-            wakati wowote.
+            {t('gundua.book.consent_part1', 'Ninakubali kuhudhuria kipindi na')} {provider.honorific} {provider.name}.{' '}
+            {t('gundua.book.consent_part2', 'Habari zangu zitabaki za siri kati yangu na mtaalamu, isipokuwa kuna hatari kwa maisha yangu au ya mwingine. Naelewa ninaweza kuondoa kibali wakati wowote.')}
           </p>
           <label
             style={{
@@ -294,21 +294,23 @@ export default function Book() {
                 height: 18,
               }}
             />
-            <span>Nakubali</span>
+            <span>{t('gundua.book.i_consent', 'Nakubali')}</span>
           </label>
           <NavRow
             onBack={() => setStep(1)}
             onNext={() => consent && setStep(3)}
             disabled={!consent}
+            nextLabel={t('gundua.book.continue', 'Endelea →')}
+            backLabel={t('gundua.book.back', '← Rudi')}
           />
         </Card>
       )}
 
       {step === 3 && (
-        <Card title="3. Thibitisha">
-          <Row k="Mtaalamu" v={`${provider.honorific} ${provider.name}`} />
-          <Row k="Muda" v={slot} />
-          <Row k="Ada" v={formatTzs(provider.feeTzs)} />
+        <Card title={t('gundua.book.step3_title', '3. Thibitisha')}>
+          <Row k={t('gundua.book.row_provider', 'Mtaalamu')} v={`${provider.honorific} ${provider.name}`} />
+          <Row k={t('gundua.book.row_time', 'Muda')} v={slot} />
+          <Row k={t('gundua.book.row_fee', 'Ada')} v={formatTzs(provider.feeTzs)} />
           {provider.feeTzs > 0 && (
             <>
               <p
@@ -319,11 +321,11 @@ export default function Book() {
                   lineHeight: 1.5,
                 }}
               >
-                Ada hii ni malipo ya moja kwa moja kwa mtaalamu kupitia M-Pesa.
-                <strong> TBHOS haichaji mteja chochote.</strong>
+                {t('gundua.book.fee_note', 'Ada hii ni malipo ya moja kwa moja kwa mtaalamu kupitia M-Pesa.')}
+                <strong> {t('gundua.book.no_platform_fee', 'TBHOS haichaji mteja chochote.')}</strong>
               </p>
               <label style={{ display: 'block', marginTop: 12 }}>
-                <span style={{ fontSize: 12, color: TEXT.muted }}>Nambari ya M-Pesa</span>
+                <span style={{ fontSize: 12, color: TEXT.muted }}>{t('gundua.book.mpesa_label', 'Nambari ya M-Pesa')}</span>
                 <input
                   type="tel"
                   placeholder="+255 712 345 678"
@@ -359,15 +361,14 @@ export default function Book() {
               {error}
             </p>
           )}
-          <NavRow onBack={() => setStep(2)} onNext={() => { void confirm() }} nextLabel="Thibitisha miadi" />
+          <NavRow onBack={() => setStep(2)} onNext={() => { void confirm() }} nextLabel={t('gundua.book.confirm_btn', 'Thibitisha miadi')} backLabel={t('gundua.book.back', '← Rudi')} />
         </Card>
       )}
 
       {step === 4 && (
-        <Card title="Asante!">
+        <Card title={t('gundua.book.thanks_title', 'Asante!')}>
           <p style={{ fontFamily: TYPE.serif, fontSize: 18, lineHeight: 1.5 }}>
-            Miadi yako imewekwa kwa {slot}. Mtaalamu atakutumia uthibitisho hivi
-            karibuni.
+            {t('gundua.book.thanks_part1', 'Miadi yako imewekwa kwa')} {slot}. {t('gundua.book.thanks_part2', 'Mtaalamu atakutumia uthibitisho hivi karibuni.')}
           </p>
         </Card>
       )}
@@ -416,11 +417,13 @@ function NavRow({
   onNext,
   disabled,
   nextLabel = 'Endelea →',
+  backLabel = '← Rudi',
 }: {
   onBack?: () => void
   onNext: () => void
   disabled?: boolean
   nextLabel?: string
+  backLabel?: string
 }) {
   return (
     <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
@@ -438,7 +441,7 @@ function NavRow({
             fontSize: 13,
           }}
         >
-          ← Rudi
+          {backLabel}
         </button>
       )}
       <div style={{ flex: 1 }} />

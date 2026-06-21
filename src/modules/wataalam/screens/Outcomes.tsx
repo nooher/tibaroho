@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { JEWEL, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
 import { Card, H1 } from '../components/Card'
 import { loadOutcomes } from '../lib/storage'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const INSTRUMENT_MAX: Record<string, number> = {
   'PHQ-9': 27,
@@ -11,6 +12,7 @@ const INSTRUMENT_MAX: Record<string, number> = {
 }
 
 export default function Outcomes() {
+  const { t } = useLang()
   const all = useMemo(loadOutcomes, [])
   const patients = useMemo(() => Array.from(new Set(all.map((o) => o.patientPseudonym))), [all])
   const [patient, setPatient] = useState<string>(patients[0] ?? '')
@@ -29,9 +31,9 @@ export default function Outcomes() {
 
   return (
     <div>
-      <H1 english="Outcomes">Matokeo kwa muda</H1>
+      <H1 english="Outcomes">{t('wataalam.outcomes.title', 'Matokeo kwa muda')}</H1>
 
-      <Card title="Chagua mteja">
+      <Card title={t('wataalam.outcomes.choose_patient', 'Chagua mteja')}>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {patients.map((p) => (
             <button
@@ -71,10 +73,10 @@ export default function Outcomes() {
             <Spark points={points} max={INSTRUMENT_MAX[inst] ?? 30} />
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginTop: 8 }}>
               <span style={{ color: TEXT.muted }}>
-                Kwanza: <strong>{points[0]?.score}</strong>
+                {t('wataalam.outcomes.first', 'Kwanza:')} <strong>{points[0]?.score}</strong>
               </span>
               <span style={{ color: TEXT.muted }}>
-                Sasa: <strong>{points[points.length - 1]?.score}</strong>
+                {t('wataalam.outcomes.now', 'Sasa:')} <strong>{points[points.length - 1]?.score}</strong>
               </span>
               <span style={{ color: TEXT.heading, fontWeight: 600 }}>
                 Δ {points[points.length - 1]!.score - points[0]!.score}
@@ -83,7 +85,7 @@ export default function Outcomes() {
           </Card>
         ))}
         {Object.keys(series).length === 0 && (
-          <p style={{ color: TEXT.muted }}>Hakuna matokeo kwa mteja huyu bado.</p>
+          <p style={{ color: TEXT.muted }}>{t('wataalam.outcomes.none', 'Hakuna matokeo kwa mteja huyu bado.')}</p>
         )}
       </div>
     </div>
@@ -110,7 +112,7 @@ function Spark({ points, max }: { points: { score: number; dateISO: string }[]; 
       width="100%"
       height={H}
       role="img"
-      aria-label="Mstari wa muda"
+      aria-label="Timeline"
     >
       <line
         x1={pad}

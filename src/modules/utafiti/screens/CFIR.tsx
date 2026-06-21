@@ -6,6 +6,7 @@ import { CFIR_DOMAINS, CFIR_CONSTRUCT_COUNT } from '../data/cfirConstructs'
 import { list, insert } from '../../../lib/db'
 import type { TrAuditLog } from '../../../lib/db'
 import { getMeId } from '../../../lib/me'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -92,6 +93,7 @@ function exportCsv(siteId: string, scores: Scores): void {
 }
 
 export default function CFIR(): React.JSX.Element {
+  const { t } = useLang()
   const [siteId, setSiteId] = useState<string>(SITES[0].id)
   const [scores, setScores] = useState<Scores>({})
 
@@ -116,9 +118,9 @@ export default function CFIR(): React.JSX.Element {
 
   return (
     <>
-      <Card title="CFIR 2.0 — site readiness assessment" accent={BRAND.green}>
+      <Card title={t('utafiti.cfir.title', 'CFIR 2.0 — site readiness assessment')} accent={BRAND.green}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', marginBottom: 16 }}>
-          <label style={{ fontSize: 12, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Tovuti</label>
+          <label style={{ fontSize: 12, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('utafiti.cfir.site', 'Tovuti')}</label>
           <select value={siteId} onChange={(e) => setSiteId(e.target.value)} style={{
             padding: '8px 12px', borderRadius: RADII.chip, background: CREAM.milk,
             border: `1px solid ${ink(0.22)}`, color: TEXT.body, fontSize: 13,
@@ -126,13 +128,13 @@ export default function CFIR(): React.JSX.Element {
             {SITES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
           <div style={{ fontSize: 13, color: TEXT.muted, marginLeft: 'auto' }}>
-            Wastani: <strong style={{ color: TEXT.body }}>{mean.toFixed(2)} / 5</strong>
-            {' · '}{Object.keys(scores).length}/{CFIR_CONSTRUCT_COUNT} vimepimwa
+            {t('utafiti.cfir.mean', 'Wastani:')} <strong style={{ color: TEXT.body }}>{mean.toFixed(2)} / 5</strong>
+            {' · '}{Object.keys(scores).length}/{CFIR_CONSTRUCT_COUNT} {t('utafiti.cfir.measured', 'vimepimwa')}
           </div>
           <button onClick={() => exportCsv(siteId, scores)} style={{
             padding: '8px 14px', borderRadius: RADII.chip, background: BRAND.green,
             color: CREAM.milk, border: 'none', fontSize: 12, cursor: 'pointer',
-          }}>Pakua CSV</button>
+          }}>{t('utafiti.cfir.export_csv', 'Pakua CSV')}</button>
         </div>
       </Card>
 

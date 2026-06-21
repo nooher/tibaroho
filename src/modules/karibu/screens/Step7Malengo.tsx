@@ -5,6 +5,7 @@ import { JEWEL } from '../../../lib/glass';
 import type { KaribuProfile } from '../lib/storage';
 import { cardStyle, ghostBtn, inputStyle, labelStyle, primaryBtn, subStyle, titleStyle } from '../lib/ui';
 import { MicButton } from '../../../components/MicButton';
+import { useLang } from '../../../lib/i18n/Provider';
 
 interface Props { profile: KaribuProfile; update: (p: Partial<KaribuProfile>) => void; next: () => void; back: () => void; }
 
@@ -18,6 +19,7 @@ const SUGGEST: string[] = [
 ];
 
 export default function Step7Malengo({ profile, update, next, back }: Props) {
+  const { t } = useLang();
   const s = profile.step7;
   const [goals, setGoals] = useState<string[]>(s?.goals ?? ['']);
   const [consent, setConsent] = useState<boolean>(s?.consent_plan ?? true);
@@ -37,30 +39,30 @@ export default function Step7Malengo({ profile, update, next, back }: Props) {
 
   return (
     <div style={cardStyle}>
-      <h2 style={titleStyle}>Malengo madogo</h2>
-      <p style={subStyle}>Andika lengo 1 hadi 3. Madogo na yenye kupimika ndio bora.</p>
+      <h2 style={titleStyle}>{t('karibu.step7.heading', 'Malengo madogo')}</h2>
+      <p style={subStyle}>{t('karibu.step7.sub', 'Andika lengo 1 hadi 3. Madogo na yenye kupimika ndio bora.')}</p>
 
       <div style={{ display: 'grid', gap: 10 }}>
         {goals.map((g, i) => (
           <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <input style={{ ...inputStyle, flex: 1 }} value={g} onChange={(e) => set(i, e.target.value)} placeholder={`Lengo ${i + 1}`} aria-label={`Lengo ${i + 1}`} />
-            <MicButton onTranscript={(t) => set(i, (g ? g + ' ' : '') + t)} />
+            <input style={{ ...inputStyle, flex: 1 }} value={g} onChange={(e) => set(i, e.target.value)} placeholder={`${t('karibu.step7.goal_word', 'Lengo')} ${i + 1}`} aria-label={`${t('karibu.step7.goal_word', 'Lengo')} ${i + 1}`} />
+            <MicButton onTranscript={(tx) => set(i, (g ? g + ' ' : '') + tx)} />
           </div>
         ))}
         {goals.length < 3 && <button type="button" onClick={add} style={{
           padding: '8px 14px', border: `1px dashed ${JEWEL.tealMwenza}`, background: 'transparent',
           color: JEWEL.tealMwenza, borderRadius: 999, fontSize: 13, cursor: 'pointer', alignSelf: 'flex-start',
-        }}>+ Ongeza lengo</button>}
+        }}>{t('karibu.step7.add_goal', '+ Ongeza lengo')}</button>}
       </div>
 
       <div style={{ marginTop: 16 }}>
-        <div style={labelStyle}>Pendekezo</div>
+        <div style={labelStyle}>{t('karibu.step7.suggestions_label', 'Pendekezo')}</div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {SUGGEST.map((t) => (
-            <button key={t} type="button" onClick={() => pickSuggest(t)} style={{
+          {SUGGEST.map((sg) => (
+            <button key={sg} type="button" onClick={() => pickSuggest(sg)} style={{
               padding: '6px 12px', borderRadius: 999, fontSize: 12, background: '#F4EAC9',
               border: `1px solid ${JEWEL.tealMwenza}40`, color: JEWEL.tealMwenza, cursor: 'pointer',
-            }}>+ {t}</button>
+            }}>+ {sg}</button>
           ))}
         </div>
       </div>
@@ -68,13 +70,13 @@ export default function Step7Malengo({ profile, update, next, back }: Props) {
       <div style={{ marginTop: 18, padding: 12, background: '#F4EAC9', borderRadius: 12 }}>
         <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 14, color: JEWEL.tealMwenza, fontWeight: 600 }}>
           <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 2 }} />
-          Nakubali Tumaini iandae mpango wa huduma kulingana na maelezo yangu (siyo utambuzi wa kimatibabu).
+          {t('karibu.step7.consent', 'Nakubali Tumaini iandae mpango wa huduma kulingana na maelezo yangu (siyo utambuzi wa kimatibabu).')}
         </label>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20 }}>
-        <button type="button" onClick={back} style={ghostBtn()}>← Rudi</button>
-        <button type="button" onClick={submit} disabled={!consent} style={{ ...primaryBtn(), opacity: consent ? 1 : 0.5 }}>Maliza →</button>
+        <button type="button" onClick={back} style={ghostBtn()}>{t('karibu.common.back', '← Rudi')}</button>
+        <button type="button" onClick={submit} disabled={!consent} style={{ ...primaryBtn(), opacity: consent ? 1 : 0.5 }}>{t('karibu.step7.finish', 'Maliza →')}</button>
       </div>
     </div>
   );

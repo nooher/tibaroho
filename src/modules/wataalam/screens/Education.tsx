@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { JEWEL, RADII, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
 import { Card, H1, buttonStyle } from '../components/Card'
 import { loadCEU, saveCEU, type CEUEntry } from '../lib/storage'
+import { useLang } from '../../../lib/i18n/Provider'
 
 interface Course {
   id: string
@@ -64,6 +65,7 @@ const COURSES: Course[] = [
 ]
 
 export default function Education() {
+  const { t } = useLang()
   const [earned, setEarned] = useState<CEUEntry[]>(() => loadCEU())
 
   const total = useMemo(() => earned.reduce((s, e) => s + e.hours, 0), [earned])
@@ -83,14 +85,14 @@ export default function Education() {
 
   return (
     <div>
-      <H1 english="CEU library">Maktaba ya elimu endelevu</H1>
+      <H1 english="CEU library">{t('wataalam.edu.title', 'Maktaba ya elimu endelevu')}</H1>
 
-      <Card title="Maendeleo yako" accent={JEWEL.goldHope}>
+      <Card title={t('wataalam.edu.progress', 'Maendeleo yako')} accent={JEWEL.goldHope}>
         <p style={{ margin: '0 0 8px', fontFamily: TYPE.serif, fontSize: 18 }}>
-          <strong>{total}</strong> ya saa <strong>{goal}</strong> kwa mwaka huu
+          <strong>{total}</strong> {t('wataalam.edu.of_hours', 'ya saa')} <strong>{goal}</strong> {t('wataalam.edu.this_year', 'kwa mwaka huu')}
         </p>
         <div
-          aria-label="Maendeleo"
+          aria-label={t('wataalam.edu.progress', 'Maendeleo yako')}
           style={{
             height: 12,
             borderRadius: 999,
@@ -110,7 +112,7 @@ export default function Education() {
       </Card>
 
       <h2 style={{ fontFamily: TYPE.serif, fontSize: 20, margin: '22px 0 10px' }}>
-        Kozi zinazopatikana
+        {t('wataalam.edu.available', 'Kozi zinazopatikana')}
       </h2>
       <div
         style={{
@@ -122,7 +124,7 @@ export default function Education() {
         {COURSES.map((c) => {
           const done = earned.find((e) => e.titleSw === c.titleSw)
           return (
-            <Card key={c.id} title={c.titleSw} english={`${c.hours} saa`}>
+            <Card key={c.id} title={c.titleSw} english={`${c.hours} ${t('wataalam.edu.hours', 'saa')}`}>
               <p style={{ fontSize: 12, color: TEXT.muted, margin: '0 0 6px' }}>{c.source}</p>
               <p style={{ fontFamily: TYPE.serif, margin: 0, lineHeight: 1.5, fontSize: 14 }}>
                 {c.descSw}
@@ -136,7 +138,7 @@ export default function Education() {
                   opacity: done ? 0.6 : 1,
                 }}
               >
-                {done ? '✓ Imekamilika' : 'Anza →'}
+                {done ? t('wataalam.edu.completed', '✓ Imekamilika') : t('wataalam.edu.start', 'Anza →')}
               </button>
             </Card>
           )
@@ -144,11 +146,11 @@ export default function Education() {
       </div>
 
       <h2 style={{ fontFamily: TYPE.serif, fontSize: 20, margin: '22px 0 10px' }}>
-        Kozi ulizomaliza ({earned.length})
+        {t('wataalam.edu.completed_courses', 'Kozi ulizomaliza')} ({earned.length})
       </h2>
       <Card>
         {earned.length === 0 ? (
-          <p style={{ color: TEXT.muted, margin: 0 }}>Hakuna kozi bado.</p>
+          <p style={{ color: TEXT.muted, margin: 0 }}>{t('wataalam.edu.none', 'Hakuna kozi bado.')}</p>
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 6 }}>
             {earned.map((e) => (
@@ -167,7 +169,7 @@ export default function Education() {
               >
                 <span>{e.titleSw}</span>
                 <span style={{ color: TEXT.muted }}>
-                  {e.hours} saa · {new Date(e.completedISO).toLocaleDateString('sw-TZ')}
+                  {e.hours} {t('wataalam.edu.hours', 'saa')} · {new Date(e.completedISO).toLocaleDateString('sw-TZ')}
                 </span>
               </li>
             ))}

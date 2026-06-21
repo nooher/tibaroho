@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { JEWEL, hexToRgba, RADII, TYPE, CREAM, TEXT } from '../../../lib/glass'
 import { getRole, isFounder, type NdaniRole } from '../role'
+import { useLang } from '../../../lib/i18n/Provider'
 
 export interface AdminNavItem { to: string; label: string; en?: string; founderOnly?: boolean }
 
@@ -22,21 +23,23 @@ export const ADMIN_NAV: AdminNavItem[] = [
 ]
 
 export function RoleGate({ role, children }: { role: NdaniRole; children: ReactNode }): React.JSX.Element {
+  const { t } = useLang()
   if (role === 'admin' || role === 'founder') return <>{children}</>
   return (
     <main style={{ padding: 80, textAlign: 'center', color: CREAM.cream, background: JEWEL.tealDeep, minHeight: '60vh' }}>
       <h1 className="serif" style={{ fontSize: 36, letterSpacing: TYPE.tighterTrack, margin: 0 }}>
-        Mfumo wa msimamizi — Hitaji idhini
+        {t('ndani.shell.gate_title', 'Mfumo wa msimamizi — Hitaji idhini')}
       </h1>
       <p style={{ marginTop: 16, fontSize: 15, color: CREAM.cream, maxWidth: 480, marginInline: 'auto' }}>
-        Ukurasa huu ni wa wafanyakazi wa Laetoli pekee. Tafadhali ingia kwa akaunti ya msimamizi au mwasilianie na timu.
+        {t('ndani.shell.gate_body', 'Ukurasa huu ni wa wafanyakazi wa Laetoli pekee. Tafadhali ingia kwa akaunti ya msimamizi au mwasilianie na timu.')}
       </p>
-      <Link to="/" style={{ display: 'inline-block', marginTop: 24, color: CREAM.cream, textDecoration: 'underline' }}>← Rudi nyumbani</Link>
+      <Link to="/" style={{ display: 'inline-block', marginTop: 24, color: CREAM.cream, textDecoration: 'underline' }}>{t('ndani.shell.back_home', '← Rudi nyumbani')}</Link>
     </main>
   )
 }
 
 export default function AdminShell({ children }: { children: ReactNode }): React.JSX.Element {
+  const { t } = useLang()
   const role = getRole()
   const loc = useLocation()
   const segs = loc.pathname.replace(/^\/ndani\/?/, '').split('/').filter(Boolean)
@@ -50,16 +53,16 @@ export default function AdminShell({ children }: { children: ReactNode }): React
         overflowY: 'auto',
       }}>
         <Link to="/" style={{ color: CREAM.cream, fontSize: 12, textDecoration: 'none' }}>
-          ← TBHOS
+          {t('ndani.shell.back_tbhos', '← TBHOS')}
         </Link>
         <div className="serif" style={{ marginTop: 14, fontSize: 24, letterSpacing: TYPE.tighterTrack }}>
-          Ndani
+          {t('ndani.shell.ndani_label', 'Ndani')}
         </div>
         <div style={{
           fontSize: 10, letterSpacing: 1.6, textTransform: 'uppercase',
           color: CREAM.cream, marginTop: 4, fontWeight: 700,
         }}>
-          Admin · {role}
+          {t('ndani.shell.admin_role', 'Admin')} · {role}
         </div>
         <nav style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 2 }}>
           {items.map((n) => (

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { JEWEL, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
 import { db, hasBackend } from '../../../lib/db'
+import { useLang } from '../../../lib/i18n/Provider'
 
 interface JitsiApiLike {
   dispose: () => void
@@ -28,6 +29,7 @@ const CHECKLIST: ChecklistKey[] = [
 ]
 
 export default function JitsiSession() {
+  const { t } = useLang()
   const { roomId } = useParams<{ roomId: string }>()
   const containerRef = useRef<HTMLDivElement>(null)
   const apiRef = useRef<JitsiApiLike | null>(null)
@@ -145,23 +147,23 @@ export default function JitsiSession() {
 
   return (
     <div style={{ padding: '20px 22px 80px', fontFamily: TYPE.sans }}>
-      <Link to="/wataalam/video" style={{ color: JEWEL.tealMwenza, fontSize: 14, textDecoration: 'none' }}>← Lobby ya telehealth</Link>
-      <h1 style={{ fontFamily: TYPE.serif, fontWeight: 800, color: JEWEL.tealDeep, fontSize: 30, marginBottom: 4 }}>Kikao cha video</h1>
-      <div style={{ color: TEXT.muted, marginBottom: 16 }}>Chumba: <code>{roomId}</code></div>
+      <Link to="/wataalam/video" style={{ color: JEWEL.tealMwenza, fontSize: 14, textDecoration: 'none' }}>{t('wataalam.jitsi.lobby', '← Lobby ya telehealth')}</Link>
+      <h1 style={{ fontFamily: TYPE.serif, fontWeight: 800, color: JEWEL.tealDeep, fontSize: 30, marginBottom: 4 }}>{t('wataalam.jitsi.title', 'Kikao cha video')}</h1>
+      <div style={{ color: TEXT.muted, marginBottom: 16 }}>{t('wataalam.jitsi.room', 'Chumba:')} <code>{roomId}</code></div>
 
       {!started && (
         <div style={{ background: '#FAF5E5', padding: 18, borderRadius: 18, border: `1px solid ${hexToRgba('#000', 0.08)}`, marginBottom: 18 }}>
-          <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>Orodha ya kuangalia kabla ya kuanza</h3>
+          <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>{t('wataalam.jitsi.checklist', 'Orodha ya kuangalia kabla ya kuanza')}</h3>
           <div style={{ display: 'grid', gap: 8 }}>
             {CHECKLIST.map((c) => (
               <label key={c.key} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input type="checkbox" checked={!!checked[c.key]} onChange={(e) => setChecked((s) => ({ ...s, [c.key]: e.target.checked }))} />
-                <span>{c.label}</span>
+                <span>{t(`wataalam.jitsi.check_${c.key}`, c.label)}</span>
               </label>
             ))}
             <label style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 6 }}>
               <input type="checkbox" checked={recording} onChange={(e) => setRecording(e.target.checked)} />
-              <span>Nakubali kurekodi kikao (chaguo la hiari)</span>
+              <span>{t('wataalam.jitsi.consent_record', 'Nakubali kurekodi kikao (chaguo la hiari)')}</span>
             </label>
           </div>
           <button
@@ -177,19 +179,19 @@ export default function JitsiSession() {
               fontWeight: 700,
               cursor: allChecked ? 'pointer' : 'not-allowed',
             }}
-          >Anza kikao</button>
+          >{t('wataalam.jitsi.start', 'Anza kikao')}</button>
         </div>
       )}
 
       {started && (
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <span style={{ fontWeight: 700, color: JEWEL.tealDeep }}>Muda: {fmt(elapsed)}</span>
+            <span style={{ fontWeight: 700, color: JEWEL.tealDeep }}>{t('wataalam.jitsi.duration', 'Muda:')} {fmt(elapsed)}</span>
             <Link
               to="/mimi/dharura"
               style={{ background: JEWEL.maroonCrisis, color: '#FAF5E5', padding: '8px 14px', borderRadius: 999, textDecoration: 'none', fontWeight: 700 }}
-              aria-label="Rafiki-mlinzi: nenda dharura"
-            >Rafiki-mlinzi</Link>
+              aria-label={t('wataalam.jitsi.rafiki_aria', 'Rafiki-mlinzi: nenda dharura')}
+            >{t('wataalam.jitsi.rafiki_link', 'Rafiki-mlinzi')}</Link>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.4fr) minmax(280px, 1fr)', gap: 16 }}>
             <div ref={containerRef} style={{ minHeight: 480, background: '#000', borderRadius: 14, overflow: 'hidden' }} aria-label="Jitsi video" />
@@ -199,31 +201,31 @@ export default function JitsiSession() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={16}
-                aria-label="Notes za kikao"
-                placeholder="Andika notes hapa — zinahifadhiwa kila baada ya sekunde 2."
+                aria-label={t('wataalam.jitsi.notes_aria', 'Notes za kikao')}
+                placeholder={t('wataalam.jitsi.notes_ph', 'Andika notes hapa — zinahifadhiwa kila baada ya sekunde 2.')}
                 style={{ width: '100%', padding: 10, borderRadius: 12, border: `1px solid ${hexToRgba('#000', 0.12)}`, fontFamily: TYPE.sans, fontSize: 14, background: '#FAF5E5' }}
               />
             </div>
           </div>
 
           <div style={{ marginTop: 22, padding: 16, background: '#FAF5E5', borderRadius: 18, border: `1px solid ${hexToRgba('#000', 0.08)}` }}>
-            <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>Baada ya kikao</h3>
+            <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>{t('wataalam.jitsi.after', 'Baada ya kikao')}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
               <label>
-                <div style={{ fontSize: 13, fontWeight: 600 }}>Mabadiliko ya PHQ-9</div>
-                <input type="number" value={phq9} onChange={(e) => setPhq9(e.target.value)} placeholder="km. -3" style={{ width: '100%', padding: 8, borderRadius: 10, border: `1px solid ${hexToRgba('#000', 0.12)}`, marginTop: 4 }} />
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{t('wataalam.jitsi.phq9', 'Mabadiliko ya PHQ-9')}</div>
+                <input type="number" value={phq9} onChange={(e) => setPhq9(e.target.value)} placeholder={t('wataalam.jitsi.phq9_ph', 'km. -3')} style={{ width: '100%', padding: 8, borderRadius: 10, border: `1px solid ${hexToRgba('#000', 0.12)}`, marginTop: 4 }} />
               </label>
               <label>
-                <div style={{ fontSize: 13, fontWeight: 600 }}>Hatua inayofuata</div>
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{t('wataalam.jitsi.next_step', 'Hatua inayofuata')}</div>
                 <textarea value={nextStep} onChange={(e) => setNextStep(e.target.value)} rows={3} style={{ width: '100%', padding: 8, borderRadius: 10, border: `1px solid ${hexToRgba('#000', 0.12)}`, marginTop: 4 }} />
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <input type="checkbox" checked={referral} onChange={(e) => setReferral(e.target.checked)} />
-                <span>Tuma rufaa</span>
+                <span>{t('wataalam.refsend.title', 'Tuma rufaa')}</span>
               </label>
               <label>
-                <div style={{ fontSize: 13, fontWeight: 600 }}>Daraja la dawa</div>
-                <textarea value={rxNote} onChange={(e) => setRxNote(e.target.value)} rows={3} placeholder="Andika dawa kwa kifupi" style={{ width: '100%', padding: 8, borderRadius: 10, border: `1px solid ${hexToRgba('#000', 0.12)}`, marginTop: 4 }} />
+                <div style={{ fontSize: 13, fontWeight: 600 }}>{t('wataalam.jitsi.rx', 'Daraja la dawa')}</div>
+                <textarea value={rxNote} onChange={(e) => setRxNote(e.target.value)} rows={3} placeholder={t('wataalam.jitsi.rx_ph', 'Andika dawa kwa kifupi')} style={{ width: '100%', padding: 8, borderRadius: 10, border: `1px solid ${hexToRgba('#000', 0.12)}`, marginTop: 4 }} />
               </label>
             </div>
           </div>

@@ -7,6 +7,7 @@ import { list, update, remove } from '../../../lib/db'
 import type { TrUser } from '../../../lib/db'
 import { JEWEL, hexToRgba, TEXT } from '../../../lib/glass'
 import { auditEvent } from '../audit'
+import { useLang } from '../../../lib/i18n/Provider'
 
 interface UserRow extends TrUser { status?: string }
 
@@ -22,6 +23,7 @@ const SEED: UserRow[] = [
 ]
 
 export default function Users(): React.JSX.Element {
+  const { t } = useLang()
   const [rows, setRows] = useState<UserRow[]>([])
   const [sel, setSel] = useState<UserRow | null>(null)
   const [confirm, setConfirm] = useState<{ open: boolean; mode: 'lock' | 'unlock' | 'anonymise' | 'delete' | 'reset_mfa'; row?: UserRow }>({ open: false, mode: 'lock' })
@@ -64,47 +66,47 @@ export default function Users(): React.JSX.Element {
 
   return (
     <>
-      <PageHeader title="Watumiaji" subtitle="Wagonjwa, wahudumu, watafiti, shule, waajiri, wasimamizi." />
-      <Section title="Tafuta na chuja">
+      <PageHeader title={t('ndani.users.title', 'Watumiaji')} subtitle={t('ndani.users.subtitle', 'Wagonjwa, wahudumu, watafiti, shule, waajiri, wasimamizi.')} />
+      <Section title={t('ndani.users.find_title', 'Tafuta na chuja')}>
         <DataTable<UserRow>
           columns={[
-            { key: 'display_name', label: 'Jina', sortable: true },
-            { key: 'role',         label: 'Jukumu', sortable: true, render: (r) => <Pill tone="info">{r.role}</Pill> },
-            { key: 'lang',         label: 'Lugha' },
-            { key: 'region',       label: 'Mkoa', sortable: true },
-            { key: 'status',       label: 'Hali', render: (r) => (
+            { key: 'display_name', label: t('ndani.users.col.name', 'Jina'), sortable: true },
+            { key: 'role',         label: t('ndani.users.col.role', 'Jukumu'), sortable: true, render: (r) => <Pill tone="info">{r.role}</Pill> },
+            { key: 'lang',         label: t('ndani.users.col.lang', 'Lugha') },
+            { key: 'region',       label: t('ndani.users.col.region', 'Mkoa'), sortable: true },
+            { key: 'status',       label: t('ndani.users.col.status', 'Hali'), render: (r) => (
               <Pill tone={r.status === 'active' ? 'good' : r.status === 'locked' ? 'bad' : 'neutral'}>{r.status ?? 'active'}</Pill>
             )},
           ]}
           rows={rows}
           searchKeys={['display_name', 'role', 'region']}
           filters={[
-            { label: 'Jukumu', key: 'role', options: ['patient', 'provider', 'researcher', 'school', 'employer', 'admin'] },
-            { label: 'Mkoa',   key: 'region', options: ['Dar es Salaam', 'Mwanza', 'Arusha', 'Dodoma'] },
+            { label: t('ndani.users.filter.role', 'Jukumu'), key: 'role', options: ['patient', 'provider', 'researcher', 'school', 'employer', 'admin'] },
+            { label: t('ndani.users.filter.region', 'Mkoa'),   key: 'region', options: ['Dar es Salaam', 'Mwanza', 'Arusha', 'Dodoma'] },
           ]}
           onRowClick={(r) => setSel(r)}
         />
       </Section>
 
       {sel ? (
-        <Section title={`Mtumiaji — ${sel.display_name}`} right={<GhostButton onClick={() => setSel(null)}>Funga</GhostButton>}>
+        <Section title={`${t('ndani.users.detail_prefix', 'Mtumiaji —')} ${sel.display_name}`} right={<GhostButton onClick={() => setSel(null)}>{t('ndani.users.close', 'Funga')}</GhostButton>}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px,1fr))', gap: 12, marginBottom: 16 }}>
-            <KV k="ID" v={sel.id} />
-            <KV k="Jukumu" v={sel.role} />
-            <KV k="Lugha" v={sel.lang} />
-            <KV k="Mkoa" v={sel.region ?? '—'} />
-            <KV k="Hali" v={sel.status ?? 'active'} />
+            <KV k={t('ndani.users.kv.id', 'ID')} v={sel.id} />
+            <KV k={t('ndani.users.kv.role', 'Jukumu')} v={sel.role} />
+            <KV k={t('ndani.users.kv.lang', 'Lugha')} v={sel.lang} />
+            <KV k={t('ndani.users.kv.region', 'Mkoa')} v={sel.region ?? '—'} />
+            <KV k={t('ndani.users.kv.status', 'Hali')} v={sel.status ?? 'active'} />
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {sel.status === 'locked'
-              ? <PrimaryButton onClick={() => openConfirm('unlock', sel)}>Fungua</PrimaryButton>
-              : <GhostButton onClick={() => openConfirm('lock', sel)}>Funga akaunti</GhostButton>}
-            <GhostButton onClick={() => openConfirm('reset_mfa', sel)}>Reset MFA</GhostButton>
-            <GhostButton onClick={() => exportUser(sel)}>Export data</GhostButton>
-            <DangerButton onClick={() => openConfirm('anonymise', sel)}>Anonymise (DPA)</DangerButton>
-            <DangerButton onClick={() => openConfirm('delete', sel)}>Futa</DangerButton>
+              ? <PrimaryButton onClick={() => openConfirm('unlock', sel)}>{t('ndani.users.unlock', 'Fungua')}</PrimaryButton>
+              : <GhostButton onClick={() => openConfirm('lock', sel)}>{t('ndani.users.lock', 'Funga akaunti')}</GhostButton>}
+            <GhostButton onClick={() => openConfirm('reset_mfa', sel)}>{t('ndani.users.reset_mfa', 'Reset MFA')}</GhostButton>
+            <GhostButton onClick={() => exportUser(sel)}>{t('ndani.users.export', 'Export data')}</GhostButton>
+            <DangerButton onClick={() => openConfirm('anonymise', sel)}>{t('ndani.users.anonymise', 'Anonymise (DPA)')}</DangerButton>
+            <DangerButton onClick={() => openConfirm('delete', sel)}>{t('ndani.users.delete', 'Futa')}</DangerButton>
           </div>
-          <h4 style={{ marginTop: 18, marginBottom: 6, color: TEXT.heading }}>Safari ya mtumiaji</h4>
+          <h4 style={{ marginTop: 18, marginBottom: 6, color: TEXT.heading }}>{t('ndani.users.journey', 'Safari ya mtumiaji')}</h4>
           <Timeline events={[
             { ts: '2026-06-20 09:01', label: 'Usajili wa awali' },
             { ts: '2026-06-20 09:15', label: 'PHQ-9 = 14 (wastani)' },
@@ -117,16 +119,16 @@ export default function Users(): React.JSX.Element {
       <ActionConfirm
         open={confirm.open}
         title={
-          confirm.mode === 'delete'    ? 'Futa mtumiaji?' :
-          confirm.mode === 'anonymise' ? 'Anonymise mtumiaji?' :
-          confirm.mode === 'lock'      ? 'Funga akaunti?' :
-          confirm.mode === 'unlock'    ? 'Fungua akaunti?' :
-                                         'Reset MFA?'
+          confirm.mode === 'delete'    ? t('ndani.users.confirm.delete', 'Futa mtumiaji?') :
+          confirm.mode === 'anonymise' ? t('ndani.users.confirm.anonymise', 'Anonymise mtumiaji?') :
+          confirm.mode === 'lock'      ? t('ndani.users.confirm.lock', 'Funga akaunti?') :
+          confirm.mode === 'unlock'    ? t('ndani.users.confirm.unlock', 'Fungua akaunti?') :
+                                         t('ndani.users.confirm.reset_mfa', 'Reset MFA?')
         }
         description={
           confirm.mode === 'delete'
-            ? 'Hatua hii itafuta rekodi zote zinazohusiana na mtumiaji. Haiwezi kurudishwa nyuma.'
-            : 'Hatua hii itaingia kwenye audit log ikiwa na sababu uliyotoa.'
+            ? t('ndani.users.confirm.delete_body', 'Hatua hii itafuta rekodi zote zinazohusiana na mtumiaji. Haiwezi kurudishwa nyuma.')
+            : t('ndani.users.confirm.generic_body', 'Hatua hii itaingia kwenye audit log ikiwa na sababu uliyotoa.')
         }
         destructive={confirm.mode === 'delete' || confirm.mode === 'anonymise' || confirm.mode === 'lock'}
         action={confirm.mode}

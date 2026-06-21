@@ -4,6 +4,7 @@ import { Card } from '../../_shared/Layout'
 import { JEWEL, CREAM, NEUTRAL, hexToRgba, TEXT } from '../../../lib/glass'
 import { list } from '../../../lib/db'
 import { logPrincipalView, auditEvent, readSelfAuditAsync, type AuditEntry } from '../audit'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const QUICK_LINKS = [
   { label: 'laetoli.tz hub', href: 'https://laetoli.tz' },
@@ -29,6 +30,7 @@ const FUNDING_PIPELINE = [
 ]
 
 export default function FounderConsole(): React.JSX.Element {
+  const { t } = useLang()
   const [note, setNote] = useState('')
   const [notes, setNotes] = useState<{ ts: string; body: string }[]>(() => {
     try {
@@ -72,35 +74,33 @@ export default function FounderConsole(): React.JSX.Element {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <Card title="Karibu, Dr. Nooher">
+      <Card title={t('ndani.founder.welcome_title', 'Karibu, Dr. Nooher')}>
         <p style={{ margin: 0, lineHeight: 1.6 }}>
-          Hii ni dawati lako binafsi. Hakuna mtu mwingine anayeona ukurasa huu.
-          Linganisha kazi ya leo, hifadhi maelezo ya hizo nia, na fungua zana
-          unazohitaji haraka.
+          {t('ndani.founder.welcome_body', 'Hii ni dawati lako binafsi. Hakuna mtu mwingine anayeona ukurasa huu. Linganisha kazi ya leo, hifadhi maelezo ya hizo nia, na fungua zana unazohitaji haraka.')}
         </p>
         <div style={{
           display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
           gap: 12, marginTop: 14,
         }}>
-          <div><div style={{ fontSize: 11, color: TEXT.muted, letterSpacing: 0.6, textTransform: 'uppercase' }}>Watumiaji</div><div style={{ fontSize: 22, color: TEXT.heading, fontWeight: 700 }}>{counts.users}</div></div>
-          <div><div style={{ fontSize: 11, color: TEXT.muted, letterSpacing: 0.6, textTransform: 'uppercase' }}>Wahudumu</div><div style={{ fontSize: 22, color: TEXT.heading, fontWeight: 700 }}>{counts.providers}</div></div>
-          <div><div style={{ fontSize: 11, color: TEXT.muted, letterSpacing: 0.6, textTransform: 'uppercase' }}>Miadi inasubiri</div><div style={{ fontSize: 22, color: TEXT.heading, fontWeight: 700 }}>{counts.openCrisis}</div></div>
+          <div><div style={{ fontSize: 11, color: TEXT.muted, letterSpacing: 0.6, textTransform: 'uppercase' }}>{t('ndani.founder.users', 'Watumiaji')}</div><div style={{ fontSize: 22, color: TEXT.heading, fontWeight: 700 }}>{counts.users}</div></div>
+          <div><div style={{ fontSize: 11, color: TEXT.muted, letterSpacing: 0.6, textTransform: 'uppercase' }}>{t('ndani.founder.providers', 'Wahudumu')}</div><div style={{ fontSize: 22, color: TEXT.heading, fontWeight: 700 }}>{counts.providers}</div></div>
+          <div><div style={{ fontSize: 11, color: TEXT.muted, letterSpacing: 0.6, textTransform: 'uppercase' }}>{t('ndani.founder.appts_pending', 'Miadi inasubiri')}</div><div style={{ fontSize: 22, color: TEXT.heading, fontWeight: 700 }}>{counts.openCrisis}</div></div>
         </div>
       </Card>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
-        <Card title="Hatua za PhD">
+        <Card title={t('ndani.founder.phd_title', 'Hatua za PhD')}>
           <ul style={{ paddingLeft: 18, margin: 0, lineHeight: 1.8 }}>
             {PHD_MILESTONES.map(m => (
               <li key={m.label}>
                 <strong>{m.label}</strong>
-                <div style={{ fontSize: 12, color: TEXT.muted }}>Due {m.due} · {m.status}</div>
+                <div style={{ fontSize: 12, color: TEXT.muted }}>{t('ndani.founder.phd_due', 'Due')} {m.due} · {m.status}</div>
               </li>
             ))}
           </ul>
         </Card>
 
-        <Card title="Mtandao wa fedha">
+        <Card title={t('ndani.founder.funding_title', 'Mtandao wa fedha')}>
           <ul style={{ paddingLeft: 18, margin: 0, lineHeight: 1.8 }}>
             {FUNDING_PIPELINE.map(f => (
               <li key={f.name}>
@@ -112,12 +112,12 @@ export default function FounderConsole(): React.JSX.Element {
         </Card>
       </div>
 
-      <Card title="Maelezo ya haraka">
+      <Card title={t('ndani.founder.notes_title', 'Maelezo ya haraka')}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
           <input
             value={note}
             onChange={e => setNote(e.target.value)}
-            placeholder="Andika neno la haraka…"
+            placeholder={t('ndani.founder.notes_placeholder', 'Andika neno la haraka…')}
             style={{
               flex: 1,
               padding: '10px 12px',
@@ -141,9 +141,9 @@ export default function FounderConsole(): React.JSX.Element {
               cursor: 'pointer',
               fontFamily: 'inherit',
             }}
-          >Hifadhi</button>
+          >{t('ndani.founder.save', 'Hifadhi')}</button>
         </div>
-        {notes.length === 0 && <p style={{ color: TEXT.muted, margin: 0 }}>Hakuna maelezo bado.</p>}
+        {notes.length === 0 && <p style={{ color: TEXT.muted, margin: 0 }}>{t('ndani.founder.no_notes', 'Hakuna maelezo bado.')}</p>}
         <ul style={{ paddingLeft: 18, margin: 0, lineHeight: 1.7 }}>
           {notes.slice(0, 10).map((n, i) => (
             <li key={i}>
@@ -154,7 +154,7 @@ export default function FounderConsole(): React.JSX.Element {
         </ul>
       </Card>
 
-      <Card title="Viungo vya haraka">
+      <Card title={t('ndani.founder.links_title', 'Viungo vya haraka')}>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           {QUICK_LINKS.map(l => (
             <a
@@ -177,10 +177,9 @@ export default function FounderConsole(): React.JSX.Element {
         </div>
       </Card>
 
-      <Card title="Tazama Yote (PRINCIPAL VIEW)">
+      <Card title={t('ndani.founder.principal_title', 'Tazama Yote (PRINCIPAL VIEW)')}>
         <p style={{ marginTop: 0, color: TEXT.muted }}>
-          Bonyeza tu wakati una sababu halali — kila ufikiaji unaandikwa
-          kwenye self-audit feed inayoonekana hapa peke yake.
+          {t('ndani.founder.principal_body', 'Bonyeza tu wakati una sababu halali — kila ufikiaji unaandikwa kwenye self-audit feed inayoonekana hapa peke yake.')}
         </p>
         <button
           onClick={principalView}
@@ -194,7 +193,7 @@ export default function FounderConsole(): React.JSX.Element {
             cursor: 'pointer',
             fontFamily: 'inherit',
           }}
-        >Washa PRINCIPAL VIEW</button>
+        >{t('ndani.founder.principal_button', 'Washa PRINCIPAL VIEW')}</button>
         {selfAudit.length > 0 ? (
           <ul style={{ paddingLeft: 18, margin: '12px 0 0', lineHeight: 1.6, fontSize: 12 }}>
             {selfAudit.map((e) => (

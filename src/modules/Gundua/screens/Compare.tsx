@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useLang } from '../../../lib/i18n/Provider'
 import { JEWEL, TEXT, TYPE, hexToRgba } from '../../../lib/glass'
 import { PROVIDERS } from '../data/providers'
 
 export default function Compare() {
+  const { t } = useLang()
   const [picked, setPicked] = useState<string[]>([])
 
   function toggle(id: string): void {
@@ -18,9 +20,9 @@ export default function Compare() {
 
   return (
     <main style={{ minHeight: '100vh', background: '#FAF5E5', padding: '24px 22px 80px', fontFamily: TYPE.sans }}>
-      <Link to="/gundua" style={{ color: JEWEL.tealMwenza, textDecoration: 'none', fontSize: 14 }}>← Gundua</Link>
-      <h1 style={{ fontFamily: TYPE.serif, fontWeight: 800, color: JEWEL.tealDeep, fontSize: 32 }}>Linganisha wataalamu</h1>
-      <p style={{ color: TEXT.muted }}>Chagua hadi watatu kulinganisha ada, lugha, na ukadiriaji.</p>
+      <Link to="/gundua" style={{ color: JEWEL.tealMwenza, textDecoration: 'none', fontSize: 14 }}>{t('gundua.compare.back', '← Gundua')}</Link>
+      <h1 style={{ fontFamily: TYPE.serif, fontWeight: 800, color: JEWEL.tealDeep, fontSize: 32 }}>{t('gundua.compare.title', 'Linganisha wataalamu')}</h1>
+      <p style={{ color: TEXT.muted }}>{t('gundua.compare.hint', 'Chagua hadi watatu kulinganisha ada, lugha, na ukadiriaji.')}</p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10, marginTop: 16 }}>
         {PROVIDERS.slice(0, 12).map((p) => {
@@ -51,17 +53,17 @@ export default function Compare() {
           <table style={{ width: '100%', borderCollapse: 'collapse', background: '#FAF5E5', borderRadius: 18 }}>
             <thead>
               <tr>
-                <th style={th()}>Kipengele</th>
+                <th style={th()}>{t('gundua.compare.col_feature', 'Kipengele')}</th>
                 {rows.map((r) => <th key={r.id} style={th()}>{r.honorific} {r.name}</th>)}
               </tr>
             </thead>
             <tbody>
-              <tr><td style={td()}>Aina</td>{rows.map((r) => <td key={r.id} style={td()}>{r.kind}</td>)}</tr>
-              <tr><td style={td()}>Lugha</td>{rows.map((r) => <td key={r.id} style={td()}>{r.languages.join(', ')}</td>)}</tr>
-              <tr><td style={td()}>Ada (TZS)</td>{rows.map((r) => <td key={r.id} style={td()}>{r.feeTzs.toLocaleString()}</td>)}</tr>
-              <tr><td style={td()}>Ukadiriaji</td>{rows.map((r) => <td key={r.id} style={td()}>{r.rating} ⭐</td>)}</tr>
-              <tr><td style={td()}>Eneo</td>{rows.map((r) => <td key={r.id} style={td()}>{r.location.city}, {r.location.region}</td>)}</tr>
-              <tr><td style={td()}>Hali</td>{rows.map((r) => <td key={r.id} style={td()}>{r.mode}</td>)}</tr>
+              <tr><td style={td()}>{t('gundua.compare.row_kind', 'Aina')}</td>{rows.map((r) => <td key={r.id} style={td()}>{r.kind}</td>)}</tr>
+              <tr><td style={td()}>{t('gundua.compare.row_languages', 'Lugha')}</td>{rows.map((r) => <td key={r.id} style={td()}>{r.languages.join(', ')}</td>)}</tr>
+              <tr><td style={td()}>{t('gundua.compare.row_fee', 'Ada (TZS)')}</td>{rows.map((r) => <td key={r.id} style={td()}>{r.feeTzs.toLocaleString()}</td>)}</tr>
+              <tr><td style={td()}>{t('gundua.compare.row_rating', 'Ukadiriaji')}</td>{rows.map((r) => <td key={r.id} style={td()}>{r.rating} ⭐</td>)}</tr>
+              <tr><td style={td()}>{t('gundua.compare.row_location', 'Eneo')}</td>{rows.map((r) => <td key={r.id} style={td()}>{r.location.city}, {r.location.region}</td>)}</tr>
+              <tr><td style={td()}>{t('gundua.compare.row_mode', 'Hali')}</td>{rows.map((r) => <td key={r.id} style={td()}>{r.mode}</td>)}</tr>
             </tbody>
           </table>
         </div>

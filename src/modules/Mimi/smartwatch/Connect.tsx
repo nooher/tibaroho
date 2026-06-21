@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 import { PageShell, Card } from '../components/Shell'
 import { JEWEL, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 import { listAdapters, getAdapter, type WatchAdapter, type WatchStatus, type WatchSample } from '../../../lib/smartwatch'
 import { parseCsv, parseJson, appendSamples } from '../../../lib/smartwatch/generic'
 
-const SCOPE_LABEL: Record<string, string> = {
-  hr: 'Mapigo', hrv: 'HRV', sleep: 'Usingizi', steps: 'Hatua', spo2: 'SpO₂',
-  skin_temp: 'Joto la ngozi', menstrual: 'Hedhi', activity: 'Mazoezi', calories: 'Kalori',
-}
-
 export default function SmartwatchConnect() {
+  const { t } = useLang()
+  const SCOPE_LABEL: Record<string, string> = {
+    hr: t('mimi.sw.scope.hr', 'Mapigo'), hrv: 'HRV', sleep: t('mimi.sw.scope.sleep', 'Usingizi'), steps: t('mimi.sw.scope.steps', 'Hatua'), spo2: 'SpO₂',
+    skin_temp: t('mimi.sw.scope.skin', 'Joto la ngozi'), menstrual: t('mimi.sw.scope.menstrual', 'Hedhi'), activity: t('mimi.sw.scope.activity', 'Mazoezi'), calories: t('mimi.sw.scope.cal', 'Kalori'),
+  }
   const [adapters, setAdapters] = useState<WatchAdapter[]>([])
   const [statuses, setStatuses] = useState<Record<string, WatchStatus>>({})
   const [reason, setReason] = useState<Record<string, string>>({})
@@ -51,9 +52,9 @@ export default function SmartwatchConnect() {
 
   return (
     <PageShell
-      title="Saa mahiri"
-      subtitle="Unganisha saa au smartphone ili Tumaini ielewe usingizi, mapigo, na hatua zako."
-      back={{ to: '/mimi', label: 'Mimi' }}
+      title={t('mimi.sw.title', 'Saa mahiri')}
+      subtitle={t('mimi.sw.subtitle', 'Unganisha saa au smartphone ili Tumaini ielewe usingizi, mapigo, na hatua zako.')}
+      back={{ to: '/mimi', label: t('mimi.nav.back', 'Mimi') }}
     >
       <div style={{ display: 'grid', gap: 14 }}>
         {adapters.map((a) => (
@@ -86,11 +87,11 @@ export default function SmartwatchConnect() {
                   background: statuses[a.id] === 'connected' ? hexToRgba(JEWEL.goldHope, 0.18) : hexToRgba('#000', 0.06),
                   color: statuses[a.id] === 'connected' ? JEWEL.goldHope : '#666',
                 }}>
-                  {statuses[a.id] === 'connected' ? 'IMEUNGANISHWA' : 'HAIJAUNGANISHWA'}
+                  {statuses[a.id] === 'connected' ? t('mimi.sw.connected', 'IMEUNGANISHWA') : t('mimi.sw.disconnected', 'HAIJAUNGANISHWA')}
                 </span>
                 <button
                   onClick={() => setConsentFor(a.id)}
-                  aria-label={`Unganisha ${a.label_sw}`}
+                  aria-label={`${t('mimi.sw.connect', 'Unganisha')} ${a.label_sw}`}
                   style={{
                     padding: '8px 14px',
                     borderRadius: 999,
@@ -100,20 +101,20 @@ export default function SmartwatchConnect() {
                     cursor: 'pointer',
                     fontWeight: 600,
                   }}
-                >Unganisha</button>
+                >{t('mimi.sw.connect', 'Unganisha')}</button>
               </div>
             </div>
 
             {a.id === 'generic' && (
               <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${hexToRgba('#000', 0.08)}` }}>
                 <label style={{ display: 'block', fontSize: 13, fontWeight: 600, marginBottom: 6 }}>
-                  Bandika data ya CSV au JSON
+                  {t('mimi.sw.paste', 'Bandika data ya CSV au JSON')}
                 </label>
                 <textarea
                   value={paste}
                   onChange={(e) => setPaste(e.target.value)}
                   rows={5}
-                  aria-label="Data ya saa mahiri"
+                  aria-label={t('mimi.sw.data-aria', 'Data ya saa mahiri')}
                   placeholder={'metric,value,unit,ts\nhr,72,bpm,2026-06-20T08:00:00'}
                   style={{
                     width: '100%',
@@ -137,10 +138,10 @@ export default function SmartwatchConnect() {
                     fontWeight: 700,
                     cursor: 'pointer',
                   }}
-                >Ingiza</button>
+                >{t('mimi.sw.import', 'Ingiza')}</button>
                 {importResult && (
                   <div style={{ marginTop: 8, fontSize: 13, color: JEWEL.tealMwenza }}>
-                    Imeingiza {importResult.count} sampuli ({importResult.kind.toUpperCase()}).
+                    {t('mimi.sw.imported', 'Imeingiza')} {importResult.count} {t('mimi.sw.samples', 'sampuli')} ({importResult.kind.toUpperCase()}).
                   </div>
                 )}
               </div>
@@ -153,7 +154,7 @@ export default function SmartwatchConnect() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Idhini ya kuunganisha"
+          aria-label={t('mimi.sw.consent-aria', 'Idhini ya kuunganisha')}
           style={{
             position: 'fixed',
             inset: 0,
@@ -174,20 +175,19 @@ export default function SmartwatchConnect() {
               border: `1px solid ${hexToRgba('#000', 0.08)}`,
             }}
           >
-            <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>Idhini ya kuunganisha</h3>
+            <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>{t('mimi.sw.consent-title', 'Idhini ya kuunganisha')}</h3>
             <p style={{ fontSize: 14, lineHeight: 1.6 }}>
-              Tumaini itasoma tu data unayoidhinisha. Unaweza kuzuia muunganisho wakati wowote.
-              Data huhifadhiwa kwenye kifaa chako kwanza, kisha kwa Supabase iliyolindwa.
+              {t('mimi.sw.consent-body', 'Tumaini itasoma tu data unayoidhinisha. Unaweza kuzuia muunganisho wakati wowote. Data huhifadhiwa kwenye kifaa chako kwanza, kisha kwa Supabase iliyolindwa.')}
             </p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 14 }}>
               <button
                 onClick={() => setConsentFor(null)}
                 style={{ padding: '8px 14px', borderRadius: 999, background: 'transparent', border: `1px solid ${hexToRgba('#000', 0.15)}`, cursor: 'pointer' }}
-              >Ghairi</button>
+              >{t('mimi.common.cancel', 'Ghairi')}</button>
               <button
                 onClick={() => void doConnect(consentFor)}
                 style={{ padding: '8px 14px', borderRadius: 999, background: JEWEL.tealMwenza, color: TEXT.onJewel, border: 'none', cursor: 'pointer', fontWeight: 700 }}
-              >Nakubali, unganisha</button>
+              >{t('mimi.sw.accept', 'Nakubali, unganisha')}</button>
             </div>
           </div>
         </div>

@@ -2,10 +2,11 @@ import type React from 'react'
 import { Card } from '../../_shared/Layout'
 import { BRAND, CREAM, NEUTRAL, RADII, TEXT, hexToRgba } from '../../../lib/glass'
 import { REAIM_METRICS, type ReaimMetric } from '../data/reaimMetrics'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
-function TrendChart({ m }: { m: ReaimMetric }): React.JSX.Element {
+function TrendChart({ m, targetLabel }: { m: ReaimMetric; targetLabel: string }): React.JSX.Element {
   const w = 320, h = 110, pad = 18
   const xs = m.history.map((p) => p.week)
   const ys = m.history.map((p) => p.value)
@@ -20,7 +21,7 @@ function TrendChart({ m }: { m: ReaimMetric }): React.JSX.Element {
       <line x1={pad} y1={h - pad} x2={w - pad} y2={h - pad} stroke={ink(0.15)} strokeWidth={1} />
       <line x1={pad} y1={pad} x2={pad} y2={h - pad} stroke={ink(0.15)} strokeWidth={1} />
       <line x1={pad} y1={ty} x2={w - pad} y2={ty} stroke={BRAND.yellow} strokeWidth={1.2} strokeDasharray="4 4" />
-      <text x={w - pad} y={ty - 4} textAnchor="end" fontSize={9} fill={BRAND.yellow} fontWeight={700}>lengo {m.target}</text>
+      <text x={w - pad} y={ty - 4} textAnchor="end" fontSize={9} fill={BRAND.yellow} fontWeight={700}>{targetLabel} {m.target}</text>
       <polyline points={pts} fill="none" stroke={BRAND.green} strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" />
       {m.history.map((p, i) => (
         <circle key={i} cx={px(p.week)} cy={py(p.value)} r={2.5} fill={BRAND.green} />
@@ -45,17 +46,19 @@ function exportMatrix(): void {
 }
 
 export default function REAIM(): React.JSX.Element {
+  const { t } = useLang()
+  const targetLabel = t('utafiti.reaim.target', 'lengo')
   return (
     <>
-      <Card title="RE-AIM — vipimo vya msingi" accent={BRAND.blue}>
+      <Card title={t('utafiti.reaim.title', 'RE-AIM — vipimo vya msingi')} accent={BRAND.blue}>
         <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
           <p style={{ margin: 0, fontSize: 13, color: TEXT.muted, maxWidth: 600 }}>
-            Glasgow, Vogt &amp; Boles 1999 — kufuatilia athari ya utafiti wa Hybrid Type 2 kwenye ngazi tano: Reach, Effectiveness, Adoption, Implementation, Maintenance.
+            {t('utafiti.reaim.intro', 'Glasgow, Vogt & Boles 1999 — kufuatilia athari ya utafiti wa Hybrid Type 2 kwenye ngazi tano: Reach, Effectiveness, Adoption, Implementation, Maintenance.')}
           </p>
           <button onClick={exportMatrix} style={{
             padding: '8px 14px', borderRadius: RADII.chip, background: BRAND.green,
             color: CREAM.milk, border: 'none', fontSize: 12, cursor: 'pointer',
-          }}>Pakua matrix (CSV)</button>
+          }}>{t('utafiti.reaim.export', 'Pakua matrix (CSV)')}</button>
         </div>
       </Card>
 
@@ -64,14 +67,14 @@ export default function REAIM(): React.JSX.Element {
           <Card key={m.id} title={`${m.swahili} — ${m.name}`} accent={BRAND.green}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
               <div className="serif" style={{ fontSize: 36, color: TEXT.heading, letterSpacing: '-0.6px' }}>{m.currentValue.toFixed(1)}</div>
-              <div style={{ fontSize: 12, color: TEXT.muted }}>{m.unit} · lengo {m.target}</div>
+              <div style={{ fontSize: 12, color: TEXT.muted }}>{m.unit} · {targetLabel} {m.target}</div>
             </div>
             <p style={{ fontSize: 12, color: TEXT.muted, margin: '8px 0 6px', lineHeight: 1.5 }}>{m.definition}</p>
             <div style={{
               background: CREAM.cream, border: `1px solid ${ink(0.08)}`, borderRadius: 8,
               padding: '6px 10px', fontSize: 11, color: TEXT.muted, marginBottom: 12, fontFamily: 'monospace',
             }}>= {m.calculation}</div>
-            <TrendChart m={m} />
+            <TrendChart m={m} targetLabel={targetLabel} />
           </Card>
         ))}
       </div>

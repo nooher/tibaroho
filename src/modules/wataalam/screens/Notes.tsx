@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { JEWEL, RADII, TYPE, TEXT, CREAM, hexToRgba } from '../../../lib/glass'
 import { Card, H1, buttonStyle, FieldLabel } from '../components/Card'
 import { loadNotes, saveNotes, type SessionNote } from '../lib/storage'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const SOAP_FIELDS: { key: string; labelSw: string; labelEn: string; hint: string }[] = [
   { key: 'S', labelSw: 'Maelezo ya mteja', labelEn: 'Subjective', hint: 'Anachosema mteja.' },
@@ -26,6 +27,7 @@ const ROHO_HINTS = [
 ]
 
 export default function Notes() {
+  const { t } = useLang()
   const [template, setTemplate] = useState<'SOAP' | 'DAP'>('SOAP')
   const [pseudonym, setPseudonym] = useState('Mteja A')
   const [fields, setFields] = useState<Record<string, string>>({})
@@ -50,10 +52,10 @@ export default function Notes() {
 
   return (
     <div>
-      <H1 english="Session notes">Kumbukumbu za kipindi</H1>
+      <H1 english="Session notes">{t('wataalam.notes.title', 'Kumbukumbu za kipindi')}</H1>
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14 }}>
-        <Card title={`Andika kumbukumbu — ${template}`}>
+        <Card title={`${t('wataalam.notes.write', 'Andika kumbukumbu')} — ${template}`}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
             {(['SOAP', 'DAP'] as const).map((t) => (
               <button
@@ -69,7 +71,7 @@ export default function Notes() {
             <input
               value={pseudonym}
               onChange={(e) => setPseudonym(e.target.value)}
-              placeholder="Mteja"
+              placeholder={t('wataalam.notes.patient_ph', 'Mteja')}
               style={{
                 padding: '8px 12px',
                 borderRadius: 999,
@@ -111,13 +113,13 @@ export default function Notes() {
             ))}
           </div>
           <button onClick={save} style={{ ...buttonStyle(JEWEL.goldHope, true), marginTop: 14 }}>
-            Hifadhi kumbukumbu
+            {t('wataalam.notes.save', 'Hifadhi kumbukumbu')}
           </button>
         </Card>
 
-        <Card title="Mwenza — mapendekezo" accent={JEWEL.goldHope}>
+        <Card title={t('wataalam.notes.rafiki_card', 'Mwenza — mapendekezo')} accent={JEWEL.goldHope}>
           <p style={{ fontSize: 12, color: TEXT.muted, margin: '0 0 10px' }}>
-            Vidokezo vya mwongozo (vya majaribio).
+            {t('wataalam.notes.experimental', 'Vidokezo vya mwongozo (vya majaribio).')}
           </p>
           <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: 8 }}>
             {ROHO_HINTS.map((h, i) => (
@@ -141,9 +143,9 @@ export default function Notes() {
         </Card>
       </div>
 
-      <Card title={`Kumbukumbu zilizohifadhiwa (${saved.length})`} style={{ marginTop: 14 }}>
+      <Card title={`${t('wataalam.notes.saved', 'Kumbukumbu zilizohifadhiwa')} (${saved.length})`} style={{ marginTop: 14 }}>
         {saved.length === 0 ? (
-          <p style={{ color: TEXT.muted, margin: 0 }}>Bado hakuna kumbukumbu.</p>
+          <p style={{ color: TEXT.muted, margin: 0 }}>{t('wataalam.notes.empty', 'Bado hakuna kumbukumbu.')}</p>
         ) : (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 8 }}>
             {saved.slice(0, 5).map((n) => (

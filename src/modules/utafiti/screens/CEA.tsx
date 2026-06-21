@@ -5,6 +5,7 @@ import { BRAND, CREAM, NEUTRAL, TEXT, hexToRgba } from '../../../lib/glass'
 import { list, insert } from '../../../lib/db'
 import type { TrAuditLog } from '../../../lib/db'
 import { getMeId } from '../../../lib/me'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -120,6 +121,7 @@ function OutTile({ label, usd, tzs, note }: { label: string; usd: number; tzs?: 
 }
 
 export default function CEA(): React.JSX.Element {
+  const { t } = useLang()
   const [inp, setInp] = useState<Inputs>(DEFAULTS)
   useEffect(() => {
     setInp(load())
@@ -153,49 +155,49 @@ export default function CEA(): React.JSX.Element {
   }, [inp])
 
   const icerVerdict = calc.icer < THRESH_1X
-    ? 'Bora sana (chini ya 1× GDP/capita — WHO-CHOICE)'
+    ? t('utafiti.cea.verdict.excellent', 'Bora sana (chini ya 1× GDP/capita — WHO-CHOICE)')
     : calc.icer < THRESH_3X
-      ? 'Bora (1×–3× GDP/capita)'
-      : 'Si bora kiuchumi (juu ya 3× GDP/capita)'
+      ? t('utafiti.cea.verdict.good', 'Bora (1×–3× GDP/capita)')
+      : t('utafiti.cea.verdict.poor', 'Si bora kiuchumi (juu ya 3× GDP/capita)')
 
   return (
     <>
-      <Card title="Cost-Effectiveness Analysis — calculator" accent={BRAND.green}>
+      <Card title={t('utafiti.cea.title', 'Cost-Effectiveness Analysis — calculator')} accent={BRAND.green}>
         <p style={{ margin: '0 0 14px', fontSize: 13, color: TEXT.muted }}>
-          Weka gharama halisi za utafiti; mahesabu yanasasishwa moja kwa moja. Vipimo vya WHO-CHOICE Tanzania: 1× GDP/capita ≈ USD {THRESH_1X.toLocaleString()}, 3× ≈ USD {THRESH_3X.toLocaleString()}.
+          {t('utafiti.cea.intro', 'Weka gharama halisi za utafiti; mahesabu yanasasishwa moja kwa moja. Vipimo vya WHO-CHOICE Tanzania:')} 1× GDP/capita ≈ USD {THRESH_1X.toLocaleString()}, 3× ≈ USD {THRESH_3X.toLocaleString()}.
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12 }}>
-          <NumInput label="Gharama / kikao" value={inp.costPerSession} unit="USD" onChange={(v) => set('costPerSession', v)} />
-          <NumInput label="Gharama / tathmini" value={inp.costPerAssessment} unit="USD" onChange={(v) => set('costPerAssessment', v)} />
-          <NumInput label="Overhead miundombinu" value={inp.infraOverhead} unit="USD" onChange={(v) => set('infraOverhead', v)} />
-          <NumInput label="Mshahara mtoa huduma" value={inp.providerSalary} unit="USD" onChange={(v) => set('providerSalary', v)} />
-          <NumInput label="Ada za M-Pesa" value={inp.mpesaFees} unit="USD" onChange={(v) => set('mpesaFees', v)} />
-          <NumInput label="Gharama ya kituo" value={inp.facilityCost} unit="USD" onChange={(v) => set('facilityCost', v)} />
-          <NumInput label="Vikao / mhusika" value={inp.sessionsPerCase} unit="#" onChange={(v) => set('sessionsPerCase', v)} />
-          <NumInput label="Tathmini / mhusika" value={inp.assessmentsPerCase} unit="#" onChange={(v) => set('assessmentsPerCase', v)} />
-          <NumInput label="Kiwango cha kugundua" value={inp.caseDetectionRate} unit="%" onChange={(v) => set('caseDetectionRate', v)} />
-          <NumInput label="Kuanza tiba" value={inp.treatmentInitiationRate} unit="%" onChange={(v) => set('treatmentInitiationRate', v)} />
-          <NumInput label="Remission rate" value={inp.remissionRate} unit="%" onChange={(v) => set('remissionRate', v)} />
-          <NumInput label="Routine care / kesi" value={inp.routineCarePerCase} unit="USD" onChange={(v) => set('routineCarePerCase', v)} />
+          <NumInput label={t('utafiti.cea.in.cost_session', 'Gharama / kikao')} value={inp.costPerSession} unit="USD" onChange={(v) => set('costPerSession', v)} />
+          <NumInput label={t('utafiti.cea.in.cost_assessment', 'Gharama / tathmini')} value={inp.costPerAssessment} unit="USD" onChange={(v) => set('costPerAssessment', v)} />
+          <NumInput label={t('utafiti.cea.in.infra_overhead', 'Overhead miundombinu')} value={inp.infraOverhead} unit="USD" onChange={(v) => set('infraOverhead', v)} />
+          <NumInput label={t('utafiti.cea.in.provider_salary', 'Mshahara mtoa huduma')} value={inp.providerSalary} unit="USD" onChange={(v) => set('providerSalary', v)} />
+          <NumInput label={t('utafiti.cea.in.mpesa_fees', 'Ada za M-Pesa')} value={inp.mpesaFees} unit="USD" onChange={(v) => set('mpesaFees', v)} />
+          <NumInput label={t('utafiti.cea.in.facility_cost', 'Gharama ya kituo')} value={inp.facilityCost} unit="USD" onChange={(v) => set('facilityCost', v)} />
+          <NumInput label={t('utafiti.cea.in.sessions_case', 'Vikao / mhusika')} value={inp.sessionsPerCase} unit="#" onChange={(v) => set('sessionsPerCase', v)} />
+          <NumInput label={t('utafiti.cea.in.assessments_case', 'Tathmini / mhusika')} value={inp.assessmentsPerCase} unit="#" onChange={(v) => set('assessmentsPerCase', v)} />
+          <NumInput label={t('utafiti.cea.in.detection_rate', 'Kiwango cha kugundua')} value={inp.caseDetectionRate} unit="%" onChange={(v) => set('caseDetectionRate', v)} />
+          <NumInput label={t('utafiti.cea.in.initiation', 'Kuanza tiba')} value={inp.treatmentInitiationRate} unit="%" onChange={(v) => set('treatmentInitiationRate', v)} />
+          <NumInput label={t('utafiti.cea.in.remission', 'Remission rate')} value={inp.remissionRate} unit="%" onChange={(v) => set('remissionRate', v)} />
+          <NumInput label={t('utafiti.cea.in.routine_case', 'Routine care / kesi')} value={inp.routineCarePerCase} unit="USD" onChange={(v) => set('routineCarePerCase', v)} />
         </div>
       </Card>
 
-      <Card title="Matokeo — kwa USD na TZS" accent={BRAND.blue}>
+      <Card title={t('utafiti.cea.results_title', 'Matokeo — kwa USD na TZS')} accent={BRAND.blue}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-          <OutTile label="Gharama / mhusika" usd={calc.perCase} tzs={calc.perCase * TZS_PER_USD} />
-          <OutTile label="Gharama / kesi iliyogunduliwa" usd={calc.costPerDetected} tzs={calc.costPerDetected * TZS_PER_USD} />
-          <OutTile label="Gharama / kesi iliyotibiwa" usd={calc.costPerTreated} tzs={calc.costPerTreated * TZS_PER_USD} />
-          <OutTile label="Gharama / remission" usd={calc.costPerRemission} tzs={calc.costPerRemission * TZS_PER_USD} note="Outcome ya msingi ya PhD" />
-          <OutTile label="Routine care / remission" usd={calc.routineCostPerRemission} tzs={calc.routineCostPerRemission * TZS_PER_USD} note="Kulinganisha (comparator)" />
-          <OutTile label="ICER vs routine" usd={calc.icer} tzs={calc.icer * TZS_PER_USD} note={icerVerdict} />
-          <OutTile label="Markov 1-yr (booster + maint.)" usd={calc.markovYear1Cost} tzs={calc.markovYear1Cost * TZS_PER_USD} note="Sketch — full Markov ujenzini" />
+          <OutTile label={t('utafiti.cea.out.per_case', 'Gharama / mhusika')} usd={calc.perCase} tzs={calc.perCase * TZS_PER_USD} />
+          <OutTile label={t('utafiti.cea.out.per_detected', 'Gharama / kesi iliyogunduliwa')} usd={calc.costPerDetected} tzs={calc.costPerDetected * TZS_PER_USD} />
+          <OutTile label={t('utafiti.cea.out.per_treated', 'Gharama / kesi iliyotibiwa')} usd={calc.costPerTreated} tzs={calc.costPerTreated * TZS_PER_USD} />
+          <OutTile label={t('utafiti.cea.out.per_remission', 'Gharama / remission')} usd={calc.costPerRemission} tzs={calc.costPerRemission * TZS_PER_USD} note={t('utafiti.cea.out.per_remission_note', 'Outcome ya msingi ya PhD')} />
+          <OutTile label={t('utafiti.cea.out.routine_remission', 'Routine care / remission')} usd={calc.routineCostPerRemission} tzs={calc.routineCostPerRemission * TZS_PER_USD} note={t('utafiti.cea.out.comparator', 'Kulinganisha (comparator)')} />
+          <OutTile label={t('utafiti.cea.out.icer', 'ICER vs routine')} usd={calc.icer} tzs={calc.icer * TZS_PER_USD} note={icerVerdict} />
+          <OutTile label={t('utafiti.cea.out.markov', 'Markov 1-yr (booster + maint.)')} usd={calc.markovYear1Cost} tzs={calc.markovYear1Cost * TZS_PER_USD} note={t('utafiti.cea.out.markov_note', 'Sketch — full Markov ujenzini')} />
         </div>
 
         <div style={{
           marginTop: 18, padding: 14, background: CREAM.cream, border: `1px solid ${ink(0.08)}`,
           borderRadius: 12, display: 'flex', flexDirection: 'column', gap: 10,
         }}>
-          <div style={{ fontSize: 11, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>WHO-CHOICE Tanzania threshold bar</div>
+          <div style={{ fontSize: 11, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600 }}>{t('utafiti.cea.threshold_bar', 'WHO-CHOICE Tanzania threshold bar')}</div>
           <div style={{ position: 'relative', height: 18, background: ink(0.06), borderRadius: 9 }}>
             <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${Math.min(100, (THRESH_1X / THRESH_3X) * 100)}%`, background: hexToRgba(BRAND.green, 0.5), borderRadius: 9 }} />
             <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '100%', background: hexToRgba(BRAND.yellow, 0.2), borderRadius: 9 }} />

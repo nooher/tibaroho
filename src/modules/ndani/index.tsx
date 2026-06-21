@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { Card, ModuleShell, Table, Td, type SubNav } from '../_shared/Layout'
 import { JEWEL, RADII, TEXT } from '../../lib/glass'
+import { useLang } from '../../lib/i18n/Provider'
 import CrisisMonitor from './screens/Crisis'
 import FounderConsole from './screens/Founder'
 import Providers from './screens/Providers'
@@ -46,19 +47,21 @@ const AUDIT_LOG = [
 ]
 
 function Overview(): React.JSX.Element {
+  const { t } = useLang()
   return (
-    <Card title="Ndani — Uongozi">
-      <p>Sehemu ya admin kwa wafanyakazi wa Laetoli. Inajumuisha foleni ya kuthibitisha wahudumu, moderation, ripoti ya equity, IRB library, na audit log.</p>
+    <Card title={t('ndani.overview.title', 'Ndani — Uongozi')}>
+      <p>{t('ndani.overview.body', 'Sehemu ya admin kwa wafanyakazi wa Laetoli. Inajumuisha foleni ya kuthibitisha wahudumu, moderation, ripoti ya equity, IRB library, na audit log.')}</p>
     </Card>
   )
 }
 
 function Verify(): React.JSX.Element {
+  const { t } = useLang()
   const [rows, setRows] = useState(VERIFY_INITIAL)
   const act = (id: string, status: 'verified' | 'rejected') => setRows(rows.map((r) => r.id === id ? { ...r, status } : r))
   return (
-    <Card title="Foleni ya kuthibitisha wahudumu">
-      <Table headers={['Jina', 'Aina', 'Tarehe', 'Hali', 'Hatua']}>
+    <Card title={t('ndani.verify.title', 'Foleni ya kuthibitisha wahudumu')}>
+      <Table headers={[t('ndani.verify.col.name', 'Jina'), t('ndani.verify.col.kind', 'Aina'), t('ndani.verify.col.date', 'Tarehe'), t('ndani.verify.col.status', 'Hali'), t('ndani.verify.col.action', 'Hatua')]}>
         {rows.map((r) => (
           <tr key={r.id}>
             <Td><strong>{r.name}</strong></Td>
@@ -68,8 +71,8 @@ function Verify(): React.JSX.Element {
             <Td>
               {r.status === 'pending' ? (
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <button onClick={() => act(r.id, 'verified')} style={{ ...btnStyle, background: JEWEL.tealRoho }}>Thibitisha</button>
-                  <button onClick={() => act(r.id, 'rejected')} style={{ ...btnStyle, background: JEWEL.maroonCrisis }}>Kataa</button>
+                  <button onClick={() => act(r.id, 'verified')} style={{ ...btnStyle, background: JEWEL.tealRoho }}>{t('ndani.verify.approve', 'Thibitisha')}</button>
+                  <button onClick={() => act(r.id, 'rejected')} style={{ ...btnStyle, background: JEWEL.maroonCrisis }}>{t('ndani.verify.reject', 'Kataa')}</button>
                 </div>
               ) : '—'}
             </Td>
@@ -86,9 +89,10 @@ const btnStyle = {
 }
 
 function Moderation(): React.JSX.Element {
+  const { t } = useLang()
   return (
-    <Card title="Foleni ya moderation">
-      <Table headers={['Aina', 'Maudhui', 'Imegunduliwa na', 'Hatua iliyopendekezwa']}>
+    <Card title={t('ndani.moderation.title', 'Foleni ya moderation')}>
+      <Table headers={[t('ndani.moderation.col.kind', 'Aina'), t('ndani.moderation.col.content', 'Maudhui'), t('ndani.moderation.col.flagged_by', 'Imegunduliwa na'), t('ndani.moderation.col.suggested', 'Hatua iliyopendekezwa')]}>
         {MOD_QUEUE.map((r) => (
           <tr key={r.id}>
             <Td>{r.kind}</Td>
@@ -103,9 +107,10 @@ function Moderation(): React.JSX.Element {
 }
 
 function Equity(): React.JSX.Element {
+  const { t } = useLang()
   return (
-    <Card title="Ripoti ya equity">
-      <Table headers={['Mhimili', 'Mgawanyo', 'Maelezo']}>
+    <Card title={t('ndani.equity.title', 'Ripoti ya equity')}>
+      <Table headers={[t('ndani.equity.col.axis', 'Mhimili'), t('ndani.equity.col.distribution', 'Mgawanyo'), t('ndani.equity.col.notes', 'Maelezo')]}>
         {EQUITY_REPORT.map((r) => (
           <tr key={r.dim}><Td><strong>{r.dim}</strong></Td><Td>{r.balanced}</Td><Td>{r.note}</Td></tr>
         ))}
@@ -115,9 +120,10 @@ function Equity(): React.JSX.Element {
 }
 
 function IrbLib(): React.JSX.Element {
+  const { t } = useLang()
   return (
-    <Card title="Maktaba ya IRB">
-      <Table headers={['Itifaki', 'IRB', 'Toleo']}>
+    <Card title={t('ndani.irb.title', 'Maktaba ya IRB')}>
+      <Table headers={[t('ndani.irb.col.protocol', 'Itifaki'), t('ndani.irb.col.irb', 'IRB'), t('ndani.irb.col.version', 'Toleo')]}>
         {IRB_LIBRARY.map((r) => (
           <tr key={r.name}><Td>{r.name}</Td><Td>{r.irb}</Td><Td>{r.version}</Td></tr>
         ))}
@@ -127,9 +133,10 @@ function IrbLib(): React.JSX.Element {
 }
 
 function AuditView(): React.JSX.Element {
+  const { t } = useLang()
   return (
-    <Card title="Audit log">
-      <Table headers={['Wakati', 'Mhusika', 'Hatua', 'Entity']}>
+    <Card title={t('ndani.audit.title', 'Audit log')}>
+      <Table headers={[t('ndani.audit.col.time', 'Wakati'), t('ndani.audit.col.actor', 'Mhusika'), t('ndani.audit.col.action', 'Hatua'), t('ndani.audit.col.entity', 'Entity')]}>
         {AUDIT_LOG.map((r, i) => (
           <tr key={i}><Td>{r.ts}</Td><Td>{r.actor}</Td><Td>{r.action}</Td><Td><code>{r.entity}</code></Td></tr>
         ))}

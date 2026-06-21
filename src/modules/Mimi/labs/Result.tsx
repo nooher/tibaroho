@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { PageShell, Card } from '../components/Shell'
 import { JEWEL, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 import { REF_RANGES, interpretLab, type LabFlag } from './data/refRanges'
 import { createRafiki, createRafikiSession } from '../../../lib/rafiki/router'
 import { allExperts } from '../../../lib/rafiki/experts'
@@ -67,15 +68,15 @@ const FLAG_COLORS: Record<LabFlag, string> = {
   unknown: '#666',
 }
 
-const FLAG_LABEL: Record<LabFlag, string> = {
-  low: 'CHINI',
-  normal: 'KAWAIDA',
-  high: 'JUU',
-  critical: 'DHARURA',
-  unknown: 'HAIJULIKANI',
-}
-
 export default function LabsResult() {
+  const { t } = useLang()
+  const FLAG_LABEL: Record<LabFlag, string> = {
+    low: t('mimi.labs.flag.low', 'CHINI'),
+    normal: t('mimi.labs.flag.normal', 'KAWAIDA'),
+    high: t('mimi.labs.flag.high', 'JUU'),
+    critical: t('mimi.labs.flag.critical', 'DHARURA'),
+    unknown: t('mimi.labs.flag.unknown', 'HAIJULIKANI'),
+  }
   const { id } = useParams<{ id: string }>()
   const [result, setResult] = useState<SavedResult | undefined>(() => id ? readResult(id) : undefined)
   const [rafikiAnswer, setRafikiAnswer] = useState<RafikiAnswer | null>(null)
@@ -110,30 +111,30 @@ export default function LabsResult() {
 
   if (!result) {
     return (
-      <PageShell title="Matokeo hayapatikani" back={{ to: '/mimi/vipimo-vya-maabara', label: 'Maabara' }}>
+      <PageShell title={t('mimi.labs.res.not-found', 'Matokeo hayapatikani')} back={{ to: '/mimi/vipimo-vya-maabara', label: t('mimi.labs.back', 'Maabara') }}>
         <Card>
-          <p>Matokeo ya kipimo hicho hayapo kwenye kifaa hiki.</p>
+          <p>{t('mimi.labs.res.missing', 'Matokeo ya kipimo hicho hayapo kwenye kifaa hiki.')}</p>
         </Card>
       </PageShell>
     )
   }
 
   const questions = [
-    'Je, ni nini husababisha matokeo haya?',
-    'Je, ninahitaji kipimo cha kufuatilia?',
-    'Mtindo wa maisha gani ungesaidia?',
-    'Je, kuna dawa zinazoweza kuathiri matokeo?',
-    'Lini nirudie kupima?',
+    t('mimi.labs.q.cause', 'Je, ni nini husababisha matokeo haya?'),
+    t('mimi.labs.q.followup', 'Je, ninahitaji kipimo cha kufuatilia?'),
+    t('mimi.labs.q.lifestyle', 'Mtindo wa maisha gani ungesaidia?'),
+    t('mimi.labs.q.meds', 'Je, kuna dawa zinazoweza kuathiri matokeo?'),
+    t('mimi.labs.q.when-retest', 'Lini nirudie kupima?'),
   ]
 
   return (
     <PageShell
       title={result.title}
       subtitle={new Date(result.ts).toLocaleString('sw-TZ')}
-      back={{ to: '/mimi/vipimo-vya-maabara', label: 'Maabara' }}
+      back={{ to: '/mimi/vipimo-vya-maabara', label: t('mimi.labs.back', 'Maabara') }}
     >
       <Card style={{ marginBottom: 16 }}>
-        <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>Tafsiri ya kila thamani</h3>
+        <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>{t('mimi.labs.res.interpretation', 'Tafsiri ya kila thamani')}</h3>
         <div style={{ display: 'grid', gap: 12 }}>
           {interpretations.map((row, i) => (
             <div key={i} style={{ padding: 12, borderRadius: 12, background: hexToRgba(FLAG_COLORS[row.interp.flag], 0.07), border: `1px solid ${hexToRgba(FLAG_COLORS[row.interp.flag], 0.25)}` }}>
@@ -142,7 +143,7 @@ export default function LabsResult() {
                 <span style={{ fontSize: 12, fontWeight: 700, color: FLAG_COLORS[row.interp.flag] }}>{FLAG_LABEL[row.interp.flag]}</span>
               </div>
               <div style={{ fontSize: 14, marginTop: 4 }}>{row.interp.message_sw}</div>
-              <div style={{ fontSize: 12, color: TEXT.muted, marginTop: 4 }}>Chanzo: {row.range.source}</div>
+              <div style={{ fontSize: 12, color: TEXT.muted, marginTop: 4 }}>{t('mimi.labs.res.source', 'Chanzo')}: {row.range.source}</div>
             </div>
           ))}
         </div>
@@ -150,13 +151,13 @@ export default function LabsResult() {
 
       {rafikiAnswer && (
         <Card style={{ marginBottom: 16 }}>
-          <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>Rafiki anasema</h3>
+          <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>{t('mimi.labs.res.rafiki-says', 'Rafiki anasema')}</h3>
           <div style={{ whiteSpace: 'pre-line', color: JEWEL.tealMwenza }}>{rafikiAnswer.text.sw}</div>
         </Card>
       )}
 
       <Card>
-        <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>Maswali ya kumuuliza daktari</h3>
+        <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>{t('mimi.labs.res.questions', 'Maswali ya kumuuliza daktari')}</h3>
         <ol style={{ paddingLeft: 18, lineHeight: 1.7 }}>
           {questions.map((q, i) => (<li key={i}>{q}</li>))}
         </ol>

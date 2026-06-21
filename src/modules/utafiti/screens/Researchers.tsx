@@ -5,6 +5,7 @@ import { BRAND, CREAM, NEUTRAL, RADII, TEXT, hexToRgba } from '../../../lib/glas
 import { list, insert } from '../../../lib/db'
 import type { TrAuditLog, TrUser } from '../../../lib/db'
 import { getMeId } from '../../../lib/me'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -65,6 +66,7 @@ function rowToApp(row: TrAuditLog, idx: number): Application {
 }
 
 export default function Researchers(): React.JSX.Element {
+  const { t } = useLang()
   const [apps, setApps] = useState<Application[]>(INITIAL)
   const [researcherUsers, setResearcherUsers] = useState<TrUser[]>([])
   const [form, setForm] = useState<Omit<Application, 'id' | 'status' | 'ts'>>({
@@ -137,18 +139,18 @@ export default function Researchers(): React.JSX.Element {
 
   return (
     <>
-      <Card title="Maombi ya mtafiti wa nje" accent={BRAND.green}>
+      <Card title={t('utafiti.researchers.app_title', 'Maombi ya mtafiti wa nje')} accent={BRAND.green}>
         <p style={{ margin: '0 0 14px', fontSize: 13, color: TEXT.muted }}>
-          Watafiti wa nje wanawasilisha MoU, barua ya IRB, na itifaki ya utafiti. Maombi yanapitishwa na timu ya Ndani kabla ya kupata scoped query access.
+          {t('utafiti.researchers.app_intro', 'Watafiti wa nje wanawasilisha MoU, barua ya IRB, na itifaki ya utafiti. Maombi yanapitishwa na timu ya Ndani kabla ya kupata scoped query access.')}
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10, marginBottom: 12 }}>
           {([
-            ['name', 'Jina kamili'],
-            ['affiliation', 'Taasisi'],
-            ['irbLetter', 'IRB approval letter (jina la faili)'],
-            ['protocol', 'Itifaki ya utafiti (jina la faili)'],
-            ['mou', 'MoU (jina la faili)'],
-            ['scope', 'Ufikiaji unaohitajika (scope)'],
+            ['name', t('utafiti.researchers.f.name', 'Jina kamili')],
+            ['affiliation', t('utafiti.researchers.f.affiliation', 'Taasisi')],
+            ['irbLetter', t('utafiti.researchers.f.irb_letter', 'IRB approval letter (jina la faili)')],
+            ['protocol', t('utafiti.researchers.f.protocol', 'Itifaki ya utafiti (jina la faili)')],
+            ['mou', t('utafiti.researchers.f.mou', 'MoU (jina la faili)')],
+            ['scope', t('utafiti.researchers.f.scope', 'Ufikiaji unaohitajika (scope)')],
           ] as const).map(([k, lbl]) => (
             <label key={k} style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: TEXT.muted }}>
               {lbl}
@@ -160,11 +162,11 @@ export default function Researchers(): React.JSX.Element {
         <button onClick={submit} style={{
           padding: '10px 16px', borderRadius: RADII.chip, background: BRAND.green,
           color: TEXT.onJewel, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-        }}>Wasilisha ombi</button>
+        }}>{t('utafiti.researchers.submit', 'Wasilisha ombi')}</button>
       </Card>
 
-      <Card title="Foleni ya ukaguzi" accent={BRAND.yellow}>
-        <Table headers={['#', 'Jina', 'Taasisi', 'IRB', 'Scope', 'Hali', 'Hatua']}>
+      <Card title={t('utafiti.researchers.queue', 'Foleni ya ukaguzi')} accent={BRAND.yellow}>
+        <Table headers={['#', t('utafiti.researchers.col.name', 'Jina'), t('utafiti.researchers.col.aff', 'Taasisi'), 'IRB', t('utafiti.researchers.col.scope', 'Scope'), t('utafiti.researchers.col.status', 'Hali'), t('utafiti.researchers.col.action', 'Hatua')]}>
           {apps.map((a) => (
             <tr key={a.id}>
               <Td style={{ color: TEXT.body }}><strong>{a.id}</strong></Td>
@@ -182,11 +184,11 @@ export default function Researchers(): React.JSX.Element {
                     <button onClick={() => act(a.id, 'Approved')} style={{
                       padding: '6px 10px', borderRadius: 999, background: BRAND.green, color: TEXT.onJewel,
                       border: 'none', fontSize: 11, cursor: 'pointer',
-                    }}>Kubali</button>
+                    }}>{t('utafiti.researchers.approve', 'Kubali')}</button>
                     <button onClick={() => act(a.id, 'Rejected')} style={{
                       padding: '6px 10px', borderRadius: 999, background: BRAND.ink, color: TEXT.onJewel,
                       border: 'none', fontSize: 11, cursor: 'pointer',
-                    }}>Kataa</button>
+                    }}>{t('utafiti.researchers.reject', 'Kataa')}</button>
                   </div>
                 ) : '—'}
               </Td>
@@ -195,8 +197,8 @@ export default function Researchers(): React.JSX.Element {
         </Table>
       </Card>
 
-      <Card title="Watafiti waliokubaliwa — scoped query access" accent={BRAND.blue}>
-        <Table headers={['Mtafiti', 'Taasisi', 'Ufikiaji']}>
+      <Card title={t('utafiti.researchers.approved_title', 'Watafiti waliokubaliwa — scoped query access')} accent={BRAND.blue}>
+        <Table headers={[t('utafiti.researchers.col.researcher', 'Mtafiti'), t('utafiti.researchers.col.aff', 'Taasisi'), t('utafiti.researchers.col.access', 'Ufikiaji')]}>
           {apps.filter((a) => a.status === 'Approved').map((a) => (
             <tr key={a.id}>
               <Td style={{ color: TEXT.body }}>{a.name}</Td>
@@ -208,8 +210,8 @@ export default function Researchers(): React.JSX.Element {
       </Card>
 
       {researcherUsers.length > 0 ? (
-        <Card title={`Watafiti wenye akaunti hai (${researcherUsers.length})`} accent={BRAND.green}>
-          <Table headers={['Jina', 'Lugha', 'Mkoa']}>
+        <Card title={`${t('utafiti.researchers.active_accounts', 'Watafiti wenye akaunti hai')} (${researcherUsers.length})`} accent={BRAND.green}>
+          <Table headers={[t('utafiti.researchers.col.name', 'Jina'), t('utafiti.researchers.col.lang', 'Lugha'), t('utafiti.researchers.col.region', 'Mkoa')]}>
             {researcherUsers.map((u) => (
               <tr key={u.id}>
                 <Td style={{ color: TEXT.body }}><strong>{u.display_name ?? '—'}</strong></Td>
@@ -221,8 +223,8 @@ export default function Researchers(): React.JSX.Element {
         </Card>
       ) : null}
 
-      <Card title="Audit log — query za hivi karibuni (20)" accent={NEUTRAL.ink}>
-        <Table headers={['Wakati', 'Mtafiti', 'Query']}>
+      <Card title={t('utafiti.researchers.audit_title', 'Audit log — query za hivi karibuni (20)')} accent={NEUTRAL.ink}>
+        <Table headers={[t('utafiti.researchers.col.time', 'Wakati'), t('utafiti.researchers.col.researcher', 'Mtafiti'), 'Query']}>
           {AUDIT.map((e, i) => (
             <tr key={i}>
               <Td style={{ color: TEXT.muted }}>{e.ts}</Td>

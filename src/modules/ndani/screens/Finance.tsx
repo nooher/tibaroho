@@ -2,6 +2,7 @@ import type React from 'react'
 import { useMemo, useState } from 'react'
 import { Card, Table, Td } from '../../_shared/Layout'
 import { BRAND, TZ_FLAG, hexToRgba, RADII, TEXT } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 
 interface Payout { id: string; provider: string; amount: number; date: string; method: 'M-Pesa' | 'Bank' | 'Airtel Money' }
 interface Settlement { id: string; insurer: string; amount: number; date: string; status: 'received' | 'pending' }
@@ -40,6 +41,7 @@ const MONTHLY_PL: { month: string; revenue: number; cogs: number; opex: number }
 function fmt(n: number): string { return `TZS ${n.toLocaleString()}` }
 
 export default function Finance(): React.JSX.Element {
+  const { t } = useLang()
   const [payoutSel, setPayoutSel] = useState<Record<string, boolean>>({})
   const totalPayout = useMemo(
     () => PAYOUTS.filter((p) => payoutSel[p.id] ?? true).reduce((s, p) => s + p.amount, 0),
@@ -61,23 +63,20 @@ export default function Finance(): React.JSX.Element {
 
   return (
     <>
-      <Card title="Fedha — mtazamo wa jumla">
+      <Card title={t('ndani.fin.overview_title', 'Fedha — mtazamo wa jumla')}>
         <p style={{ marginTop: 0 }}>
-          Foleni ya malipo kwa wahudumu (M-Pesa/Airtel/Bank), malipo yanayoingia kutoka kwa
-          wabima, ledger ya ufadhili, na hesabu ya gharama kwa kila kipindi na kila pointi ya
-          PHQ-9 iliyoshushwa. Vipimo vya gharama vinatumia mfano wa cost-effectiveness uliopendekezwa
-          na Chisholm et al., 2016 (Lancet Psych).
+          {t('ndani.fin.overview_body', 'Foleni ya malipo kwa wahudumu (M-Pesa/Airtel/Bank), malipo yanayoingia kutoka kwa wabima, ledger ya ufadhili, na hesabu ya gharama kwa kila kipindi na kila pointi ya PHQ-9 iliyoshushwa.')}
         </p>
         <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', marginTop: 12 }}>
-          <Kpi label="Malipo yaliyochaguliwa"  value={fmt(totalPayout)}   accent={TZ_FLAG.green} />
-          <Kpi label="Yanayoingia (wabima)"    value={fmt(totalIncoming)} accent={TZ_FLAG.blue} />
-          <Kpi label="Ufadhili uliosalia"      value={fmt(totalGrants)}   accent={TZ_FLAG.yellow} />
-          <Kpi label="Net YTD"                 value={fmt(ytdNet)}        accent={ytdNet >= 0 ? TZ_FLAG.green : TZ_FLAG.yellow} />
+          <Kpi label={t('ndani.fin.kpi.selected_payout', 'Malipo yaliyochaguliwa')}  value={fmt(totalPayout)}   accent={TZ_FLAG.green} />
+          <Kpi label={t('ndani.fin.kpi.incoming', 'Yanayoingia (wabima)')}    value={fmt(totalIncoming)} accent={TZ_FLAG.blue} />
+          <Kpi label={t('ndani.fin.kpi.grants_left', 'Ufadhili uliosalia')}      value={fmt(totalGrants)}   accent={TZ_FLAG.yellow} />
+          <Kpi label={t('ndani.fin.kpi.net_ytd', 'Net YTD')}                 value={fmt(ytdNet)}        accent={ytdNet >= 0 ? TZ_FLAG.green : TZ_FLAG.yellow} />
         </div>
       </Card>
 
-      <Card title="Foleni ya malipo — wahudumu">
-        <Table headers={['Chagua', 'Mhudumu', 'Kiasi', 'Tarehe', 'Njia']}>
+      <Card title={t('ndani.fin.payouts_title', 'Foleni ya malipo — wahudumu')}>
+        <Table headers={[t('ndani.fin.col.pick', 'Chagua'), t('ndani.fin.col.provider', 'Mhudumu'), t('ndani.fin.col.amount', 'Kiasi'), t('ndani.fin.col.date', 'Tarehe'), t('ndani.fin.col.method', 'Njia')]}>
           {PAYOUTS.map((p) => (
             <tr key={p.id}>
               <Td>
@@ -94,19 +93,19 @@ export default function Finance(): React.JSX.Element {
           ))}
         </Table>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
-          <button aria-label="Tuma malipo yaliyochaguliwa"
+          <button aria-label={t('ndani.fin.send_aria', 'Tuma malipo yaliyochaguliwa')}
             style={{
               padding: '10px 18px', borderRadius: RADII.chip,
               background: BRAND.green, color: TEXT.onJewel, border: 'none',
               fontSize: 13, fontWeight: 700, cursor: 'pointer',
             }}>
-            Tuma malipo ({fmt(totalPayout)})
+            {t('ndani.fin.send_button', 'Tuma malipo')} ({fmt(totalPayout)})
           </button>
         </div>
       </Card>
 
-      <Card title="Malipo yanayoingia — wabima">
-        <Table headers={['Bima', 'Kiasi', 'Tarehe', 'Hali']}>
+      <Card title={t('ndani.fin.incoming_title', 'Malipo yanayoingia — wabima')}>
+        <Table headers={[t('ndani.fin.col.insurer', 'Bima'), t('ndani.fin.col.amount', 'Kiasi'), t('ndani.fin.col.date', 'Tarehe'), t('ndani.fin.col.status', 'Hali')]}>
           {SETTLEMENTS.map((s) => (
             <tr key={s.id}>
               <Td><strong>{s.insurer}</strong></Td>
@@ -117,15 +116,15 @@ export default function Finance(): React.JSX.Element {
                   padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700,
                   background: s.status === 'received' ? TZ_FLAG.green : TZ_FLAG.yellow,
                   color: s.status === 'received' ? '#fff' : BRAND.ink,
-                }}>{s.status === 'received' ? 'Imepokelewa' : 'Inasubiri'}</span>
+                }}>{s.status === 'received' ? t('ndani.fin.status.received', 'Imepokelewa') : t('ndani.fin.status.pending', 'Inasubiri')}</span>
               </Td>
             </tr>
           ))}
         </Table>
       </Card>
 
-      <Card title="Ledger ya ufadhili">
-        <Table headers={['Mfadhili', 'Programu', 'Iliyotolewa', 'Iliyotumika', 'Iliyobaki', 'Inafungwa']}>
+      <Card title={t('ndani.fin.grants_title', 'Ledger ya ufadhili')}>
+        <Table headers={[t('ndani.fin.col.donor', 'Mfadhili'), t('ndani.fin.col.program', 'Programu'), t('ndani.fin.col.awarded', 'Iliyotolewa'), t('ndani.fin.col.spent', 'Iliyotumika'), t('ndani.fin.col.remaining', 'Iliyobaki'), t('ndani.fin.col.closes', 'Inafungwa')]}>
           {GRANTS.map((g) => (
             <tr key={g.id}>
               <Td><strong>{g.donor}</strong></Td>
@@ -139,8 +138,8 @@ export default function Finance(): React.JSX.Element {
         </Table>
       </Card>
 
-      <Card title="P&L ya kila mwezi (YTD)">
-        <Table headers={['Mwezi', 'Mapato', 'COGS', 'OpEx', 'Net']}>
+      <Card title={t('ndani.fin.pl_title', 'P&L ya kila mwezi (YTD)')}>
+        <Table headers={[t('ndani.fin.col.month', 'Mwezi'), t('ndani.fin.col.revenue', 'Mapato'), t('ndani.fin.col.cogs', 'COGS'), t('ndani.fin.col.opex', 'OpEx'), t('ndani.fin.col.net', 'Net')]}>
           {MONTHLY_PL.map((m) => {
             const net = m.revenue - m.cogs - m.opex
             return (
@@ -156,7 +155,7 @@ export default function Finance(): React.JSX.Element {
         </Table>
       </Card>
 
-      <Card title="Vipimo vya gharama">
+      <Card title={t('ndani.fin.cost_title', 'Vipimo vya gharama')}>
         <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
           <Kpi label="Gharama kwa kipindi"            value={fmt(costPerSession)}   accent={TZ_FLAG.blue} sub={`${sessionsCompleted.toLocaleString()} vipindi`} />
           <Kpi label="Gharama kwa pointi ya PHQ-9"    value={fmt(costPerPhq9Point)} accent={TZ_FLAG.yellow} sub={`${phq9PointsReduced.toLocaleString()} pointi`} />

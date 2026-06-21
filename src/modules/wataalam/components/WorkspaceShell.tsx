@@ -1,6 +1,7 @@
 import { NavLink, Outlet, Link } from 'react-router-dom'
 import type { CSSProperties } from 'react'
 import { BRAND, CREAM, NEUTRAL, RADII, TEXT, TYPE, hexToRgba } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 
 interface NavEntry {
   to: string
@@ -25,6 +26,7 @@ const NAV: NavEntry[] = [
 ]
 
 export function WorkspaceShell() {
+  const { t } = useLang()
   return (
     <div
       style={{
@@ -41,7 +43,7 @@ export function WorkspaceShell() {
       className="wataalam-shell"
     >
       <aside
-        aria-label="Urambazaji wa eneo la kazi"
+        aria-label={t('wataalam.shell.nav_aria', 'Urambazaji wa eneo la kazi')}
         style={{
           position: 'sticky',
           top: 16,
@@ -66,7 +68,7 @@ export function WorkspaceShell() {
             fontWeight: 600,
           }}
         >
-          ← Rudi nyumbani
+          {t('wataalam.shell.home', '← Rudi nyumbani')}
         </Link>
         <h2
           style={{
@@ -78,7 +80,7 @@ export function WorkspaceShell() {
             fontWeight: 800,
           }}
         >
-          Eneo la Mtaalamu
+          {t('wataalam.shell.title', 'Eneo la Mtaalamu')}
         </h2>
         <nav>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 2 }}>

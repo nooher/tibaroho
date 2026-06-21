@@ -3,8 +3,10 @@ import { JEWEL, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
 import { Card, H1, buttonStyle, FieldLabel, fieldStyle } from '../components/Card'
 import { loadProfile, saveProfile, type ProviderProfileDraft } from '../lib/storage'
 import { initialsOf } from '../../Gundua/data/providers'
+import { useLang } from '../../../lib/i18n/Provider'
 
 export default function Profile() {
+  const { t } = useLang()
   const [p, setP] = useState<ProviderProfileDraft>(() => loadProfile())
   const [preview, setPreview] = useState(false)
 
@@ -16,20 +18,20 @@ export default function Profile() {
 
   return (
     <div>
-      <H1 english="Public profile">Wasifu wa hadhara</H1>
+      <H1 english="Public profile">{t('wataalam.profile.title', 'Wasifu wa hadhara')}</H1>
 
       <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
         <button
           onClick={() => setPreview(false)}
           style={buttonStyle(!preview ? JEWEL.goldHope : JEWEL.tealDeep, !preview)}
         >
-          ✏️ Hariri
+          {t('wataalam.profile.edit', '✏️ Hariri')}
         </button>
         <button
           onClick={() => setPreview(true)}
           style={buttonStyle(preview ? JEWEL.goldHope : JEWEL.tealDeep, preview)}
         >
-          👁 Onyesha kama mteja
+          {t('wataalam.profile.preview', '👁 Onyesha kama mteja')}
         </button>
       </div>
 
@@ -63,27 +65,27 @@ export default function Profile() {
               </p>
               <p style={{ marginTop: 10, fontFamily: TYPE.serif }}>{p.bioSw || '—'}</p>
               <p style={{ marginTop: 10, fontSize: 14, color: TEXT.muted }}>
-                Ada: TSh {p.feeTzs.toLocaleString('sw-TZ')} ·{' '}
-                {p.mode === 'virtual' ? 'Mtandaoni' : p.mode === 'in_person' ? 'Ana kwa ana' : 'Zote'}
+                {t('wataalam.profile.fee', 'Ada:')} TSh {p.feeTzs.toLocaleString('sw-TZ')} ·{' '}
+                {p.mode === 'virtual' ? t('wataalam.common.virtual', 'Mtandaoni') : p.mode === 'in_person' ? t('wataalam.common.in_person', 'Ana kwa ana') : t('wataalam.schedule.both', 'Zote')}
               </p>
             </div>
           </div>
         </Card>
       ) : (
-        <Card title="Hariri">
-          <FieldLabel>Jina kamili</FieldLabel>
+        <Card title={t('wataalam.profile.edit_card', 'Hariri')}>
+          <FieldLabel>{t('wataalam.profile.full_name', 'Jina kamili')}</FieldLabel>
           <input
             style={fieldStyle()}
             value={p.fullName}
             onChange={(e) => update('fullName', e.target.value)}
           />
-          <FieldLabel>Utaalamu (Kiswahili)</FieldLabel>
+          <FieldLabel>{t('wataalam.profile.specialty_sw', 'Utaalamu (Kiswahili)')}</FieldLabel>
           <input
             style={fieldStyle()}
             value={p.specialty}
             onChange={(e) => update('specialty', e.target.value)}
           />
-          <FieldLabel>Bio (Kiswahili)</FieldLabel>
+          <FieldLabel>{t('wataalam.profile.bio_sw', 'Bio (Kiswahili)')}</FieldLabel>
           <textarea
             rows={4}
             value={p.bioSw}
@@ -94,7 +96,7 @@ export default function Profile() {
               fontSize: 14,
               resize: 'vertical',
             }}
-            placeholder="Eleza falsafa yako ya tiba…"
+            placeholder={t('wataalam.profile.bio_ph', 'Eleza falsafa yako ya tiba…')}
           />
           <FieldLabel>Bio (English — optional)</FieldLabel>
           <textarea

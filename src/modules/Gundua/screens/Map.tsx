@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useLang } from '../../../lib/i18n/Provider'
 import { JEWEL, NEUTRAL, TEXT, RADII, TYPE, hexToRgba } from '../../../lib/glass'
 import Filters, { DEFAULT_FILTERS, type FilterState } from '../components/Filters'
 import ProviderCard from '../components/ProviderCard'
@@ -31,6 +32,7 @@ const TZ_PATH =
   'M 95 105 L 140 75 L 215 60 L 295 70 L 360 95 L 425 120 L 475 165 L 510 215 L 525 280 L 530 360 L 510 420 L 470 470 L 415 510 L 350 545 L 285 555 L 215 540 L 150 510 L 105 470 L 78 415 L 65 355 L 60 295 L 70 230 L 80 165 L 95 105 Z'
 
 export default function GunduaMap() {
+  const { t } = useLang()
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const filtered = useMemo(() => applyFilters(PROVIDERS, filters), [filters])
@@ -56,7 +58,7 @@ export default function GunduaMap() {
           margin: '0 0 16px',
         }}
       >
-        Ramani ya Tanzania
+        {t('gundua.map.title', 'Ramani ya Tanzania')}
       </h1>
       <Filters value={filters} onChange={setFilters} />
 
@@ -167,7 +169,7 @@ export default function GunduaMap() {
               <ProviderCard provider={selected} compact />
               <button
                 onClick={() => setSelectedId(null)}
-                aria-label="Funga"
+                aria-label={t('gundua.map.close', 'Funga')}
                 style={{
                   position: 'absolute',
                   top: 6,

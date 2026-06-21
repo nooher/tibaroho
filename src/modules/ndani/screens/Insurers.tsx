@@ -2,6 +2,7 @@ import type React from 'react'
 import { useState } from 'react'
 import { Card, Table, Td } from '../../_shared/Layout'
 import { BRAND, CREAM, TZ_FLAG, hexToRgba, RADII, TEXT } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 
 type SettlementStatus = 'current' | 'delayed' | 'paused'
 type ReconciliationStatus = 'reconciled' | 'partial' | 'open'
@@ -59,6 +60,7 @@ function pillStyle(bg: string, fg: string): React.CSSProperties {
 }
 
 export default function Insurers(): React.JSX.Element {
+  const { t } = useLang()
   const [rows, setRows] = useState<Insurer[]>(SEED)
   const [sel, setSel] = useState<Insurer | null>(null)
   const [reveal, setReveal] = useState<Record<string, boolean>>({})
@@ -87,16 +89,14 @@ export default function Insurers(): React.JSX.Element {
 
   return (
     <>
-      <Card title="Bima — usimamizi wa madai">
+      <Card title={t('ndani.ins.overview_title', 'Bima — usimamizi wa madai')}>
         <p style={{ marginTop: 0 }}>
-          Wabima wote wanaolipia huduma za afya ya akili kwenye Tumaini. Tunafuatilia hali ya
-          malipo, idadi ya madai yaliyo wazi, na ulinganifu wa malipo ya kila mwezi. Ada za
-          mteja (co-pay) zinatumia mwongozo wa NHIF na MoH 2024.
+          {t('ndani.ins.overview_body', 'Wabima wote wanaolipia huduma za afya ya akili kwenye Tumaini. Tunafuatilia hali ya malipo, idadi ya madai yaliyo wazi, na ulinganifu wa malipo ya kila mwezi. Ada za mteja (co-pay) zinatumia mwongozo wa NHIF na MoH 2024.')}
         </p>
       </Card>
 
-      <Card title="Wabima walioungana">
-        <Table headers={['Bima', 'Hali ya malipo', 'Madai wazi', 'Yaliyolipwa siku 30', 'Ulinganifu', 'Hatua']}>
+      <Card title={t('ndani.ins.list_title', 'Wabima walioungana')}>
+        <Table headers={[t('ndani.ins.col.insurer', 'Bima'), t('ndani.ins.col.settlement', 'Hali ya malipo'), t('ndani.ins.col.open_claims', 'Madai wazi'), t('ndani.ins.col.paid_30d', 'Yaliyolipwa siku 30'), t('ndani.ins.col.recon', 'Ulinganifu'), t('ndani.ins.col.action', 'Hatua')]}>
           {rows.map((r) => (
             <tr key={r.id}>
               <Td><strong>{r.shortName}</strong><div style={{ fontSize: 11, color: TEXT.muted }}>{r.name}</div></Td>
@@ -105,9 +105,9 @@ export default function Insurers(): React.JSX.Element {
               <Td>{r.claimsPaid30d}</Td>
               <Td><ReconChip r={r.recon} /></Td>
               <Td>
-                <button onClick={() => pickInsurer(r)} aria-label={`Fungua maelezo ya ${r.shortName}`}
+                <button onClick={() => pickInsurer(r)} aria-label={`${t('ndani.ins.open_aria', 'Fungua maelezo ya')} ${r.shortName}`}
                   style={btn(BRAND.green, CREAM.cream)}>
-                  Fungua
+                  {t('ndani.ins.open', 'Fungua')}
                 </button>
               </Td>
             </tr>
@@ -116,10 +116,10 @@ export default function Insurers(): React.JSX.Element {
       </Card>
 
       {sel ? (
-        <Card title={`${sel.shortName} — usanidi`}>
+        <Card title={`${sel.shortName} ${t('ndani.ins.config_suffix', '— usanidi')}`}>
           <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
             <section>
-              <Label>API key (siri)</Label>
+              <Label>{t('ndani.ins.api_key', 'API key (siri)')}</Label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <code style={{
                   flex: 1, padding: '8px 12px', borderRadius: RADII.chip,
@@ -129,25 +129,25 @@ export default function Insurers(): React.JSX.Element {
                   {reveal[sel.id] ? sel.apiKey : maskKey(sel.apiKey)}
                 </code>
                 <button onClick={() => setReveal((r) => ({ ...r, [sel.id]: !r[sel.id] }))}
-                  aria-label={reveal[sel.id] ? 'Ficha API key' : 'Onyesha API key'}
+                  aria-label={reveal[sel.id] ? t('ndani.ins.hide_key_aria', 'Ficha API key') : t('ndani.ins.show_key_aria', 'Onyesha API key')}
                   style={btn(BRAND.blue, CREAM.cream)}>
-                  {reveal[sel.id] ? 'Ficha' : 'Onyesha'}
+                  {reveal[sel.id] ? t('ndani.ins.hide', 'Ficha') : t('ndani.ins.show', 'Onyesha')}
                 </button>
               </div>
               <p style={{ fontSize: 12, color: TEXT.muted, marginTop: 6 }}>
-                Hifadhiwa kwenye vault — siyo kwenye repository.
+                {t('ndani.ins.vault_note', 'Hifadhiwa kwenye vault — siyo kwenye repository.')}
               </p>
             </section>
 
             <section>
-              <Label>Ratiba ya ada (co-pay)</Label>
+              <Label>{t('ndani.ins.copay_title', 'Ratiba ya ada (co-pay)')}</Label>
               <div style={{ display: 'grid', gap: 8 }}>
-                <Field label="Ana kwa ana (%)" value={copayDraft.inPersonPct} onChange={(v) => setCopayDraft({ ...copayDraft, inPersonPct: v })} />
-                <Field label="Telehealth (%)"  value={copayDraft.teleHealthPct} onChange={(v) => setCopayDraft({ ...copayDraft, teleHealthPct: v })} />
-                <Field label="Self-pay cap (TZS)" value={copayDraft.selfPayCap} onChange={(v) => setCopayDraft({ ...copayDraft, selfPayCap: v })} />
-                <button onClick={saveCopay} aria-label="Hifadhi ratiba ya ada"
+                <Field label={t('ndani.ins.copay.in_person', 'Ana kwa ana (%)')} value={copayDraft.inPersonPct} onChange={(v) => setCopayDraft({ ...copayDraft, inPersonPct: v })} />
+                <Field label={t('ndani.ins.copay.telehealth', 'Telehealth (%)')}  value={copayDraft.teleHealthPct} onChange={(v) => setCopayDraft({ ...copayDraft, teleHealthPct: v })} />
+                <Field label={t('ndani.ins.copay.cap', 'Self-pay cap (TZS)')} value={copayDraft.selfPayCap} onChange={(v) => setCopayDraft({ ...copayDraft, selfPayCap: v })} />
+                <button onClick={saveCopay} aria-label={t('ndani.ins.copay.save_aria', 'Hifadhi ratiba ya ada')}
                   style={{ ...btn(BRAND.green, CREAM.cream), alignSelf: 'flex-start' }}>
-                  Hifadhi
+                  {t('ndani.ins.save', 'Hifadhi')}
                 </button>
               </div>
             </section>

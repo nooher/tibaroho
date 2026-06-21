@@ -2,6 +2,7 @@ import type React from 'react'
 import { useState } from 'react'
 import { Card, Table, Td } from '../../_shared/Layout'
 import { BRAND, CREAM, NEUTRAL, TEXT, hexToRgba } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -74,29 +75,30 @@ function Bar({ value, target }: { value: number; target: number }): React.JSX.El
 }
 
 function StudyDetail({ s, onClose }: { s: Study; onClose: () => void }): React.JSX.Element {
+  const { t } = useLang()
   return (
     <Card title={`${s.id} — ${s.title}`} accent={BRAND.green}>
       <button onClick={onClose} style={{
         padding: '6px 12px', borderRadius: 999, background: 'transparent',
         border: `1px solid ${ink(0.22)}`, color: TEXT.body, fontSize: 12, cursor: 'pointer', marginBottom: 12,
-      }}>← Rudi orodha</button>
+      }}>{t('utafiti.studies.back', '← Rudi orodha')}</button>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 18 }}>
         <Field label="PI" value={s.pi} />
         <Field label="IRB" value={s.irb} />
-        <Field label="Design" value={s.design} />
-        <Field label="Primary outcome" value={s.primary} />
-        <Field label="Facilities" value={String(s.facilities)} />
-        <Field label="Expected completion" value={s.completion} />
+        <Field label={t('utafiti.studies.design', 'Design')} value={s.design} />
+        <Field label={t('utafiti.studies.primary', 'Primary outcome')} value={s.primary} />
+        <Field label={t('utafiti.studies.facilities', 'Facilities')} value={String(s.facilities)} />
+        <Field label={t('utafiti.studies.completion', 'Expected completion')} value={s.completion} />
       </div>
 
-      <h3 style={{ fontSize: 14, color: TEXT.heading, margin: '12px 0 8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>CONSORT flow</h3>
+      <h3 style={{ fontSize: 14, color: TEXT.heading, margin: '12px 0 8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('utafiti.studies.consort', 'CONSORT flow')}</h3>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
         {[
-          { label: 'Walikaguliwa', n: 1820 },
-          { label: 'Wamekubali (n consented)', n: s.enrolled },
-          { label: 'Wamekamilisha wiki 12', n: Math.round(s.enrolled * 0.83) },
-          { label: 'Walioachana (LTFU)', n: Math.round(s.enrolled * 0.17) },
+          { label: t('utafiti.studies.consort.screened', 'Walikaguliwa'), n: 1820 },
+          { label: t('utafiti.studies.consort.consented', 'Wamekubali (n consented)'), n: s.enrolled },
+          { label: t('utafiti.studies.consort.completed', 'Wamekamilisha wiki 12'), n: Math.round(s.enrolled * 0.83) },
+          { label: t('utafiti.studies.consort.ltfu', 'Walioachana (LTFU)'), n: Math.round(s.enrolled * 0.17) },
         ].map((b) => (
           <div key={b.label} style={{ background: CREAM.cream, border: `1px solid ${ink(0.08)}`, borderRadius: 10, padding: 12, textAlign: 'center' }}>
             <div style={{ fontSize: 11, color: TEXT.muted }}>{b.label}</div>
@@ -105,17 +107,17 @@ function StudyDetail({ s, onClose }: { s: Study; onClose: () => void }): React.J
         ))}
       </div>
 
-      <h3 style={{ fontSize: 14, color: TEXT.heading, margin: '18px 0 8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Mpango wa uchambuzi</h3>
+      <h3 style={{ fontSize: 14, color: TEXT.heading, margin: '18px 0 8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('utafiti.studies.analysis_plan', 'Mpango wa uchambuzi')}</h3>
       <ul style={{ paddingLeft: 18, fontSize: 13, color: TEXT.body, lineHeight: 1.6 }}>
-        <li>Primary: mixed-effects logistic regression (PHQ-9 &lt; 5) na facility random effect.</li>
-        <li>Secondary: GAD-7, K-10, WHO-DAS continuous mixed-effects.</li>
-        <li>Sub-analyses: PROGRESS-Plus stratifiers (mahali, jinsia, ukali wa awali).</li>
-        <li>Sensitivity: per-protocol vs ITT; multiple imputation kwa missing.</li>
+        <li>{t('utafiti.studies.plan.primary', 'Primary: mixed-effects logistic regression (PHQ-9 < 5) na facility random effect.')}</li>
+        <li>{t('utafiti.studies.plan.secondary', 'Secondary: GAD-7, K-10, WHO-DAS continuous mixed-effects.')}</li>
+        <li>{t('utafiti.studies.plan.subanalyses', 'Sub-analyses: PROGRESS-Plus stratifiers (mahali, jinsia, ukali wa awali).')}</li>
+        <li>{t('utafiti.studies.plan.sensitivity', 'Sensitivity: per-protocol vs ITT; multiple imputation kwa missing.')}</li>
       </ul>
 
-      <h3 style={{ fontSize: 14, color: TEXT.heading, margin: '18px 0 8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Hali ya karatasi</h3>
+      <h3 style={{ fontSize: 14, color: TEXT.heading, margin: '18px 0 8px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('utafiti.studies.papers_status', 'Hali ya karatasi')}</h3>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        {['Paper 1 — Drafting', 'Paper 2 — In analysis', 'Paper 3 — Not started'].map((p, i) => (
+        {[t('utafiti.studies.paper1', 'Paper 1 — Drafting'), t('utafiti.studies.paper2', 'Paper 2 — In analysis'), t('utafiti.studies.paper3', 'Paper 3 — Not started')].map((p, i) => (
           <span key={p} style={{
             padding: '6px 12px', borderRadius: 999, fontSize: 12,
             background: i === 0 ? BRAND.green : i === 1 ? BRAND.blue : CREAM.cream,
@@ -138,12 +140,13 @@ function Field({ label, value }: { label: string; value: string }): React.JSX.El
 }
 
 export default function Studies(): React.JSX.Element {
+  const { t } = useLang()
   const [selected, setSelected] = useState<Study | null>(null)
   if (selected) return <StudyDetail s={selected} onClose={() => setSelected(null)} />
 
   return (
-    <Card title="Active studies registry" accent={BRAND.green}>
-      <Table headers={['#', 'Kichwa', 'PI', 'Hali', 'Uandikishaji', 'Kukamilisha', 'Outcome ya msingi']}>
+    <Card title={t('utafiti.studies.registry', 'Active studies registry')} accent={BRAND.green}>
+      <Table headers={['#', t('utafiti.studies.col.title', 'Kichwa'), 'PI', t('utafiti.studies.col.status', 'Hali'), t('utafiti.studies.col.enrolled', 'Uandikishaji'), t('utafiti.studies.col.completion', 'Kukamilisha'), t('utafiti.studies.col.primary', 'Outcome ya msingi')]}>
         {STUDIES.map((s) => (
           <tr key={s.id} onClick={() => setSelected(s)} style={{ cursor: 'pointer' }}>
             <Td style={{ color: TEXT.body }}><strong>{s.id}</strong></Td>
@@ -156,7 +159,7 @@ export default function Studies(): React.JSX.Element {
           </tr>
         ))}
       </Table>
-      <div style={{ fontSize: 11, color: TEXT.muted, marginTop: 10 }}>Bonyeza safu kuona maelezo kamili (CONSORT, mpango wa uchambuzi, hali ya karatasi).</div>
+      <div style={{ fontSize: 11, color: TEXT.muted, marginTop: 10 }}>{t('utafiti.studies.hint', 'Bonyeza safu kuona maelezo kamili (CONSORT, mpango wa uchambuzi, hali ya karatasi).')}</div>
     </Card>
   )
 }

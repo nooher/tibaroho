@@ -2,6 +2,7 @@
 
 import { useState, type CSSProperties, type ReactNode } from 'react';
 import { CREAM, JEWEL, NEUTRAL, RADII, TYPE, hexToRgba } from '../../../lib/glass';
+import { useLang } from '../../../lib/i18n/Provider';
 import { newId, saveReading, type Reading, type TrackerId } from './types';
 
 const inputBase: CSSProperties = {
@@ -81,29 +82,31 @@ export function Chips<V extends string>({ label, options, value, onChange, multi
 
 export function VoiceButton({ onTranscript: _ot }: { onTranscript?: (text: string) => void }) {
   // TODO wire to src/lib/rafiki/voice.ts when available
+  const { t } = useLang();
   const [armed, setArmed] = useState(false);
   return (
     <button type="button" onClick={() => setArmed((v) => !v)}
-      aria-label={armed ? 'Sitisha sauti' : 'Anza sauti'}
+      aria-label={armed ? t('mimi.tracker.common.voice-stop-aria', 'Sitisha sauti') : t('mimi.tracker.common.voice-start-aria', 'Anza sauti')}
       style={{
         padding: '8px 14px', borderRadius: 999, fontSize: 13, fontWeight: 600,
         border: `1px solid ${JEWEL.indigoWisdom}`,
         background: armed ? JEWEL.indigoWisdom : 'transparent',
         color: armed ? CREAM.milk : JEWEL.indigoWisdom, cursor: 'pointer', marginBottom: 10,
       }}>
-      {armed ? 'Sitisha 🎙' : 'Ongea kwa sauti 🎙'}
+      {armed ? t('mimi.tracker.common.voice-stop', 'Sitisha 🎙') : t('mimi.tracker.common.voice-start', 'Ongea kwa sauti 🎙')}
     </button>
   );
 }
 
 export function SaveBar({ onSave, disabled }: { onSave: () => void; disabled?: boolean }) {
+  const { t } = useLang();
   return (
     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 6 }}>
       <button type="button" onClick={onSave} disabled={disabled} style={{
         padding: '10px 22px', borderRadius: 999, background: JEWEL.tealMwenza, color: CREAM.milk,
         border: 'none', fontSize: 14, fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.5 : 1,
-      }}>Hifadhi</button>
+      }}>{t('mimi.tracker.common.save', 'Hifadhi')}</button>
     </div>
   );
 }

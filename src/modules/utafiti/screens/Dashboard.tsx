@@ -6,6 +6,7 @@ import { REAIM_METRICS } from '../data/reaimMetrics'
 import { CFIR_DOMAINS, CFIR_CONSTRUCT_COUNT } from '../data/cfirConstructs'
 import { supabase, list } from '../../../lib/db'
 import type { TrResearchConsent } from '../../../lib/db'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -54,6 +55,7 @@ function Spark({ values, color }: { values: number[]; color: string }): React.JS
 interface DeidRow { patient_hash: string; instrument: string; score: number; delta: number | null; week: string }
 
 export default function UtafitiDashboard(): React.JSX.Element {
+  const { t } = useLang()
   const reaimReach = REAIM_METRICS.find((m) => m.id === 'reach')!
   const reaimEff = REAIM_METRICS.find((m) => m.id === 'effectiveness')!
   const [live, setLive] = useState<{ consents: number; uniquePatients: number; outcomes: number }>({ consents: 0, uniquePatients: 0, outcomes: 0 })
@@ -79,19 +81,19 @@ export default function UtafitiDashboard(): React.JSX.Element {
   }, [])
   return (
     <>
-      <Card title="Muhtasari wa Utafiti" accent={BRAND.green}>
+      <Card title={t('utafiti.dashboard.title', 'Muhtasari wa Utafiti')} accent={BRAND.green}>
         <p style={{ margin: '0 0 18px', fontSize: 14, color: TEXT.muted }}>
-          Konsoli ya PhD ya Dr. Nooher — tafiti hai, CFIR, RE-AIM, fidelity, equity, na maandalizi ya karatasi tatu.
+          {t('utafiti.dashboard.intro', 'Konsoli ya PhD ya Dr. Nooher — tafiti hai, CFIR, RE-AIM, fidelity, equity, na maandalizi ya karatasi tatu.')}
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 }}>
-          <KpiTile label="Tafiti hai" value={String(STUDIES_ACTIVE)} sub="2 zinarekodi · 1 rasimu" accent={BRAND.green} />
-          <KpiTile label="Walioandikishwa" value={(live.uniquePatients || ENROLLED_N).toLocaleString('sw-TZ')} sub={live.uniquePatients ? `live · idhini ${live.consents} · matokeo ${live.outcomes}` : 'lengo 600 · ufikiaji 104%'} accent={BRAND.blue} />
-          <KpiTile label="Idhini za IRB" value={String(PENDING_IRB)} sub="UAMS pending · NIMR review" accent={BRAND.yellow} />
-          <KpiTile label="Pengo la equity" value={`${EQUITY_GAP_PP}pp`} sub="vijijini < mijini (remission)" accent={NEUTRAL.ink} />
+          <KpiTile label={t('utafiti.dashboard.kpi.active', 'Tafiti hai')} value={String(STUDIES_ACTIVE)} sub={t('utafiti.dashboard.kpi.active_sub', '2 zinarekodi · 1 rasimu')} accent={BRAND.green} />
+          <KpiTile label={t('utafiti.dashboard.kpi.enrolled', 'Walioandikishwa')} value={(live.uniquePatients || ENROLLED_N).toLocaleString('sw-TZ')} sub={live.uniquePatients ? `live · ${t('utafiti.dashboard.kpi.consent', 'idhini')} ${live.consents} · ${t('utafiti.dashboard.kpi.outcomes', 'matokeo')} ${live.outcomes}` : t('utafiti.dashboard.kpi.enrolled_sub', 'lengo 600 · ufikiaji 104%')} accent={BRAND.blue} />
+          <KpiTile label={t('utafiti.dashboard.kpi.irb', 'Idhini za IRB')} value={String(PENDING_IRB)} sub={t('utafiti.dashboard.kpi.irb_sub', 'UAMS pending · NIMR review')} accent={BRAND.yellow} />
+          <KpiTile label={t('utafiti.dashboard.kpi.equity_gap', 'Pengo la equity')} value={`${EQUITY_GAP_PP}pp`} sub={t('utafiti.dashboard.kpi.equity_sub', 'vijijini < mijini (remission)')} accent={NEUTRAL.ink} />
         </div>
       </Card>
 
-      <Card title="RE-AIM — kwa mtazamo" accent={BRAND.blue}>
+      <Card title={t('utafiti.dashboard.reaim_title', 'RE-AIM — kwa mtazamo')} accent={BRAND.blue}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
           {REAIM_METRICS.map((m) => {
             const pct = Math.min(100, (m.currentValue / m.target) * 100)
@@ -102,7 +104,7 @@ export default function UtafitiDashboard(): React.JSX.Element {
                 <div style={{ marginTop: 8, height: 6, background: ink(0.06), borderRadius: 4, overflow: 'hidden' }}>
                   <div style={{ width: `${pct}%`, height: '100%', background: BRAND.green }} />
                 </div>
-                <div style={{ marginTop: 4, fontSize: 10, color: TEXT.hint }}>lengo {m.target}{m.unit.includes('%') ? '%' : ''}</div>
+                <div style={{ marginTop: 4, fontSize: 10, color: TEXT.hint }}>{t('utafiti.dashboard.target', 'lengo')} {m.target}{m.unit.includes('%') ? '%' : ''}</div>
               </div>
             )
           })}
@@ -110,9 +112,9 @@ export default function UtafitiDashboard(): React.JSX.Element {
       </Card>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 16 }}>
-        <Card title="CFIR — site readiness" accent={BRAND.green}>
+        <Card title={t('utafiti.dashboard.cfir_title', 'CFIR — site readiness')} accent={BRAND.green}>
           <div style={{ fontSize: 13, color: TEXT.muted, marginBottom: 12 }}>
-            Vipimo {CFIR_CONSTRUCT_COUNT} kwa vikoa {CFIR_DOMAINS.length}. Wastani wa tovuti 6: <strong style={{ color: TEXT.body }}>3.4 / 5</strong>.
+            {t('utafiti.dashboard.cfir_measures', 'Vipimo')} {CFIR_CONSTRUCT_COUNT} {t('utafiti.dashboard.cfir_in_domains', 'kwa vikoa')} {CFIR_DOMAINS.length}. {t('utafiti.dashboard.cfir_mean_6', 'Wastani wa tovuti 6:')} <strong style={{ color: TEXT.body }}>3.4 / 5</strong>.
           </div>
           {CFIR_DOMAINS.map((d) => {
             const score = 2.8 + Math.random() * 0.001 + d.constructs.length * 0.04
@@ -131,20 +133,20 @@ export default function UtafitiDashboard(): React.JSX.Element {
           })}
         </Card>
 
-        <Card title="PHQ-9 wastani — wiki 0 → 12" accent={BRAND.yellow}>
+        <Card title={t('utafiti.dashboard.phq9_title', 'PHQ-9 wastani — wiki 0 → 12')} accent={BRAND.yellow}>
           <Spark values={OUTCOME_SPARK} color={BRAND.green} />
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: TEXT.muted, marginTop: 8 }}>
             <span>W0: 14.8</span><span>W12: 5.8</span>
           </div>
           <div style={{ marginTop: 12, fontSize: 12, color: TEXT.muted }}>
-            Remission (PHQ-9 &lt; 5) wiki 12: <strong style={{ color: BRAND.green }}>42.1%</strong> (lengo 45%).
+            {t('utafiti.dashboard.remission_wk12', 'Remission (PHQ-9 < 5) wiki 12:')} <strong style={{ color: BRAND.green }}>42.1%</strong> ({t('utafiti.dashboard.target', 'lengo')} 45%).
           </div>
         </Card>
 
-        <Card title="Equity — pengo la mwisho" accent={NEUTRAL.ink}>
+        <Card title={t('utafiti.dashboard.equity_title', 'Equity — pengo la mwisho')} accent={NEUTRAL.ink}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
             <div className="serif" style={{ fontSize: 32, color: TEXT.heading }}>{EQUITY_GAP_PP}<span style={{ fontSize: 14, color: TEXT.muted }}>pp</span></div>
-            <div style={{ fontSize: 12, color: TEXT.muted }}>Mji 47.2% vs Vijiji 35.8% (remission)</div>
+            <div style={{ fontSize: 12, color: TEXT.muted }}>{t('utafiti.dashboard.equity_urban_rural', 'Mji 47.2% vs Vijiji 35.8% (remission)')}</div>
           </div>
           <div style={{ marginTop: 12, display: 'flex', gap: 4 }}>
             {[TZ_FLAG.green, TZ_FLAG.yellow, TZ_FLAG.blue, TZ_FLAG.black].map((c) => (
@@ -152,7 +154,7 @@ export default function UtafitiDashboard(): React.JSX.Element {
             ))}
           </div>
           <div style={{ marginTop: 10, fontSize: 12, color: TEXT.muted }}>
-            Mhimili 13 wa PROGRESS-Plus unafanyiwa stratification kwa kila matokeo ya msingi.
+            {t('utafiti.dashboard.progress_plus_note', 'Mhimili 13 wa PROGRESS-Plus unafanyiwa stratification kwa kila matokeo ya msingi.')}
           </div>
         </Card>
       </div>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageShell, Card } from '../components/Shell'
 import { JEWEL, TYPE, TEXT, focusRing, hexToRgba } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 import { REF_RANGES } from './data/refRanges'
 import { db } from '../../../lib/db'
 import { supabase } from '../../../lib/supabase'
@@ -73,8 +74,9 @@ async function persistRemote(result: SavedResult): Promise<void> {
 }
 
 export default function LabsUpload() {
+  const { t } = useLang()
   const nav = useNavigate()
-  const [title, setTitle] = useState('Kipimo cha ' + new Date().toLocaleDateString('sw-TZ'))
+  const [title, setTitle] = useState(t('mimi.labs.up.default-title', 'Kipimo cha') + ' ' + new Date().toLocaleDateString('sw-TZ'))
   const [rows, setRows] = useState<Row[]>([{ testId: 'hb', value: '', unit: 'g/dL' }])
   const [file, setFile] = useState<File | null>(null)
   const [busy, setBusy] = useState(false)
@@ -111,17 +113,17 @@ export default function LabsUpload() {
 
   return (
     <PageShell
-      title="Pakia kipimo cha maabara"
-      subtitle="Chagua faili au andika matokeo mwenyewe. OCR inakuja hivi karibuni."
-      back={{ to: '/mimi/vipimo-vya-maabara', label: 'Maabara' }}
+      title={t('mimi.labs.up.title', 'Pakia kipimo cha maabara')}
+      subtitle={t('mimi.labs.up.subtitle', 'Chagua faili au andika matokeo mwenyewe. OCR inakuja hivi karibuni.')}
+      back={{ to: '/mimi/vipimo-vya-maabara', label: t('mimi.labs.back', 'Maabara') }}
     >
       <Card style={{ marginBottom: 16 }}>
-        <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Jina la kipimo</label>
+        <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>{t('mimi.labs.up.name-label', 'Jina la kipimo')}</label>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          aria-label="Jina la kipimo"
+          aria-label={t('mimi.labs.up.name-label', 'Jina la kipimo')}
           style={{
             width: '100%',
             padding: 10,
@@ -136,18 +138,18 @@ export default function LabsUpload() {
       </Card>
 
       <Card style={{ marginBottom: 16 }}>
-        <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>Faili</h3>
+        <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>{t('mimi.labs.up.file', 'Faili')}</h3>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
           <input
             type="file"
             accept=".pdf,image/*,.hl7,.txt"
-            aria-label="Chagua faili la kipimo"
+            aria-label={t('mimi.labs.up.file-aria', 'Chagua faili la kipimo')}
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
           <button
             type="button"
             disabled
-            aria-label="OCR inakuja hivi karibuni"
+            aria-label={t('mimi.labs.up.ocr-soon', 'OCR inakuja hivi karibuni')}
             style={{
               padding: '8px 14px',
               borderRadius: 999,
@@ -159,20 +161,20 @@ export default function LabsUpload() {
               fontWeight: 600,
             }}
           >
-            OCR (inakuja hivi karibuni)
+            {t('mimi.labs.up.ocr-btn', 'OCR (inakuja hivi karibuni)')}
           </button>
         </div>
-        {file && <div style={{ marginTop: 8, fontSize: 14, color: TEXT.muted }}>Imechaguliwa: {file.name}</div>}
+        {file && <div style={{ marginTop: 8, fontSize: 14, color: TEXT.muted }}>{t('mimi.labs.up.selected', 'Imechaguliwa')}: {file.name}</div>}
       </Card>
 
       <Card style={{ marginBottom: 16 }}>
-        <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>Andika matokeo</h3>
+        <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>{t('mimi.labs.up.write', 'Andika matokeo')}</h3>
         <div style={{ display: 'grid', gap: 10 }}>
           {rows.map((r, i) => (
             <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto', gap: 8 }}>
               <select
                 value={r.testId}
-                aria-label="Jina la kipimo"
+                aria-label={t('mimi.labs.up.name-label', 'Jina la kipimo')}
                 onChange={(e) => onTestChange(i, e.target.value)}
                 style={{ padding: 8, borderRadius: 8, border: `1px solid ${hexToRgba('#000', 0.12)}`, background: '#FAF5E5' }}
               >
@@ -183,22 +185,22 @@ export default function LabsUpload() {
               <input
                 type="text"
                 value={r.value}
-                placeholder="Thamani"
-                aria-label="Thamani"
+                placeholder={t('mimi.labs.up.value', 'Thamani')}
+                aria-label={t('mimi.labs.up.value', 'Thamani')}
                 onChange={(e) => updateRow(i, { value: e.target.value })}
                 style={{ padding: 8, borderRadius: 8, border: `1px solid ${hexToRgba('#000', 0.12)}`, background: '#FAF5E5' }}
               />
               <input
                 type="text"
                 value={r.unit}
-                placeholder="Kipimo"
-                aria-label="Kipimo"
+                placeholder={t('mimi.labs.up.unit', 'Kipimo')}
+                aria-label={t('mimi.labs.up.unit', 'Kipimo')}
                 onChange={(e) => updateRow(i, { unit: e.target.value })}
                 style={{ padding: 8, borderRadius: 8, border: `1px solid ${hexToRgba('#000', 0.12)}`, background: '#FAF5E5' }}
               />
               <button
                 type="button"
-                aria-label="Ondoa safu"
+                aria-label={t('mimi.labs.up.remove-row', 'Ondoa safu')}
                 onClick={() => removeRow(i)}
                 style={{ background: 'transparent', border: 'none', color: JEWEL.maroonCrisis, cursor: 'pointer', fontWeight: 700 }}
               >×</button>
@@ -218,14 +220,14 @@ export default function LabsUpload() {
             cursor: 'pointer',
             fontWeight: 600,
           }}
-        >+ Ongeza safu</button>
+        >{t('mimi.labs.up.add-row', '+ Ongeza safu')}</button>
       </Card>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button
           onClick={() => void onSave()}
           disabled={busy}
-          aria-label="Hifadhi na tafsiri"
+          aria-label={t('mimi.labs.up.save-aria', 'Hifadhi na tafsiri')}
           style={{
             padding: '12px 22px',
             borderRadius: 999,
@@ -236,7 +238,7 @@ export default function LabsUpload() {
             fontWeight: 700,
             opacity: busy ? 0.6 : 1,
           }}
-        >{busy ? 'Inahifadhi…' : 'Hifadhi na tafsiri'}</button>
+        >{busy ? t('mimi.labs.up.saving', 'Inahifadhi…') : t('mimi.labs.up.save', 'Hifadhi na tafsiri')}</button>
       </div>
     </PageShell>
   )

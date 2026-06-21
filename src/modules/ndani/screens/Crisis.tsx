@@ -5,6 +5,7 @@ import { JEWEL, CREAM, NEUTRAL, hexToRgba, TEXT } from '../../../lib/glass'
 import { list, update } from '../../../lib/db'
 import type { TrReferral } from '../../../lib/db'
 import { auditEvent } from '../audit'
+import { useLang } from '../../../lib/i18n/Provider'
 
 type Risk = 'red' | 'amber' | 'green'
 interface CrisisEvent {
@@ -27,11 +28,12 @@ const SEED: CrisisEvent[] = [
   { id: 'c-2026-0620-e', ts: '2026-06-20 14:08', kind: 'CSSRS', region: 'Dodoma',         risk: 'green', anonHandle: 'mt-44ee', responder: 'Lifeline 0800 110014', ackedAt: '2026-06-20 14:11' },
 ]
 
-function pillFor(r: Risk): { bg: string; fg: string; label: string } {
+function pillFor(r: Risk, tr?: (k: string, f?: string) => string): { bg: string; fg: string; label: string } {
+  const t = tr ?? ((_: string, f?: string) => f ?? '')
   switch (r) {
-    case 'red':   return { bg: JEWEL.maroonCrisis, fg: '#fff', label: 'Hatari Kubwa' }
-    case 'amber': return { bg: JEWEL.goldHope,         fg: NEUTRAL.ink, label: 'Tahadhari' }
-    case 'green': return { bg: JEWEL.tealMwenza,   fg: '#fff', label: 'Imedhibitiwa' }
+    case 'red':   return { bg: JEWEL.maroonCrisis, fg: '#fff', label: t('ndani.crisis.risk.high', 'Hatari Kubwa') }
+    case 'amber': return { bg: JEWEL.goldHope,         fg: NEUTRAL.ink, label: t('ndani.crisis.risk.caution', 'Tahadhari') }
+    case 'green': return { bg: JEWEL.tealMwenza,   fg: '#fff', label: t('ndani.crisis.risk.handled', 'Imedhibitiwa') }
   }
 }
 
@@ -58,6 +60,7 @@ function referralToEvent(r: TrReferral): CrisisEvent {
 }
 
 export default function CrisisMonitor(): React.JSX.Element {
+  const { t } = useLang()
   const [events, setEvents] = useState<CrisisEvent[]>(SEED)
   const [filter, setFilter] = useState<'all' | 'open' | Risk>('all')
 
@@ -96,11 +99,11 @@ export default function CrisisMonitor(): React.JSX.Element {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <Card title="Foleni ya Dharura — Hai">
+      <Card title={t('ndani.crisis.queue_title', 'Foleni ya Dharura — Hai')}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 12 }}>
-          <KpiBox label="Hatari kubwa wazi" value={openRed} accent={JEWEL.maroonCrisis} />
-          <KpiBox label="Tahadhari wazi" value={openAmber} accent={JEWEL.goldHope} />
-          <KpiBox label="Matukio (saa 24)" value={last24Total} accent={JEWEL.tealMwenza} />
+          <KpiBox label={t('ndani.crisis.kpi.open_red', 'Hatari kubwa wazi')} value={openRed} accent={JEWEL.maroonCrisis} />
+          <KpiBox label={t('ndani.crisis.kpi.open_amber', 'Tahadhari wazi')} value={openAmber} accent={JEWEL.goldHope} />
+          <KpiBox label={t('ndani.crisis.kpi.last24', 'Matukio (saa 24)')} value={last24Total} accent={JEWEL.tealMwenza} />
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
           {(['all', 'open', 'red', 'amber', 'green'] as const).map(f => (
@@ -118,19 +121,19 @@ export default function CrisisMonitor(): React.JSX.Element {
                 fontFamily: 'inherit',
               }}
             >
-              {f === 'all' ? 'Zote' : f === 'open' ? 'Bado wazi' : pillFor(f).label}
+              {f === 'all' ? t('ndani.crisis.filter.all', 'Zote') : f === 'open' ? t('ndani.crisis.filter.open', 'Bado wazi') : pillFor(f, t).label}
             </button>
           ))}
         </div>
       </Card>
 
-      <Card title={`Matukio — ${visible.length}`}>
+      <Card title={`${t('ndani.crisis.events', 'Matukio')} — ${visible.length}`}>
         {visible.length === 0 && (
-          <p style={{ color: TEXT.muted }}>Hakuna matukio yanayoendana na chujio hili.</p>
+          <p style={{ color: TEXT.muted }}>{t('ndani.crisis.none_match', 'Hakuna matukio yanayoendana na chujio hili.')}</p>
         )}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {visible.map(e => {
-            const p = pillFor(e.risk)
+            const p = pillFor(e.risk, t)
             const isOpen = !e.ackedAt
             return (
               <div
@@ -156,12 +159,12 @@ export default function CrisisMonitor(): React.JSX.Element {
                     <span style={{ fontSize: 12, color: TEXT.muted }}>· {e.kind} · {e.region}</span>
                   </div>
                   <div style={{ fontSize: 14 }}>
-                    Mtumiaji: <code style={{ background: hexToRgba(NEUTRAL.ink, 0.06), padding: '1px 6px', borderRadius: 4 }}>{e.anonHandle}</code>
+                    {t('ndani.crisis.user', 'Mtumiaji')}: <code style={{ background: hexToRgba(NEUTRAL.ink, 0.06), padding: '1px 6px', borderRadius: 4 }}>{e.anonHandle}</code>
                     {e.responder && <span style={{ marginLeft: 10, color: TEXT.muted }}>→ {e.responder}</span>}
                   </div>
                   {e.ackedAt && (
                     <div style={{ fontSize: 12, color: TEXT.muted, marginTop: 4 }}>
-                      Imeshughulikiwa: {e.ackedAt}
+                      {t('ndani.crisis.handled_at', 'Imeshughulikiwa')}: {e.ackedAt}
                     </div>
                   )}
                 </div>
@@ -181,7 +184,7 @@ export default function CrisisMonitor(): React.JSX.Element {
                       fontFamily: 'inherit',
                     }}
                   >
-                    Dhibiti
+                    {t('ndani.crisis.handle', 'Dhibiti')}
                   </button>
                 )}
               </div>
@@ -190,12 +193,12 @@ export default function CrisisMonitor(): React.JSX.Element {
         </div>
       </Card>
 
-      <Card title="Sheria za uelekezaji">
+      <Card title={t('ndani.crisis.routing_title', 'Sheria za uelekezaji')}>
         <ul style={{ paddingLeft: 18, margin: 0, lineHeight: 1.7 }}>
-          <li>C-SSRS &ge; 4 → Lifeline 0800 110014 + Muhimbili Casualty + Rafiki mlinzi-mode + msimamizi ana-pingwa</li>
-          <li>IPV chanya → TAMWA + safety plan + go-bag link + emergency contact</li>
-          <li>Tukio la mtoto → Idara ya Ustawi wa Jamii + mandatory-reporter form</li>
-          <li>Psychosis ya papo hapo → Muhimbili Psychiatry + ambulance routing</li>
+          <li>{t('ndani.crisis.rule1', 'C-SSRS ≥ 4 → Lifeline 0800 110014 + Muhimbili Casualty + Rafiki mlinzi-mode + msimamizi ana-pingwa')}</li>
+          <li>{t('ndani.crisis.rule2', 'IPV chanya → TAMWA + safety plan + go-bag link + emergency contact')}</li>
+          <li>{t('ndani.crisis.rule3', 'Tukio la mtoto → Idara ya Ustawi wa Jamii + mandatory-reporter form')}</li>
+          <li>{t('ndani.crisis.rule4', 'Psychosis ya papo hapo → Muhimbili Psychiatry + ambulance routing')}</li>
         </ul>
       </Card>
     </div>

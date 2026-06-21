@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { PageShell, Card } from '../components/Shell'
 import { JEWEL, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 import { db } from '../../../lib/db'
 import { getMeId } from '../../../lib/me'
 
@@ -34,6 +35,7 @@ async function resolveProviderUuid(slug: string): Promise<string | null> {
 }
 
 export default function MimiBook() {
+  const { t } = useLang()
   const [params] = useSearchParams()
   const providerId = params.get('provider') ?? 'mtaalamu'
   const [picked, setPicked] = useState<{ date: string; slot: string } | null>(null)
@@ -81,15 +83,15 @@ export default function MimiBook() {
       }
     } catch { /* offline / unauth — local cache holds */ }
 
-    alert(`Miadi imewekwa: ${picked.date} saa ${picked.slot}`)
+    alert(`${t('mimi.book.confirmed', 'Miadi imewekwa')}: ${picked.date} ${t('mimi.book.at', 'saa')} ${picked.slot}`)
     setPicked(null)
     setBusy(false)
   }
 
   return (
-    <PageShell title="Weka miadi" subtitle={`Mtaalamu: ${providerId}`} back={{ to: '/mimi/ratiba', label: 'Ratiba yangu' }}>
+    <PageShell title={t('mimi.book.title', 'Weka miadi')} subtitle={`${t('mimi.book.provider', 'Mtaalamu')}: ${providerId}`} back={{ to: '/mimi/ratiba', label: t('mimi.book.my-cal', 'Ratiba yangu') }}>
       <Card>
-        <p style={{ marginTop: 0 }}>Chagua siku na muda unaokufaa katika siku 14 zijazo.</p>
+        <p style={{ marginTop: 0 }}>{t('mimi.book.prompt', 'Chagua siku na muda unaokufaa katika siku 14 zijazo.')}</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(132px, 1fr))', gap: 10 }}>
           {days.map((d) => {
             const iso = d.toISOString().slice(0, 10)
@@ -103,7 +105,7 @@ export default function MimiBook() {
                       <button
                         key={s}
                         onClick={() => setPicked({ date: iso, slot: s })}
-                        aria-label={`Chagua ${iso} saa ${s}`}
+                        aria-label={`${t('mimi.book.pick-aria', 'Chagua')} ${iso} ${t('mimi.book.at', 'saa')} ${s}`}
                         style={{
                           padding: '6px 10px',
                           borderRadius: 999,
@@ -124,8 +126,8 @@ export default function MimiBook() {
         </div>
         {picked && (
           <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>Umechagua: <strong>{picked.date}</strong> saa <strong>{picked.slot}</strong></span>
-            <button onClick={() => void confirm()} disabled={busy} style={{ padding: '10px 20px', borderRadius: 999, background: JEWEL.tealMwenza, color: TEXT.onJewel, border: 'none', cursor: busy ? 'wait' : 'pointer', fontWeight: 700, opacity: busy ? 0.6 : 1 }}>Thibitisha</button>
+            <span>{t('mimi.book.selected', 'Umechagua')}: <strong>{picked.date}</strong> {t('mimi.book.at', 'saa')} <strong>{picked.slot}</strong></span>
+            <button onClick={() => void confirm()} disabled={busy} style={{ padding: '10px 20px', borderRadius: 999, background: JEWEL.tealMwenza, color: TEXT.onJewel, border: 'none', cursor: busy ? 'wait' : 'pointer', fontWeight: 700, opacity: busy ? 0.6 : 1 }}>{t('mimi.book.confirm', 'Thibitisha')}</button>
           </div>
         )}
       </Card>

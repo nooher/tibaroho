@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
+import { useLang } from '../../../lib/i18n/Provider'
 import { JEWEL, NEUTRAL, RADII, TEXT, glass, hexToRgba, TYPE } from '../../../lib/glass'
 import {
   type Provider,
@@ -19,6 +20,7 @@ interface Props {
  * specialty chips, rating + accepting badge. AAA-safe contrast.
  */
 export function ProviderCard({ provider, compact = false }: Props) {
+  const { t } = useLang()
   const initials = initialsOf(provider.name)
   const avatarStyle: CSSProperties = {
     width: compact ? 48 : 64,
@@ -81,8 +83,8 @@ export function ProviderCard({ provider, compact = false }: Props) {
           </span>
           {provider.verified && (
             <span
-              title="Imethibitishwa"
-              aria-label="Imethibitishwa"
+              title={t('gundua.card.verified', 'Imethibitishwa')}
+              aria-label={t('gundua.card.verified', 'Imethibitishwa')}
               style={{
                 ...chipStyle(JEWEL.goldHope),
                 display: 'inline-flex',
@@ -100,7 +102,7 @@ export function ProviderCard({ provider, compact = false }: Props) {
                   strokeLinejoin="round"
                 />
               </svg>
-              Imethibitishwa
+              {t('gundua.card.verified', 'Imethibitishwa')}
             </span>
           )}
         </div>
@@ -150,7 +152,7 @@ export function ProviderCard({ provider, compact = false }: Props) {
               fontSize: 10,
             }}
           >
-            {provider.accepting ? 'Anapokea' : 'Hapokei'}
+            {provider.accepting ? t('gundua.card.accepting', 'Anapokea') : t('gundua.card.not_accepting', 'Hapokei')}
           </span>
         </div>
       </div>

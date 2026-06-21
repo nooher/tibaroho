@@ -2,6 +2,7 @@ import type React from 'react'
 import { useState } from 'react'
 import { JEWEL, hexToRgba, RADII, TYPE, TEXT, CREAM, BRAND } from '../../../lib/glass'
 import { logAction } from '../audit'
+import { useLang } from '../../../lib/i18n/Provider'
 
 export interface ActionConfirmProps {
   open: boolean
@@ -22,6 +23,7 @@ export interface ActionConfirmProps {
  * persisted to the append-only audit chain with a prior-state snapshot.
  */
 export default function ActionConfirm(props: ActionConfirmProps): React.JSX.Element | null {
+  const { t } = useLang()
   const { open, title, description, action, entity, entity_id, prior, destructive, confirmLabel, onConfirm, onClose } = props
   const [reason, setReason] = useState('')
   const [busy, setBusy] = useState(false)
@@ -71,15 +73,15 @@ export default function ActionConfirm(props: ActionConfirmProps): React.JSX.Elem
           </p>
         ) : null}
         <div style={{ marginTop: 12, fontSize: 11, color: TEXT.muted, letterSpacing: 1.4, textTransform: 'uppercase', fontWeight: 700 }}>
-          Hatua: {action} · {entity}{entity_id ? ` #${entity_id.slice(0, 6)}` : ''}
+          {t('ndani.confirm.action_label', 'Hatua')}: {action} · {entity}{entity_id ? ` #${entity_id.slice(0, 6)}` : ''}
         </div>
         <label style={{ display: 'block', marginTop: 16, fontSize: 12, color: TEXT.heading, fontWeight: 600 }}>
-          Sababu (itahifadhiwa kwenye audit log) *
+          {t('ndani.confirm.reason_label', 'Sababu (itahifadhiwa kwenye audit log) *')}
         </label>
         <textarea
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="Eleza kwa nini hatua hii inachukuliwa…"
+          placeholder={t('ndani.confirm.reason_placeholder', 'Eleza kwa nini hatua hii inachukuliwa…')}
           rows={3}
           style={{
             width: '100%', marginTop: 6, padding: 10,
@@ -94,7 +96,7 @@ export default function ActionConfirm(props: ActionConfirmProps): React.JSX.Elem
             padding: '10px 16px', borderRadius: RADII.chip,
             background: 'transparent', border: `1px solid rgba(11,9,8,0.18)`,
             color: TEXT.body, cursor: 'pointer', fontSize: 13,
-          }}>Ghairi</button>
+          }}>{t('ndani.confirm.cancel', 'Ghairi')}</button>
           <button
             disabled={!reason.trim() || busy}
             onClick={() => { void confirm() }}
@@ -105,7 +107,7 @@ export default function ActionConfirm(props: ActionConfirmProps): React.JSX.Elem
               opacity: !reason.trim() || busy ? 0.55 : 1,
               fontSize: 13, fontWeight: 700, letterSpacing: 0.4,
             }}
-          >{busy ? 'Inafanya…' : (confirmLabel ?? 'Thibitisha')}</button>
+          >{busy ? t('ndani.confirm.busy', 'Inafanya…') : (confirmLabel ?? t('ndani.confirm.confirm', 'Thibitisha'))}</button>
         </div>
       </div>
     </div>

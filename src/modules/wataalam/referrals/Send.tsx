@@ -3,6 +3,7 @@ import { JEWEL, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
 import { CROSS_PRODUCTS, type CrossProduct } from '../../../lib/crossProducts'
 import { db, hasBackend } from '../../../lib/db'
 import { getMyProviderId, getMeId } from '../../../lib/me'
+import { useLang } from '../../../lib/i18n/Provider'
 
 interface Referral {
   id: string
@@ -63,6 +64,7 @@ async function persistReferral(r: Referral): Promise<void> {
 }
 
 export default function ReferralsSend() {
+  const { t } = useLang()
   const [patient, setPatient] = useState('')
   const [toProvider, setToProvider] = useState('')
   const [reason, setReason] = useState('')
@@ -90,21 +92,21 @@ export default function ReferralsSend() {
 
   return (
     <div style={{ padding: '24px 22px 80px', fontFamily: TYPE.sans }}>
-      <h1 style={{ fontFamily: TYPE.serif, fontWeight: 800, color: JEWEL.tealDeep, fontSize: 30 }}>Tuma rufaa</h1>
-      <p style={{ color: TEXT.muted }}>Rufaa ya hatua moja kwenda kwa mtaalamu mwingine au programu nyingine ya Laetoli.</p>
+      <h1 style={{ fontFamily: TYPE.serif, fontWeight: 800, color: JEWEL.tealDeep, fontSize: 30 }}>{t('wataalam.refsend.title', 'Tuma rufaa')}</h1>
+      <p style={{ color: TEXT.muted }}>{t('wataalam.refsend.subtitle', 'Rufaa ya hatua moja kwenda kwa mtaalamu mwingine au programu nyingine ya Laetoli.')}</p>
 
       <div style={{ background: '#FAF5E5', padding: 18, borderRadius: 18, border: `1px solid ${hexToRgba('#000', 0.08)}`, display: 'grid', gap: 12, marginTop: 16 }}>
-        <label><div style={{ fontWeight: 600 }}>Mgonjwa</div>
-          <input value={patient} onChange={(e) => setPatient(e.target.value)} placeholder="Jina au ID" aria-label="Mgonjwa" style={inp()} />
+        <label><div style={{ fontWeight: 600 }}>{t('wataalam.refsend.patient', 'Mgonjwa')}</div>
+          <input value={patient} onChange={(e) => setPatient(e.target.value)} placeholder={t('wataalam.refsend.name_id_ph', 'Jina au ID')} aria-label={t('wataalam.refsend.patient', 'Mgonjwa')} style={inp()} />
         </label>
-        <label><div style={{ fontWeight: 600 }}>Mtaalamu anayepokea</div>
-          <input value={toProvider} onChange={(e) => setToProvider(e.target.value)} placeholder="Jina au ID" aria-label="Mtaalamu anayepokea" style={inp()} />
+        <label><div style={{ fontWeight: 600 }}>{t('wataalam.refsend.recipient', 'Mtaalamu anayepokea')}</div>
+          <input value={toProvider} onChange={(e) => setToProvider(e.target.value)} placeholder={t('wataalam.refsend.name_id_ph', 'Jina au ID')} aria-label={t('wataalam.refsend.recipient', 'Mtaalamu anayepokea')} style={inp()} />
         </label>
-        <label><div style={{ fontWeight: 600 }}>Sababu</div>
-          <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={4} placeholder="Eleza kwa kifupi" aria-label="Sababu" style={inp()} />
+        <label><div style={{ fontWeight: 600 }}>{t('wataalam.referrals.reason', 'Sababu')}</div>
+          <textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={4} placeholder={t('wataalam.refsend.brief_ph', 'Eleza kwa kifupi')} aria-label={t('wataalam.referrals.reason', 'Sababu')} style={inp()} />
         </label>
         <fieldset style={{ border: 'none', padding: 0 }}>
-          <legend style={{ fontWeight: 600, marginBottom: 6 }}>Tuma pia kupitia programu nyingine ya Laetoli</legend>
+          <legend style={{ fontWeight: 600, marginBottom: 6 }}>{t('wataalam.refsend.cross_legend', 'Tuma pia kupitia programu nyingine ya Laetoli')}</legend>
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
             {CROSS_PRODUCTS.map((p) => (
               <label key={p} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -114,8 +116,8 @@ export default function ReferralsSend() {
             ))}
           </div>
         </fieldset>
-        <button onClick={() => void submit()} disabled={sending} style={{ padding: '10px 22px', borderRadius: 999, background: JEWEL.tealMwenza, color: '#FAF5E5', border: 'none', fontWeight: 700, cursor: sending ? 'wait' : 'pointer', opacity: sending ? 0.7 : 1 }}>{sending ? 'Inatuma…' : 'Tuma rufaa'}</button>
-        {done && <div style={{ color: JEWEL.tealMwenza, fontWeight: 600 }}>Rufaa imetumwa.</div>}
+        <button onClick={() => void submit()} disabled={sending} style={{ padding: '10px 22px', borderRadius: 999, background: JEWEL.tealMwenza, color: '#FAF5E5', border: 'none', fontWeight: 700, cursor: sending ? 'wait' : 'pointer', opacity: sending ? 0.7 : 1 }}>{sending ? t('wataalam.refsend.sending', 'Inatuma…') : t('wataalam.refsend.title', 'Tuma rufaa')}</button>
+        {done && <div style={{ color: JEWEL.tealMwenza, fontWeight: 600 }}>{t('wataalam.refsend.done', 'Rufaa imetumwa.')}</div>}
       </div>
     </div>
   )

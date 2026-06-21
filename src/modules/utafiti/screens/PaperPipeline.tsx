@@ -4,6 +4,7 @@ import { Card } from '../../_shared/Layout'
 import { BRAND, CREAM, NEUTRAL, TEXT, hexToRgba } from '../../../lib/glass'
 import { list } from '../../../lib/db'
 import type { TrAuditLog } from '../../../lib/db'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -79,6 +80,7 @@ function StatusPill({ s }: { s: PaperStatus }): React.JSX.Element {
 }
 
 function PaperCard({ p }: { p: Paper }): React.JSX.Element {
+  const { t } = useLang()
   return (
     <Card title={p.swahili} accent={p.accent}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
@@ -94,15 +96,15 @@ function PaperCard({ p }: { p: Paper }): React.JSX.Element {
       <div style={{
         display: 'inline-block', padding: '4px 10px', borderRadius: 999, background: CREAM.cream,
         fontSize: 11, color: TEXT.muted, border: `1px solid ${ink(0.08)}`, marginBottom: 12,
-      }}>Target: <strong style={{ color: TEXT.body }}>{p.journal}</strong></div>
+      }}>{t('utafiti.papers.target', 'Target:')} <strong style={{ color: TEXT.body }}>{p.journal}</strong></div>
 
       <div style={{ fontSize: 11, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, marginBottom: 4 }}>
-        Waandishi
+        {t('utafiti.papers.authors', 'Waandishi')}
       </div>
       <div style={{ fontSize: 12, color: TEXT.body, marginBottom: 12 }}>{p.authors.join(' · ')}</div>
 
       <div style={{ fontSize: 11, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 600, marginBottom: 4 }}>
-        Matokeo muhimu (rasimu)
+        {t('utafiti.papers.key_findings', 'Matokeo muhimu (rasimu)')}
       </div>
       <ul style={{ paddingLeft: 18, fontSize: 13, color: TEXT.body, lineHeight: 1.6, margin: 0 }}>
         {p.findings.map((f) => <li key={f}>{f}</li>)}
@@ -114,6 +116,7 @@ function PaperCard({ p }: { p: Paper }): React.JSX.Element {
 interface PaperUpdate { id: string; action: string; status?: string; note?: string; ts: string }
 
 export default function PaperPipeline(): React.JSX.Element {
+  const { t } = useLang()
   const [updates, setUpdates] = useState<PaperUpdate[]>([])
   const [livePapers, setLivePapers] = useState<Paper[]>(PAPERS)
 
@@ -155,15 +158,15 @@ export default function PaperPipeline(): React.JSX.Element {
 
   return (
     <>
-      <Card title="3-paper packaging — PhD dissertation arc" accent={BRAND.green}>
+      <Card title={t('utafiti.papers.title', '3-paper packaging — PhD dissertation arc')} accent={BRAND.green}>
         <p style={{ margin: 0, fontSize: 13, color: TEXT.muted }}>
-          Karatasi tatu zinazokamilisha dissertation: Formative (Paper 1), Effectiveness (Paper 2), RE-AIM + Cost-effectiveness + Scale-up (Paper 3). Kila moja ina hali, jarida lengwa, waandishi, na rasimu ya matokeo muhimu.
+          {t('utafiti.papers.intro', 'Karatasi tatu zinazokamilisha dissertation: Formative (Paper 1), Effectiveness (Paper 2), RE-AIM + Cost-effectiveness + Scale-up (Paper 3). Kila moja ina hali, jarida lengwa, waandishi, na rasimu ya matokeo muhimu.')}
         </p>
       </Card>
       {livePapers.map((p) => <PaperCard key={p.num} p={p} />)}
 
       {updates.length > 0 ? (
-        <Card title="Matukio ya hivi karibuni" accent={NEUTRAL.ink}>
+        <Card title={t('utafiti.papers.recent_events', 'Matukio ya hivi karibuni')} accent={NEUTRAL.ink}>
           <ul style={{ paddingLeft: 18, margin: 0, lineHeight: 1.7, fontSize: 13, color: TEXT.body }}>
             {updates.map((u, i) => (
               <li key={i}>

@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom'
 import { Card, ModuleShell, type SubNav } from '../_shared/Layout'
 import { BRAND, NEUTRAL, RADII, TEXT, hexToRgba } from '../../lib/glass'
 import { getMeRole } from '../../lib/me'
+import { useLang } from '../../lib/i18n/Provider'
 import { auditEvent } from '../ndani/audit'
 import Dashboard from './screens/Dashboard'
 import CFIR from './screens/CFIR'
@@ -21,6 +22,7 @@ const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 const APPROVAL_KEY = 'tumaini.utafiti.researcher.approved'
 
 function ResearcherGate({ children }: { children: React.ReactNode }): React.JSX.Element {
+  const { t } = useLang()
   const [approved, setApproved] = useState<boolean>(false)
 
   useEffect(() => {
@@ -48,39 +50,39 @@ function ResearcherGate({ children }: { children: React.ReactNode }): React.JSX.
   if (approved) return <>{children}</>
 
   return (
-    <Card title="Hitaji Idhini ya Utafiti" accent={BRAND.green}>
+    <Card title={t('utafiti.gate.title', 'Hitaji Idhini ya Utafiti')} accent={BRAND.green}>
       <p style={{ margin: '0 0 14px', fontSize: 14, color: TEXT.body, lineHeight: 1.6 }}>
-        Konsoli hii ni ya watafiti waliokubaliwa na MUHAS IRB + UAMS IRB pekee. Data zote ni de-identified na zinatii Data Protection Act (Tanzania, 2022).
+        {t('utafiti.gate.body1', 'Konsoli hii ni ya watafiti waliokubaliwa na MUHAS IRB + UAMS IRB pekee. Data zote ni de-identified na zinatii Data Protection Act (Tanzania, 2022).')}
       </p>
       <p style={{ margin: '0 0 14px', fontSize: 13, color: TEXT.muted, lineHeight: 1.6 }}>
-        Ili kupata ufikiaji, mtafiti anatakiwa kuwasilisha: <strong style={{ color: TEXT.body }}>MoU</strong>, <strong style={{ color: TEXT.body }}>barua ya IRB</strong>, na <strong style={{ color: TEXT.body }}>itifaki ya utafiti</strong>. Maombi yanapitishwa na timu ya Ndani ndani ya siku 10 za kazi.
+        {t('utafiti.gate.body2', 'Ili kupata ufikiaji, mtafiti anatakiwa kuwasilisha MoU, barua ya IRB, na itifaki ya utafiti. Maombi yanapitishwa na timu ya Ndani ndani ya siku 10 za kazi.')}
       </p>
       <button onClick={approve} style={{
         padding: '10px 18px', borderRadius: RADII.chip, background: BRAND.green,
         color: TEXT.onJewel, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer',
-      }}>Omba kama mtafiti (demo)</button>
+      }}>{t('utafiti.gate.cta', 'Omba kama mtafiti (demo)')}</button>
       <div style={{ marginTop: 10, fontSize: 11, color: TEXT.muted }}>
-        Demo: kubonyeza kunaweka flag ya local approval. Production itahitaji upakuaji wa nyaraka + ukaguzi wa Ndani.
+        {t('utafiti.gate.demo_note', 'Demo: kubonyeza kunaweka flag ya local approval. Production itahitaji upakuaji wa nyaraka + ukaguzi wa Ndani.')}
       </div>
     </Card>
   )
 }
 
-const SUBS: SubNav[] = [
-  { to: '', label: 'Dashibodi' },
-  { to: 'cfir', label: 'CFIR' },
-  { to: 'reaim', label: 'RE-AIM' },
-  { to: 'cea', label: 'CEA' },
-  { to: 'equity', label: 'Equity' },
-  { to: 'fidelity', label: 'Fidelity' },
-  { to: 'irb', label: 'IRB' },
-  { to: 'studies', label: 'Studies' },
-  { to: 'watafiti', label: 'Watafiti' },
-  { to: 'hamishia', label: 'Hamishia' },
-  { to: 'karatasi', label: 'Karatasi' },
-]
-
 export default function Utafiti(): React.JSX.Element {
+  const { t } = useLang()
+  const SUBS: SubNav[] = [
+    { to: '', label: t('utafiti.nav.dashboard', 'Dashibodi') },
+    { to: 'cfir', label: t('utafiti.nav.cfir', 'CFIR') },
+    { to: 'reaim', label: t('utafiti.nav.reaim', 'RE-AIM') },
+    { to: 'cea', label: t('utafiti.nav.cea', 'CEA') },
+    { to: 'equity', label: t('utafiti.nav.equity', 'Equity') },
+    { to: 'fidelity', label: t('utafiti.nav.fidelity', 'Fidelity') },
+    { to: 'irb', label: t('utafiti.nav.irb', 'IRB') },
+    { to: 'studies', label: t('utafiti.nav.studies', 'Studies') },
+    { to: 'watafiti', label: t('utafiti.nav.researchers', 'Watafiti') },
+    { to: 'hamishia', label: t('utafiti.nav.export', 'Hamishia') },
+    { to: 'karatasi', label: t('utafiti.nav.papers', 'Karatasi') },
+  ]
   return (
     <ModuleShell slug="utafiti" subs={SUBS}>
       <ResearcherGate>

@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { JEWEL, NEUTRAL, RADII, MOTION, TYPE, TEXT, glass, focusRing, hexToRgba } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 import type { Instrument, Interpretation } from '../data/instruments'
 import { Pill } from './Pill'
 
@@ -12,6 +13,7 @@ type Props = {
 const DRAFT = (id: string) => `tibaroho:mimi:draft:${id}`
 
 export function AssessmentRunner({ instrument, onDone, onCancel }: Props) {
+  const { t } = useLang()
   const [answers, setAnswers] = useState<number[]>(() => {
     try {
       const raw = localStorage.getItem(DRAFT(instrument.id))
@@ -55,7 +57,7 @@ export function AssessmentRunner({ instrument, onDone, onCancel }: Props) {
 
   return (
     <section
-      aria-label={`Tathmini: ${instrument.name_sw}`}
+      aria-label={`${t('mimi.assess.aria', 'Tathmini')}: ${instrument.name_sw}`}
       style={{
         ...glass(JEWEL.tealRoho, 0.14),
         padding: 28,
@@ -74,8 +76,8 @@ export function AssessmentRunner({ instrument, onDone, onCancel }: Props) {
           </h2>
           <p style={{ margin: '4px 0 0', color: TEXT.muted, fontSize: 13 }}>{instrument.name_en}</p>
         </div>
-        <div role="status" aria-live="polite" aria-label={`Maendeleo: ${progress}%`} style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: 12, color: TEXT.muted }}>Swali</div>
+        <div role="status" aria-live="polite" aria-label={`${t('mimi.assess.progress', 'Maendeleo')}: ${progress}%`} style={{ textAlign: 'right' }}>
+          <div style={{ fontSize: 12, color: TEXT.muted }}>{t('mimi.assess.question', 'Swali')}</div>
           <div style={{ fontFamily: TYPE.serif, fontSize: 28, lineHeight: 1, color: TEXT.heading }}>{i + 1}<span style={{ color: TEXT.muted }}>/{total}</span></div>
         </div>
       </header>
@@ -145,7 +147,7 @@ export function AssessmentRunner({ instrument, onDone, onCancel }: Props) {
         <button
           type="button"
           onClick={() => (i > 0 ? setI(i - 1) : onCancel?.())}
-          aria-label={i > 0 ? 'Rudi swali la nyuma' : 'Ghairi tathmini'}
+          aria-label={i > 0 ? t('mimi.assess.back-aria', 'Rudi swali la nyuma') : t('mimi.assess.cancel-aria', 'Ghairi tathmini')}
           style={{
             padding: '10px 18px',
             borderRadius: RADII.chip,
@@ -156,7 +158,7 @@ export function AssessmentRunner({ instrument, onDone, onCancel }: Props) {
             fontSize: 14,
           }}
         >
-          {i > 0 ? '← Nyuma' : 'Ghairi'}
+          {i > 0 ? t('mimi.assess.back', '← Nyuma') : t('mimi.assess.cancel', 'Ghairi')}
         </button>
 
         <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: TEXT.muted }}>
@@ -164,15 +166,15 @@ export function AssessmentRunner({ instrument, onDone, onCancel }: Props) {
             type="checkbox"
             checked={consent}
             onChange={(e) => setConsent(e.target.checked)}
-            aria-label="Nakubali kuhifadhi matokeo kwenye kifaa changu"
+            aria-label={t('mimi.assess.consent-aria', 'Nakubali kuhifadhi matokeo kwenye kifaa changu')}
           />
-          Hifadhi kwenye kifaa changu
+          {t('mimi.assess.consent', 'Hifadhi kwenye kifaa changu')}
         </label>
 
         <button
           type="button"
           onClick={done ? finish : () => setI(Math.min(total - 1, i + 1))}
-          aria-label={done ? 'Maliza tathmini' : 'Endelea'}
+          aria-label={done ? t('mimi.assess.finish-aria', 'Maliza tathmini') : t('mimi.assess.next-aria', 'Endelea')}
           style={{
             padding: '12px 22px',
             borderRadius: RADII.chip,
@@ -185,7 +187,7 @@ export function AssessmentRunner({ instrument, onDone, onCancel }: Props) {
             letterSpacing: '-0.2px',
           }}
         >
-          {done ? 'Maliza →' : 'Endelea →'}
+          {done ? t('mimi.assess.finish', 'Maliza →') : t('mimi.assess.next', 'Endelea →')}
         </button>
       </footer>
     </section>

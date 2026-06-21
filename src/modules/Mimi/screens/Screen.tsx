@@ -6,8 +6,10 @@ import { Pill } from '../components/Pill'
 import { AssessmentRunner } from '../components/AssessmentRunner'
 import { INSTRUMENTS, instrumentById, type Interpretation } from '../data/instruments'
 import { saveResult, uid } from '../data/store'
+import { useLang } from '../../../lib/i18n/Provider'
 
 export default function ScreenPage() {
+  const { t } = useLang()
   const { id } = useParams()
   const nav = useNavigate()
   const inst = useMemo(() => (id ? instrumentById(id) : undefined), [id])
@@ -15,13 +17,13 @@ export default function ScreenPage() {
 
   if (!id) {
     return (
-      <PageShell title="Vipimo" subtitle="Chagua kipimo cha kuanzia. Vyote vimethibitishwa kitaalamu." back={{ to: '/mimi' }}>
+      <PageShell title={t('mimi.screen.page-title', 'Vipimo')} subtitle={t('mimi.screen.subtitle', 'Chagua kipimo cha kuanzia. Vyote vimethibitishwa kitaalamu.')} back={{ to: '/mimi' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
           {INSTRUMENTS.map((i) => (
             <button
               key={i.id}
               onClick={() => nav(`/mimi/vipimo/${i.id}`)}
-              aria-label={`Anza kipimo ${i.name_sw}`}
+              aria-label={`${t('mimi.screen.start-aria', 'Anza kipimo')} ${i.name_sw}`}
               style={{
                 textAlign: 'left',
                 padding: 22,
@@ -35,10 +37,10 @@ export default function ScreenPage() {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Pill tone="teal">{i.domain}</Pill>
-                {!i.verified && <Pill tone="gold" ariaLabel="Inahitaji uthibitisho">Hakijahakikiwa</Pill>}
+                {!i.verified && <Pill tone="gold" ariaLabel={t('mimi.screen.needs-verify-aria', 'Inahitaji uthibitisho')}>{t('mimi.screen.unverified', 'Hakijahakikiwa')}</Pill>}
               </div>
               <h3 style={{ fontFamily: TYPE.serif, fontSize: 20, margin: '10px 0 4px', letterSpacing: TYPE.tighterTrack }}>{i.name_sw}</h3>
-              <p style={{ margin: 0, fontSize: 12, color: TEXT.muted }}>{i.name_en} · maswali {i.items.length}</p>
+              <p style={{ margin: 0, fontSize: 12, color: TEXT.muted }}>{i.name_en} · {t('mimi.screen.questions', 'maswali')} {i.items.length}</p>
             </button>
           ))}
         </div>
@@ -48,8 +50,8 @@ export default function ScreenPage() {
 
   if (!inst) {
     return (
-      <PageShell title="Kipimo hakipatikani" back={{ to: '/mimi/vipimo' }}>
-        <p>Kipimo cha aina hii hakipo. Rudi na uchague kingine.</p>
+      <PageShell title={t('mimi.screen.not-found', 'Kipimo hakipatikani')} back={{ to: '/mimi/vipimo' }}>
+        <p>{t('mimi.screen.not-found-body', 'Kipimo cha aina hii hakipo. Rudi na uchague kingine.')}</p>
       </PageShell>
     )
   }
@@ -57,12 +59,12 @@ export default function ScreenPage() {
   if (done) {
     const { interpret, consent } = done
     return (
-      <PageShell title="Matokeo yako" subtitle={inst.name_sw} back={{ to: '/mimi/vipimo' }}>
+      <PageShell title={t('mimi.screen.your-results', 'Matokeo yako')} subtitle={inst.name_sw} back={{ to: '/mimi/vipimo' }}>
         <Card jewel={interpret.redFlag ? JEWEL.maroonCrisis : JEWEL.tealRoho}>
           <Pill tone={interpret.redFlag ? 'maroon' : 'teal'}>{interpret.label_sw}</Pill>
           <div style={{ fontFamily: TYPE.serif, fontSize: 56, lineHeight: 1, margin: '14px 0 4px', letterSpacing: TYPE.tighterTrack }}>
             {interpret.score}
-            {interpret.redFlag && <span style={{ fontSize: 18, marginLeft: 12, color: JEWEL.goldSoft }}>· bendera nyekundu</span>}
+            {interpret.redFlag && <span style={{ fontSize: 18, marginLeft: 12, color: JEWEL.goldSoft }}>· {t('mimi.screen.red-flag', 'bendera nyekundu')}</span>}
           </div>
           <p style={{ color: TEXT.body, fontSize: 15, marginTop: 14 }}>{interpret.guidance_sw}</p>
           <p style={{ color: TEXT.muted, fontSize: 12, marginTop: 12 }}>{interpret.label_en} · {interpret.guidance_en}</p>
@@ -73,26 +75,26 @@ export default function ScreenPage() {
                 href="/mimi/dharura"
                 style={{ padding: '12px 18px', borderRadius: RADII.chip, background: JEWEL.goldHope, color: NEUTRAL.ink, fontWeight: 700, textDecoration: 'none', fontSize: 14 }}
               >
-                Pata msaada wa dharura →
+                {t('mimi.screen.get-emergency', 'Pata msaada wa dharura →')}
               </a>
             )}
             <a
               href="/mimi"
               style={{ padding: '12px 18px', borderRadius: RADII.chip, background: 'rgba(250,245,229,0.85)', border: '1px solid rgba(11,9,8,0.10)', color: TEXT.body, textDecoration: 'none', fontSize: 14 }}
             >
-              Rudi nyumbani
+              {t('mimi.screen.home', 'Rudi nyumbani')}
             </a>
           </div>
-          {!consent && <p style={{ marginTop: 14, fontSize: 12, color: TEXT.muted }}>Matokeo haya hayajahifadhiwa.</p>}
+          {!consent && <p style={{ marginTop: 14, fontSize: 12, color: TEXT.muted }}>{t('mimi.screen.not-saved', 'Matokeo haya hayajahifadhiwa.')}</p>}
         </Card>
 
-        <p style={{ marginTop: 22, color: TEXT.muted, fontSize: 12 }}>Chanzo: {inst.cite}</p>
+        <p style={{ marginTop: 22, color: TEXT.muted, fontSize: 12 }}>{t('mimi.screen.source', 'Chanzo')}: {inst.cite}</p>
       </PageShell>
     )
   }
 
   return (
-    <PageShell title={inst.name_sw} subtitle="Jibu kwa uaminifu. Hakuna jibu sahihi au baya." back={{ to: '/mimi/vipimo' }}>
+    <PageShell title={inst.name_sw} subtitle={t('mimi.screen.honest-answer', 'Jibu kwa uaminifu. Hakuna jibu sahihi au baya.')} back={{ to: '/mimi/vipimo' }}>
       <AssessmentRunner
         instrument={inst}
         onCancel={() => nav('/mimi/vipimo')}

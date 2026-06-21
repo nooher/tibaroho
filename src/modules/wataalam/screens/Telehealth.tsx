@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { JEWEL, RADII, TYPE, TEXT, CREAM, hexToRgba } from '../../../lib/glass'
 import { Card, H1, buttonStyle } from '../components/Card'
+import { useLang } from '../../../lib/i18n/Provider'
 
 /**
  * Telehealth — video + audio + chat shell. WebRTC integration is stubbed:
@@ -8,6 +9,7 @@ import { Card, H1, buttonStyle } from '../components/Card'
  * available. Real signalling will replace this in v2.
  */
 export default function Telehealth() {
+  const { t } = useLang()
   const localRef = useRef<HTMLVideoElement | null>(null)
   const [cameraOn, setCameraOn] = useState(false)
   const [micOn, setMicOn] = useState(true)
@@ -33,7 +35,7 @@ export default function Telehealth() {
           await localRef.current.play().catch(() => {})
         }
       } catch (e) {
-        setStreamErr('Hatuwezi kufikia kamera. Hakikisha umetoa idhini ya kivinjari.')
+        setStreamErr(t('wataalam.telehealth.camera_err', 'Hatuwezi kufikia kamera. Hakikisha umetoa idhini ya kivinjari.'))
         setCameraOn(false)
       }
     })()
@@ -55,7 +57,7 @@ export default function Telehealth() {
 
   return (
     <div>
-      <H1 english="Telehealth">Kipindi cha video</H1>
+      <H1 english="Telehealth">{t('wataalam.telehealth.title', 'Kipindi cha video')}</H1>
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14 }}>
         <Card title={`Mteja A · ${formatElapsed(elapsed)}`}>
@@ -118,7 +120,7 @@ export default function Telehealth() {
                   color: TEXT.onJewel,
                 }}
               >
-                Kamera imezimwa
+                {t('wataalam.telehealth.camera_off', 'Kamera imezimwa')}
               </div>
             )}
           </div>
@@ -143,27 +145,27 @@ export default function Telehealth() {
               style={buttonStyle(cameraOn ? JEWEL.tealRoho : JEWEL.tealDeep, cameraOn)}
               aria-pressed={cameraOn}
             >
-              {cameraOn ? '📹 Kamera ON' : '📹 Anza kamera'}
+              {cameraOn ? t('wataalam.telehealth.cam_on', '📹 Kamera ON') : t('wataalam.telehealth.cam_start', '📹 Anza kamera')}
             </button>
             <button
               onClick={() => setMicOn((v) => !v)}
               style={buttonStyle(micOn ? JEWEL.tealRoho : JEWEL.tealDeep, micOn)}
               aria-pressed={micOn}
             >
-              {micOn ? '🎤 Mic ON' : '🎤 Mic MUTED'}
+              {micOn ? t('wataalam.telehealth.mic_on', '🎤 Mic ON') : t('wataalam.telehealth.mic_muted', '🎤 Mic MUTED')}
             </button>
             <div style={{ flex: 1 }} />
-            <button style={buttonStyle(JEWEL.maroonCrisis, true)}>Maliza kipindi</button>
+            <button style={buttonStyle(JEWEL.maroonCrisis, true)}>{t('wataalam.telehealth.end_session', 'Maliza kipindi')}</button>
           </div>
         </Card>
 
         <div style={{ display: 'grid', gap: 14 }}>
-          <Card title="Maandiko ya wakati huu" english="Live notes">
+          <Card title={t('wataalam.telehealth.live_notes', 'Maandiko ya wakati huu')} english="Live notes">
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={8}
-              placeholder="Andika maelezo yako…"
+              placeholder={t('wataalam.telehealth.notes_ph', 'Andika maelezo yako…')}
               style={{
                 width: '100%',
                 background: CREAM.milk,
@@ -178,11 +180,11 @@ export default function Telehealth() {
               }}
             />
             <p style={{ fontSize: 11, color: TEXT.muted, marginTop: 6 }}>
-              Yatahifadhiwa moja kwa moja kwenye sehemu ya Kumbukumbu.
+              {t('wataalam.telehealth.autosave', 'Yatahifadhiwa moja kwa moja kwenye sehemu ya Kumbukumbu.')}
             </p>
           </Card>
 
-          <Card title="Mazungumzo">
+          <Card title={t('wataalam.telehealth.chat', 'Mazungumzo')}>
             <div
               style={{
                 maxHeight: 220,
@@ -219,7 +221,7 @@ export default function Telehealth() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && send()}
-                placeholder="Andika ujumbe…"
+                placeholder={t('wataalam.telehealth.msg_ph', 'Andika ujumbe…')}
                 style={{
                   flex: 1,
                   padding: '8px 12px',
@@ -233,7 +235,7 @@ export default function Telehealth() {
                 }}
               />
               <button onClick={send} style={buttonStyle(JEWEL.goldHope, true)}>
-                Tuma
+                {t('wataalam.common.send', 'Tuma')}
               </button>
             </div>
           </Card>

@@ -1,6 +1,7 @@
 import type React from 'react'
 import { Card, Table, Td } from '../../_shared/Layout'
 import { BRAND, CREAM, NEUTRAL, TEXT, hexToRgba } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -77,7 +78,7 @@ function trigger(content: string, filename: string, mime: string): void {
   URL.revokeObjectURL(url)
 }
 
-function ExportTile({ label, sub, onClick }: { label: string; sub: string; onClick: () => void }): React.JSX.Element {
+function ExportTile({ label, sub, onClick, downloadLabel }: { label: string; sub: string; onClick: () => void; downloadLabel: string }): React.JSX.Element {
   return (
     <button onClick={onClick} style={{
       textAlign: 'left', background: CREAM.cream, border: `1px solid ${ink(0.1)}`,
@@ -85,29 +86,31 @@ function ExportTile({ label, sub, onClick }: { label: string; sub: string; onCli
     }}>
       <div className="serif" style={{ fontSize: 16, color: TEXT.heading }}>{label}</div>
       <div style={{ fontSize: 12, color: TEXT.muted, marginTop: 4 }}>{sub}</div>
-      <div style={{ marginTop: 10, display: 'inline-block', padding: '4px 10px', borderRadius: 999, background: BRAND.green, color: TEXT.onJewel, fontSize: 11, fontWeight: 600 }}>Pakua</div>
+      <div style={{ marginTop: 10, display: 'inline-block', padding: '4px 10px', borderRadius: 999, background: BRAND.green, color: TEXT.onJewel, fontSize: 11, fontWeight: 600 }}>{downloadLabel}</div>
     </button>
   )
 }
 
 export default function ExportScreen(): React.JSX.Element {
+  const { t } = useLang()
+  const dl = t('utafiti.export.download', 'Pakua')
   return (
     <>
-      <Card title="Analysis-ready exports" accent={BRAND.green}>
+      <Card title={t('utafiti.export.title', 'Analysis-ready exports')} accent={BRAND.green}>
         <p style={{ margin: '0 0 14px', fontSize: 13, color: TEXT.muted }}>
-          Data zote zinapakuliwa kama de-identified, long format (REDCap-compatible). Templates za uchambuzi zinazalishwa kwa SPSS, Stata, na SAS.
+          {t('utafiti.export.intro', 'Data zote zinapakuliwa kama de-identified, long format (REDCap-compatible). Templates za uchambuzi zinazalishwa kwa SPSS, Stata, na SAS.')}
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-          <ExportTile label="CSV — long format" sub="REDCap-compatible · 1 row / (pid × week × instrument)" onClick={downloadCsv} />
-          <ExportTile label="SPSS syntax (.sps)" sub="MIXED + primary outcome model" onClick={downloadSps} />
-          <ExportTile label="Stata do-file (.do)" sub="xtmixed + logit clustered" onClick={downloadStata} />
-          <ExportTile label="SAS syntax (.sas)" sub="proc mixed + proc logistic" onClick={downloadSas} />
-          <ExportTile label="Codebook (auto-generated)" sub="Variables + types + descriptions" onClick={downloadCodebook} />
+          <ExportTile label={t('utafiti.export.csv', 'CSV — long format')} sub={t('utafiti.export.csv_sub', 'REDCap-compatible · 1 row / (pid × week × instrument)')} onClick={downloadCsv} downloadLabel={dl} />
+          <ExportTile label={t('utafiti.export.spss', 'SPSS syntax (.sps)')} sub={t('utafiti.export.spss_sub', 'MIXED + primary outcome model')} onClick={downloadSps} downloadLabel={dl} />
+          <ExportTile label={t('utafiti.export.stata', 'Stata do-file (.do)')} sub={t('utafiti.export.stata_sub', 'xtmixed + logit clustered')} onClick={downloadStata} downloadLabel={dl} />
+          <ExportTile label={t('utafiti.export.sas', 'SAS syntax (.sas)')} sub={t('utafiti.export.sas_sub', 'proc mixed + proc logistic')} onClick={downloadSas} downloadLabel={dl} />
+          <ExportTile label={t('utafiti.export.codebook', 'Codebook (auto-generated)')} sub={t('utafiti.export.codebook_sub', 'Variables + types + descriptions')} onClick={downloadCodebook} downloadLabel={dl} />
         </div>
       </Card>
 
-      <Card title="Variable codebook — PROMIS / NIH CDE mapping" accent={BRAND.blue}>
-        <Table headers={['Variable', 'Aina', 'Maelezo', 'PROMIS', 'NIH CDE']}>
+      <Card title={t('utafiti.export.codebook_title', 'Variable codebook — PROMIS / NIH CDE mapping')} accent={BRAND.blue}>
+        <Table headers={[t('utafiti.export.col.variable', 'Variable'), t('utafiti.export.col.type', 'Aina'), t('utafiti.export.col.desc', 'Maelezo'), 'PROMIS', 'NIH CDE']}>
           {CODEBOOK.map((v) => (
             <tr key={v.name}>
               <Td><code style={{ fontSize: 12, color: TEXT.body }}>{v.name}</code></Td>

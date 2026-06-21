@@ -3,8 +3,10 @@ import { JEWEL, RADII, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
 import { Card, H1, buttonStyle, FieldLabel, fieldStyle } from '../components/Card'
 import { loadReferrals, saveReferrals, type Referral } from '../lib/storage'
 import { PROVIDERS } from '../../Gundua/data/providers'
+import { useLang } from '../../../lib/i18n/Provider'
 
 export default function Referrals() {
+  const { t } = useLang()
   const [refs, setRefs] = useState<Referral[]>(() => loadReferrals())
   const [tab, setTab] = useState<'sent' | 'received'>('received')
   const [draft, setDraft] = useState({
@@ -41,25 +43,25 @@ export default function Referrals() {
 
   return (
     <div>
-      <H1 english="Referrals">Rufaa</H1>
+      <H1 english="Referrals">{t('wataalam.referrals.title', 'Rufaa')}</H1>
 
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 14 }}>
-        <Card title="Mtandao wa rufaa">
+        <Card title={t('wataalam.referrals.network', 'Mtandao wa rufaa')}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-            {(['received', 'sent'] as const).map((t) => (
+            {(['received', 'sent'] as const).map((k) => (
               <button
-                key={t}
-                onClick={() => setTab(t)}
-                style={buttonStyle(tab === t ? JEWEL.goldHope : JEWEL.tealDeep, tab === t)}
-                aria-pressed={tab === t}
+                key={k}
+                onClick={() => setTab(k)}
+                style={buttonStyle(tab === k ? JEWEL.goldHope : JEWEL.tealDeep, tab === k)}
+                aria-pressed={tab === k}
               >
-                {t === 'received' ? `Zilizopokelewa (${refs.filter(r=>r.direction==='received').length})` : `Zilizotumwa (${refs.filter(r=>r.direction==='sent').length})`}
+                {k === 'received' ? `${t('wataalam.referrals.received', 'Zilizopokelewa')} (${refs.filter(r=>r.direction==='received').length})` : `${t('wataalam.referrals.sent', 'Zilizotumwa')} (${refs.filter(r=>r.direction==='sent').length})`}
               </button>
             ))}
           </div>
 
           {list.length === 0 ? (
-            <p style={{ color: TEXT.muted, margin: 0 }}>Hakuna rufaa.</p>
+            <p style={{ color: TEXT.muted, margin: 0 }}>{t('wataalam.referrals.none', 'Hakuna rufaa.')}</p>
           ) : (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: 10 }}>
               {list.map((r) => (
@@ -100,13 +102,13 @@ export default function Referrals() {
                         onClick={() => setStatus(r.id, 'accepted')}
                         style={buttonStyle(JEWEL.goldHope, true)}
                       >
-                        Kubali
+                        {t('wataalam.referrals.accept', 'Kubali')}
                       </button>
                       <button
                         onClick={() => setStatus(r.id, 'declined')}
                         style={buttonStyle(JEWEL.maroonCrisis)}
                       >
-                        Kataa
+                        {t('wataalam.referrals.decline', 'Kataa')}
                       </button>
                     </div>
                   )}
@@ -115,7 +117,7 @@ export default function Referrals() {
                       onClick={() => setStatus(r.id, 'completed')}
                       style={{ ...buttonStyle(JEWEL.tealRoho, true), marginTop: 10 }}
                     >
-                      Maliza
+                      {t('wataalam.referrals.complete', 'Maliza')}
                     </button>
                   )}
                 </li>
@@ -124,15 +126,15 @@ export default function Referrals() {
           )}
         </Card>
 
-        <Card title="Tuma rufaa">
-          <FieldLabel>Mteja (kificho)</FieldLabel>
+        <Card title={t('wataalam.referrals.send_card', 'Tuma rufaa')}>
+          <FieldLabel>{t('wataalam.referrals.patient_code', 'Mteja (kificho)')}</FieldLabel>
           <input
             style={fieldStyle()}
             value={draft.patientPseudonym}
             onChange={(e) => setDraft({ ...draft, patientPseudonym: e.target.value })}
             placeholder="Mteja Z"
           />
-          <FieldLabel>Mtaalamu</FieldLabel>
+          <FieldLabel>{t('wataalam.referrals.provider', 'Mtaalamu')}</FieldLabel>
           <select
             style={fieldStyle()}
             value={draft.counterpartyName}
@@ -144,7 +146,7 @@ export default function Referrals() {
               </option>
             ))}
           </select>
-          <FieldLabel>Sababu</FieldLabel>
+          <FieldLabel>{t('wataalam.referrals.reason', 'Sababu')}</FieldLabel>
           <textarea
             rows={4}
             style={{
@@ -155,13 +157,13 @@ export default function Referrals() {
             }}
             value={draft.reasonSw}
             onChange={(e) => setDraft({ ...draft, reasonSw: e.target.value })}
-            placeholder="Eleza sababu na malengo ya rufaa…"
+            placeholder={t('wataalam.referrals.reason_ph', 'Eleza sababu na malengo ya rufaa…')}
           />
           <button
             onClick={send}
             style={{ ...buttonStyle(JEWEL.goldHope, true), marginTop: 14, width: '100%' }}
           >
-            Tuma rufaa
+            {t('wataalam.referrals.send_btn', 'Tuma rufaa')}
           </button>
         </Card>
       </div>

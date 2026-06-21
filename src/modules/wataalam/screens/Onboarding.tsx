@@ -5,6 +5,7 @@ import { Card, FieldLabel, fieldStyle, buttonStyle, H1 } from '../components/Car
 import { EMPTY_PROFILE, loadProfile, saveProfile, type ProviderProfileDraft } from '../lib/storage'
 import { INSURANCES } from '../../Gundua/data/insurances'
 import { TZ_REGIONS } from '../../Gundua/data/providers'
+import { useLang } from '../../../lib/i18n/Provider'
 
 /**
  * Credential-verification wizard. 9 steps; persists draft to localStorage so
@@ -35,6 +36,7 @@ const LANGS = [
 ]
 
 export default function Onboarding() {
+  const { t } = useLang()
   const nav = useNavigate()
   const [p, setP] = useState<ProviderProfileDraft>(() => {
     const v = loadProfile()
@@ -61,7 +63,7 @@ export default function Onboarding() {
 
   return (
     <div>
-      <H1 english="Onboarding">Karibu — tujue zaidi kuhusu wewe.</H1>
+      <H1 english="Onboarding">{t('wataalam.onboarding.title', 'Karibu — tujue zaidi kuhusu wewe.')}</H1>
 
       <div
         style={{
@@ -70,7 +72,7 @@ export default function Onboarding() {
           marginBottom: 18,
           flexWrap: 'wrap',
         }}
-        aria-label="Maendeleo"
+        aria-label={t('wataalam.onboarding.progress', 'Maendeleo')}
       >
         {STEPS.map((s, i) => (
           <div
@@ -88,11 +90,11 @@ export default function Onboarding() {
         ))}
       </div>
 
-      <Card title={`Hatua ${p.step + 1} ya ${STEPS.length} — ${stepLabel}`}>
+      <Card title={`${t('wataalam.onboarding.step', 'Hatua')} ${p.step + 1} ${t('wataalam.onboarding.of', 'ya')} ${STEPS.length} — ${stepLabel}`}>
         {p.step === 0 && (
           <div style={{ display: 'grid', gap: 12 }}>
             <div>
-              <FieldLabel>Heshima</FieldLabel>
+              <FieldLabel>{t('wataalam.onboarding.honorific', 'Heshima')}</FieldLabel>
               <select
                 style={fieldStyle()}
                 value={p.honorific}
@@ -107,7 +109,7 @@ export default function Onboarding() {
               </select>
             </div>
             <div>
-              <FieldLabel>Jina kamili</FieldLabel>
+              <FieldLabel>{t('wataalam.profile.full_name', 'Jina kamili')}</FieldLabel>
               <input
                 style={fieldStyle()}
                 value={p.fullName}
@@ -120,7 +122,7 @@ export default function Onboarding() {
 
         {p.step === 1 && (
           <div>
-            <FieldLabel>Nambari ya leseni (MCT/TPB/TCDA/BAKWATA/Synod)</FieldLabel>
+            <FieldLabel>{t('wataalam.onboarding.license', 'Nambari ya leseni (MCT/TPB/TCDA/BAKWATA/Synod)')}</FieldLabel>
             <input
               style={fieldStyle()}
               value={p.licenseNumber}
@@ -128,19 +130,19 @@ export default function Onboarding() {
               placeholder="MCT/PSY/2142"
             />
             <p style={{ fontSize: 12, color: TEXT.muted, marginTop: 8 }}>
-              Tutaithibitisha kwa MoH ndani ya saa 48.
+              {t('wataalam.onboarding.verify48', 'Tutaithibitisha kwa MoH ndani ya saa 48.')}
             </p>
           </div>
         )}
 
         {p.step === 2 && (
           <div>
-            <FieldLabel>Utaalamu (Kiswahili)</FieldLabel>
+            <FieldLabel>{t('wataalam.profile.specialty_sw', 'Utaalamu (Kiswahili)')}</FieldLabel>
             <input
               style={fieldStyle()}
               value={p.specialty}
               onChange={(e) => update('specialty', e.target.value)}
-              placeholder="kwa mfano: Sonona, Wasiwasi, CBT"
+              placeholder={t('wataalam.onboarding.specialty_ph', 'kwa mfano: Sonona, Wasiwasi, CBT')}
             />
           </div>
         )}
@@ -174,7 +176,7 @@ export default function Onboarding() {
         {p.step === 4 && (
           <div style={{ display: 'grid', gap: 12, gridTemplateColumns: '1fr 1fr' }}>
             <div>
-              <FieldLabel>Mji</FieldLabel>
+              <FieldLabel>{t('wataalam.onboarding.city', 'Mji')}</FieldLabel>
               <input
                 style={fieldStyle()}
                 value={p.city}
@@ -183,7 +185,7 @@ export default function Onboarding() {
               />
             </div>
             <div>
-              <FieldLabel>Mkoa</FieldLabel>
+              <FieldLabel>{t('wataalam.onboarding.region', 'Mkoa')}</FieldLabel>
               <select
                 style={fieldStyle()}
                 value={p.region}
@@ -199,7 +201,7 @@ export default function Onboarding() {
 
         {p.step === 5 && (
           <div>
-            <FieldLabel>Ada ya kipindi (TSh)</FieldLabel>
+            <FieldLabel>{t('wataalam.onboarding.fee', 'Ada ya kipindi (TSh)')}</FieldLabel>
             <input
               type="number"
               style={fieldStyle()}
@@ -208,8 +210,7 @@ export default function Onboarding() {
               onChange={(e) => update('feeTzs', Number(e.target.value))}
             />
             <p style={{ fontSize: 12, color: TEXT.muted, marginTop: 8 }}>
-              Ada hii itakuwa malipo ya moja kwa moja kwako. TBHOS haichukui asilimia
-              kutoka kwako wala kwa mteja.
+              {t('wataalam.onboarding.fee_note', 'Ada hii itakuwa malipo ya moja kwa moja kwako. TBHOS haichukui asilimia kutoka kwako wala kwa mteja.')}
             </p>
           </div>
         )}
@@ -254,7 +255,7 @@ export default function Onboarding() {
                 }}
                 aria-pressed={p.mode === m}
               >
-                {m === 'virtual' ? 'Mtandaoni' : m === 'in_person' ? 'Ana kwa ana' : 'Zote'}
+                {m === 'virtual' ? t('wataalam.common.virtual', 'Mtandaoni') : m === 'in_person' ? t('wataalam.common.in_person', 'Ana kwa ana') : t('wataalam.schedule.both', 'Zote')}
               </button>
             ))}
           </div>
@@ -262,7 +263,7 @@ export default function Onboarding() {
 
         {p.step === 8 && (
           <div>
-            <FieldLabel>Pakia cheti (PDF/JPG)</FieldLabel>
+            <FieldLabel>{t('wataalam.onboarding.upload_diploma', 'Pakia cheti (PDF/JPG)')}</FieldLabel>
             <input
               type="file"
               accept="application/pdf,image/*"
@@ -285,7 +286,7 @@ export default function Onboarding() {
                   fontSize: 13,
                 }}
               >
-                ✓ Cheti kimepokelewa. Tutawasiliana ndani ya saa 48.
+                {t('wataalam.onboarding.diploma_received', '✓ Cheti kimepokelewa. Tutawasiliana ndani ya saa 48.')}
               </p>
             )}
           </div>
@@ -294,7 +295,7 @@ export default function Onboarding() {
         <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
           {p.step > 0 && (
             <button onClick={() => goto(p.step - 1)} style={buttonStyle(JEWEL.tealDeep)}>
-              ← Rudi
+              {t('wataalam.common.back', '← Rudi')}
             </button>
           )}
           <div style={{ flex: 1 }} />
@@ -303,18 +304,18 @@ export default function Onboarding() {
               onClick={() => goto(p.step + 1)}
               style={buttonStyle(JEWEL.goldHope, true)}
             >
-              Endelea →
+              {t('wataalam.common.next', 'Endelea →')}
             </button>
           ) : (
             <button onClick={finish} style={buttonStyle(JEWEL.goldHope, true)}>
-              Tuma maombi
+              {t('wataalam.onboarding.submit', 'Tuma maombi')}
             </button>
           )}
         </div>
       </Card>
 
       <p style={{ marginTop: 18, color: TEXT.muted, fontSize: 12, textAlign: 'center' }}>
-        TBHOS ni bure milele kwa wataalamu na wateja. Sera yetu ya uhakika.
+        {t('wataalam.onboarding.free_note', 'TBHOS ni bure milele kwa wataalamu na wateja. Sera yetu ya uhakika.')}
       </p>
     </div>
   )

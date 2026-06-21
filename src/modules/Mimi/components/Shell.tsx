@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { CREAM, JEWEL, NEUTRAL, RADII, TEXT, TYPE, TZ_FLAG, glass, hexToRgba } from '../../../lib/glass'
+import { useLang } from '../../../lib/i18n/Provider'
 
 export function PageShell({
   title,
@@ -15,6 +16,7 @@ export function PageShell({
   flagBar?: boolean
   children: ReactNode
 }) {
+  const { t } = useLang()
   return (
     <main
       style={{
@@ -30,7 +32,7 @@ export function PageShell({
         {back && (
           <Link
             to={back.to}
-            aria-label="Rudi"
+            aria-label={t('mimi.shell.back', 'Rudi')}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -41,7 +43,7 @@ export function PageShell({
               fontWeight: 600,
             }}
           >
-            ← {back.label || 'Rudi'}
+            ← {back.label || t('mimi.shell.back', 'Rudi')}
           </Link>
         )}
         <h1

@@ -3,8 +3,10 @@ import { JEWEL, NEUTRAL, RADII, TYPE, TEXT, CREAM, hexToRgba } from '../../../li
 import { PageShell, Card } from '../components/Shell'
 import { Pill } from '../components/Pill'
 import { getCarePlan, getCarePlanAsync, saveCarePlan, uid, type CarePlan } from '../data/store'
+import { useLang } from '../../../lib/i18n/Provider'
 
 export default function CarePlanPage() {
+  const { t } = useLang()
   const [plan, setPlan] = useState<CarePlan>(() => getCarePlan())
   const [newStep, setNewStep] = useState('')
 
@@ -39,12 +41,12 @@ export default function CarePlanPage() {
   }
 
   return (
-    <PageShell title="Mpango wangu wa huduma" subtitle="Programu, watoa huduma, hatua zinazofuata, na mafanikio." back={{ to: '/mimi' }}>
+    <PageShell title={t('mimi.cp.title', 'Mpango wangu wa huduma')} subtitle={t('mimi.cp.subtitle', 'Programu, watoa huduma, hatua zinazofuata, na mafanikio.')} back={{ to: '/mimi' }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
         <Card jewel={JEWEL.tealRoho}>
-          <Pill tone="teal">Programu</Pill>
-          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '10px 0 12px', letterSpacing: TYPE.tighterTrack }}>Programu zilizojumuishwa</h3>
-          {plan.programs.length === 0 && <p style={{ color: TEXT.muted, fontSize: 14 }}>Hakuna programu hai bado. Mtaalamu wako atapeleka mpango hapa.</p>}
+          <Pill tone="teal">{t('mimi.cp.programs', 'Programu')}</Pill>
+          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '10px 0 12px', letterSpacing: TYPE.tighterTrack }}>{t('mimi.cp.programs-heading', 'Programu zilizojumuishwa')}</h3>
+          {plan.programs.length === 0 && <p style={{ color: TEXT.muted, fontSize: 14 }}>{t('mimi.cp.programs-empty', 'Hakuna programu hai bado. Mtaalamu wako atapeleka mpango hapa.')}</p>}
           {plan.programs.map((p) => (
             <div key={p.id} style={row}>
               <span>{p.name_sw}</span>
@@ -54,9 +56,9 @@ export default function CarePlanPage() {
         </Card>
 
         <Card jewel={JEWEL.indigoWisdom}>
-          <Pill tone="indigo">Watoa huduma</Pill>
-          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '10px 0 12px', letterSpacing: TYPE.tighterTrack }}>Timu yangu</h3>
-          {plan.providers.length === 0 && <p style={{ color: TEXT.muted, fontSize: 14 }}>Bado hakuna mtoa huduma aliyeunganishwa.</p>}
+          <Pill tone="indigo">{t('mimi.cp.providers', 'Watoa huduma')}</Pill>
+          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '10px 0 12px', letterSpacing: TYPE.tighterTrack }}>{t('mimi.cp.my-team', 'Timu yangu')}</h3>
+          {plan.providers.length === 0 && <p style={{ color: TEXT.muted, fontSize: 14 }}>{t('mimi.cp.providers-empty', 'Bado hakuna mtoa huduma aliyeunganishwa.')}</p>}
           {plan.providers.map((p) => (
             <div key={p.id} style={row}>
               <div>
@@ -68,11 +70,11 @@ export default function CarePlanPage() {
         </Card>
 
         <Card jewel={JEWEL.tealRoho} style={{ gridColumn: '1 / -1' }}>
-          <Pill tone="teal">Hatua zinazofuata</Pill>
-          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '10px 0 12px', letterSpacing: TYPE.tighterTrack }}>Nini kifuatacho</h3>
+          <Pill tone="teal">{t('mimi.cp.next-steps', 'Hatua zinazofuata')}</Pill>
+          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '10px 0 12px', letterSpacing: TYPE.tighterTrack }}>{t('mimi.cp.whats-next', 'Nini kifuatacho')}</h3>
           {plan.nextSteps.map((s) => (
             <label key={s.id} style={{ ...row, cursor: 'pointer' }}>
-              <input type="checkbox" checked={s.done} onChange={() => toggleStep(s.id)} aria-label={`Maliza: ${s.text_sw}`} />
+              <input type="checkbox" checked={s.done} onChange={() => toggleStep(s.id)} aria-label={`${t('mimi.cp.finish', 'Maliza')}: ${s.text_sw}`} />
               <span style={{ textDecoration: s.done ? 'line-through' : 'none', color: s.done ? TEXT.muted : TEXT.body, flex: 1, marginLeft: 12 }}>
                 {s.text_sw}
               </span>
@@ -84,8 +86,8 @@ export default function CarePlanPage() {
               value={newStep}
               onChange={(e) => setNewStep(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && addStep()}
-              placeholder="Mfano: Piga simu kliniki Jumatatu"
-              aria-label="Ongeza hatua mpya"
+              placeholder={t('mimi.cp.new-step-ph', 'Mfano: Piga simu kliniki Jumatatu')}
+              aria-label={t('mimi.cp.new-step-aria', 'Ongeza hatua mpya')}
               style={{
                 flex: 1, padding: 12, borderRadius: RADII.chip,
                 background: CREAM.milk,
@@ -97,15 +99,15 @@ export default function CarePlanPage() {
               onClick={addStep}
               style={{ padding: '10px 18px', borderRadius: RADII.chip, background: JEWEL.goldHope, color: NEUTRAL.ink, fontWeight: 700, border: 'none', cursor: 'pointer' }}
             >
-              Ongeza
+              {t('mimi.cp.add', 'Ongeza')}
             </button>
           </div>
         </Card>
 
         <Card jewel={JEWEL.goldHope} alpha={0.14} style={{ gridColumn: '1 / -1' }}>
-          <Pill tone="gold">Mafanikio</Pill>
-          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '10px 0 12px', letterSpacing: TYPE.tighterTrack }}>Mafanikio yangu</h3>
-          {plan.milestones.length === 0 && <p style={{ color: TEXT.muted, fontSize: 14 }}>Mafanikio yako yatatambuliwa hapa unapoendelea.</p>}
+          <Pill tone="gold">{t('mimi.cp.milestones', 'Mafanikio')}</Pill>
+          <h3 style={{ fontFamily: TYPE.serif, fontSize: 22, margin: '10px 0 12px', letterSpacing: TYPE.tighterTrack }}>{t('mimi.cp.my-milestones', 'Mafanikio yangu')}</h3>
+          {plan.milestones.length === 0 && <p style={{ color: TEXT.muted, fontSize: 14 }}>{t('mimi.cp.milestones-empty', 'Mafanikio yako yatatambuliwa hapa unapoendelea.')}</p>}
           {plan.milestones.map((m) => (
             <div key={m.id} style={row}>
               <span>★ {m.text_sw}</span>
