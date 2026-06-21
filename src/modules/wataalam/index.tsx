@@ -9,6 +9,7 @@ import CarePlanTemplates from './screens/CarePlanTemplates'
 import Coding from './screens/Coding'
 import Claims from './screens/Claims'
 import Notes from './screens/Notes'
+import CompleteSession from './screens/CompleteSession'
 import Outcomes from './screens/Outcomes'
 import Supervision from './screens/Supervision'
 import Referrals from './screens/Referrals'
@@ -44,6 +45,7 @@ export default function Wataalam() {
         <Route path="kodi" element={<Coding />} />
         <Route path="madai" element={<Claims />} />
         <Route path="kumbukumbu" element={<Notes />} />
+        <Route path="kipindi/:appointmentId/maliza" element={<CompleteSession />} />
         <Route path="matokeo" element={<Outcomes />} />
         <Route path="usimamizi" element={<Supervision />} />
         <Route path="rufaa" element={<Referrals />} />

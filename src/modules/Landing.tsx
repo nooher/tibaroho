@@ -4,6 +4,7 @@ import { ModuleCard } from '../components/ModuleCard'
 import TumainiCompass from '../components/TumainiCompass'
 import ResearchNotice from '../components/ResearchNotice'
 import { useLang } from '../lib/i18n/Provider'
+import { TZ_MENTAL_HEALTH, TZ_CONTEXT_NOTES } from '../lib/epi/tanzania'
 
 export default function Landing() {
   const { t } = useLang()
@@ -88,20 +89,42 @@ export default function Landing() {
           marginBottom: 56,
         }}
       >
-        {[
-          { v: t('landing.stat1.v', '1 kati ya 4'), l: t('landing.stat1.l', 'Watanzania wanahitaji huduma ya afya ya akili') },
-          { v: t('landing.stat2.v', '< 50'), l: t('landing.stat2.l', 'Wataalam wa magonjwa ya akili nchini') },
-          { v: t('landing.stat3.v', '12'), l: t('landing.stat3.l', 'Moduli za kina katika mfumo huu') },
-          { v: t('landing.stat4.v', 'Bure'), l: t('landing.stat4.l', 'Kwa mtumiaji na kwa mtoa-huduma — milele') },
-        ].map((s, i) => (
+        {([
+          {
+            v: '1 kati ya 4',
+            l: TZ_CONTEXT_NOTES.one_in_four_global.label_sw,
+            citation: TZ_CONTEXT_NOTES.one_in_four_global.citation,
+            asOf: TZ_CONTEXT_NOTES.one_in_four_global.asOf,
+          },
+          {
+            v: String(TZ_MENTAL_HEALTH.psychiatrists_per_100k.value),
+            l: TZ_MENTAL_HEALTH.psychiatrists_per_100k.label_sw + ' (kwa 100,000)',
+            citation: TZ_MENTAL_HEALTH.psychiatrists_per_100k.citation,
+            asOf: TZ_MENTAL_HEALTH.psychiatrists_per_100k.asOf,
+          },
+          {
+            v: String(TZ_MENTAL_HEALTH.modules_count.value),
+            l: TZ_MENTAL_HEALTH.modules_count.label_sw,
+            citation: TZ_MENTAL_HEALTH.modules_count.citation,
+            asOf: TZ_MENTAL_HEALTH.modules_count.asOf,
+          },
+          {
+            v: String(TZ_MENTAL_HEALTH.cost_to_user.value),
+            l: TZ_MENTAL_HEALTH.cost_to_user.label_sw + ' — milele',
+            citation: TZ_MENTAL_HEALTH.cost_to_user.citation,
+            asOf: TZ_MENTAL_HEALTH.cost_to_user.asOf,
+          },
+        ] as Array<{ v: string; l: string; citation: string; asOf: string }>).map((s, i) => (
           <div
             key={i}
+            title={`${s.citation} (${s.asOf})`}
             style={{
               padding: '20px 18px',
               borderRadius: 18,
               background: CREAM.milk,
               border: `1px solid ${hexToRgba(NEUTRAL.ink, 0.08)}`,
               boxShadow: '0 1px 0 rgba(11,9,8,0.04), 0 8px 22px rgba(11,9,8,0.06)',
+              cursor: 'help',
             }}
           >
             <div
@@ -126,6 +149,17 @@ export default function Landing() {
               }}
             >
               {s.l}
+            </div>
+            <div
+              style={{
+                marginTop: 8,
+                fontSize: 10,
+                letterSpacing: '0.06em',
+                color: TEXT.hint,
+                fontStyle: 'italic',
+              }}
+            >
+              {s.citation.split('—')[0].trim()} · {s.asOf}
             </div>
           </div>
         ))}

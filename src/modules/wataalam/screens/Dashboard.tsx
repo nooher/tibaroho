@@ -125,36 +125,53 @@ export default function Dashboard() {
                       · {a.mode === 'virtual' ? t('wataalam.common.virtual', 'Mtandaoni') : t('wataalam.common.in_person', 'Ana kwa ana')} · {a.reasonSw}
                     </div>
                   </div>
-                  {a.mode === 'virtual' ? (
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                    {a.mode === 'virtual' ? (
+                      <Link
+                        to="../video"
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: 999,
+                          background: '#C99700',
+                          color: '#0A0808',
+                          fontSize: 12,
+                          textDecoration: 'none',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {t('wataalam.dashboard.start_video', 'Anza video')}
+                      </Link>
+                    ) : (
+                      <Link
+                        to="../intake"
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: 999,
+                          background: '#0F4D1F',
+                          color: '#F4EAC9',
+                          fontSize: 12,
+                          textDecoration: 'none',
+                        }}
+                      >
+                        {t('wataalam.dashboard.intake_link', 'Mapokezi')}
+                      </Link>
+                    )}
                     <Link
-                      to="../video"
+                      to={`kipindi/${a.id}/maliza`}
                       style={{
-                        padding: '6px 14px',
+                        padding: '6px 12px',
                         borderRadius: 999,
-                        background: '#C99700',
+                        background: 'rgba(11,9,8,0.08)',
                         color: '#0A0808',
                         fontSize: 12,
                         textDecoration: 'none',
                         fontWeight: 600,
+                        border: '1px solid rgba(11,9,8,0.18)',
                       }}
                     >
-                      {t('wataalam.dashboard.start_video', 'Anza video')}
+                      {t('wataalam.dashboard.complete', 'Maliza')}
                     </Link>
-                  ) : (
-                    <Link
-                      to="../intake"
-                      style={{
-                        padding: '6px 14px',
-                        borderRadius: 999,
-                        background: '#0F4D1F',
-                        color: '#F4EAC9',
-                        fontSize: 12,
-                        textDecoration: 'none',
-                      }}
-                    >
-                      {t('wataalam.dashboard.intake_link', 'Mapokezi')}
-                    </Link>
-                  )}
+                  </div>
                 </li>
               ))}
             </ul>
