@@ -1,0 +1,125 @@
+import type React from 'react'
+import { useEffect, useState } from 'react'
+import { Card } from '../../_shared/Layout'
+import { BRAND, CREAM, NEUTRAL, RADII, TEXT, hexToRgba } from '../../../lib/glass'
+import { CFIR_DOMAINS, CFIR_CONSTRUCT_COUNT } from '../data/cfirConstructs'
+
+const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
+
+const SITES = [
+  { id: 'muhimbili', name: 'Muhimbili NH' },
+  { id: 'mirembe',   name: 'Mirembe RH' },
+  { id: 'dodoma',    name: 'Dodoma RRH' },
+  { id: 'mwananyamala', name: 'Mwananyamala' },
+  { id: 'temeke',    name: 'Temeke RRH' },
+  { id: 'bugando',   name: 'Bugando MC' },
+]
+
+type Scores = Record<string, number>
+
+function loadScores(siteId: string): Scores {
+  try {
+    const raw = localStorage.getItem(`tumaini.utafiti.cfir.${siteId}`)
+    return raw ? (JSON.parse(raw) as Scores) : {}
+  } catch { return {} }
+}
+
+function saveScores(siteId: string, s: Scores): void {
+  // TODO: sync to Supabase tr_cfir_assessments when backend lands.
+  try { localStorage.setItem(`tumaini.utafiti.cfir.${siteId}`, JSON.stringify(s)) } catch {}
+}
+
+function heatColor(score: number): string {
+  if (!score) return CREAM.cream
+  if (score >= 4) return hexToRgba(BRAND.green, 0.85)
+  if (score >= 3) return hexToRgba(BRAND.blue, 0.70)
+  if (score >= 2) return hexToRgba(BRAND.yellow, 0.65)
+  return hexToRgba(NEUTRAL.ink, 0.50)
+}
+
+function exportCsv(siteId: string, scores: Scores): void {
+  const rows: string[] = ['domain,construct_id,construct,swahili,score']
+  for (const d of CFIR_DOMAINS) {
+    for (const c of d.constructs) {
+      rows.push(`"${d.name}","${c.id}","${c.name}","${c.swahili}",${scores[c.id] ?? ''}`)
+    }
+  }
+  const blob = new Blob([rows.join('\n')], { type: 'text/csv' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url; a.download = `cfir_${siteId}_${new Date().toISOString().slice(0,10)}.csv`; a.click()
+  URL.revokeObjectURL(url)
+}
+
+export default function CFIR(): React.JSX.Element {
+  const [siteId, setSiteId] = useState<string>(SITES[0].id)
+  const [scores, setScores] = useState<Scores>({})
+
+  useEffect(() => { setScores(loadScores(siteId)) }, [siteId])
+
+  const setScore = (id: string, v: number): void => {
+    const next = { ...scores, [id]: v }
+    setScores(next)
+    saveScores(siteId, next)
+  }
+
+  const mean = (() => {
+    const vals = Object.values(scores).filter((v) => typeof v === 'number')
+    if (!vals.length) return 0
+    return vals.reduce((a, b) => a + b, 0) / vals.length
+  })()
+
+  return (
+    <>
+      <Card title="CFIR 2.0 — site readiness assessment" accent={BRAND.green}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', marginBottom: 16 }}>
+          <label style={{ fontSize: 12, color: TEXT.muted, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Tovuti</label>
+          <select value={siteId} onChange={(e) => setSiteId(e.target.value)} style={{
+            padding: '8px 12px', borderRadius: RADII.chip, background: CREAM.milk,
+            border: `1px solid ${ink(0.22)}`, color: TEXT.body, fontSize: 13,
+          }}>
+            {SITES.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+          </select>
+          <div style={{ fontSize: 13, color: TEXT.muted, marginLeft: 'auto' }}>
+            Wastani: <strong style={{ color: TEXT.body }}>{mean.toFixed(2)} / 5</strong>
+            {' · '}{Object.keys(scores).length}/{CFIR_CONSTRUCT_COUNT} vimepimwa
+          </div>
+          <button onClick={() => exportCsv(siteId, scores)} style={{
+            padding: '8px 14px', borderRadius: RADII.chip, background: BRAND.green,
+            color: CREAM.milk, border: 'none', fontSize: 12, cursor: 'pointer',
+          }}>Pakua CSV</button>
+        </div>
+      </Card>
+
+      {CFIR_DOMAINS.map((d) => (
+        <Card key={d.id} title={`${d.swahili} — ${d.name}`} accent={BRAND.blue}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 10 }}>
+            {d.constructs.map((c) => {
+              const s = scores[c.id] ?? 0
+              return (
+                <div key={c.id} style={{
+                  background: heatColor(s), border: `1px solid ${ink(0.08)}`, borderRadius: 12, padding: 12,
+                  transition: 'background 200ms ease',
+                }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: s >= 3 ? TEXT.onJewel : TEXT.body }}>{c.swahili}</div>
+                  <div style={{ fontSize: 11, color: s >= 3 ? hexToRgba(CREAM.milk, 0.85) : TEXT.muted, marginTop: 2 }}>{c.name}</div>
+                  <div style={{ fontSize: 11, color: s >= 3 ? hexToRgba(CREAM.milk, 0.8) : TEXT.muted, marginTop: 6, lineHeight: 1.4 }}>{c.definition}</div>
+                  <div style={{ display: 'flex', gap: 4, marginTop: 10 }}>
+                    {[1,2,3,4,5].map((n) => (
+                      <button key={n} onClick={() => setScore(c.id, n)} style={{
+                        flex: 1, padding: '6px 0', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                        background: s === n ? NEUTRAL.ink : (s >= 3 ? hexToRgba(CREAM.milk, 0.25) : CREAM.milk),
+                        color: s === n ? CREAM.milk : (s >= 3 ? CREAM.milk : NEUTRAL.ink),
+                        border: `1px solid ${s === n ? NEUTRAL.ink : ink(0.12)}`, cursor: 'pointer',
+                      }}>{n}</button>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </Card>
+      ))}
+    </>
+  )
+}

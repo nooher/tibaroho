@@ -1,0 +1,83 @@
+// programsTanzania.ts — verified Tanzania health programs and partners.
+
+export interface TzProgram {
+  id: string;
+  name: string;
+  scope: string;
+  contact: string;
+  verified: boolean;
+  referral_pathway: string;
+  languages: string[];
+  source: string;
+}
+
+export const TZ_PROGRAMS: TzProgram[] = [
+  { id: 'moh', name: 'Wizara ya Afya — Tanzania (MoH)', scope: 'Mwongozo wa kitaifa wa afya, sera, na mfumo wa rufaa',
+    contact: 'Dodoma · +255 26 296 1404 · info@afya.go.tz', verified: true,
+    referral_pathway: 'Kituo cha afya → Hospitali ya wilaya → Hospitali ya rufaa (KCMC/Muhimbili/Bugando/Benjamin Mkapa)',
+    languages: ['sw', 'en'], source: 'moh.go.tz' },
+  { id: 'nacp', name: 'NACP — National AIDS Control Programme', scope: 'VVU: upimaji, ART, PMTCT, PrEP',
+    contact: 'Dar es Salaam · +255 22 2122 740', verified: true,
+    referral_pathway: 'CTC ya kituo cha afya → CTC ya wilaya kwa rufaa ngumu',
+    languages: ['sw', 'en'], source: 'nacp.go.tz' },
+  { id: 'ntlp', name: 'NTLP — National TB & Leprosy Programme', scope: 'TB diagnosis, DOT, MDR-TB',
+    contact: 'Dar es Salaam · ntlp@afya.go.tz', verified: true,
+    referral_pathway: 'TB clinic ya kituo → MDR centre (Kibong\'oto)',
+    languages: ['sw', 'en'], source: 'ntlp.go.tz' },
+  { id: 'tacaids', name: 'TACAIDS — Tanzania Commission for AIDS', scope: 'Uratibu wa taifa wa VVU/UKIMWI',
+    contact: 'Dar es Salaam · info@tacaids.go.tz', verified: true,
+    referral_pathway: 'Kupitia NACP kwa huduma za kliniki',
+    languages: ['sw', 'en'], source: 'tacaids.go.tz' },
+  { id: 'nimr', name: 'NIMR — National Institute for Medical Research', scope: 'Utafiti wa afya wa kitaifa, IRB',
+    contact: 'Dar es Salaam · headquarters@nimr.or.tz', verified: true,
+    referral_pathway: 'Kwa watafiti — IRB clearance, vibali',
+    languages: ['sw', 'en'], source: 'nimr.or.tz' },
+  { id: 'muhimbili-mh', name: 'Muhimbili Hospital — Mental Health Department', scope: 'Huduma za afya ya akili ngazi ya rufaa',
+    contact: 'Dar es Salaam · +255 22 2151 367 · psychiatry@mnh.or.tz', verified: true,
+    referral_pathway: 'Rufaa kutoka hospitali ya wilaya / mkoa',
+    languages: ['sw', 'en'], source: 'mnh.or.tz' },
+  { id: 'mirembe', name: 'Mirembe Mental Hospital — Dodoma', scope: 'Kitaifa: afya ya akili ya muda mrefu, forensic',
+    contact: 'Dodoma · +255 26 232 1241', verified: true,
+    referral_pathway: 'Rufaa ya hospitali ya rufaa au mahakama',
+    languages: ['sw', 'en'], source: 'mirembe.go.tz' },
+  { id: 'kcmc', name: 'KCMC — Kilimanjaro Christian Medical Centre', scope: 'Hospitali ya rufaa Kanda ya Kaskazini',
+    contact: 'Moshi · +255 27 275 4377', verified: true,
+    referral_pathway: 'Rufaa kutoka mikoa ya Kaskazini',
+    languages: ['sw', 'en'], source: 'kcmc.ac.tz' },
+  { id: 'bugando', name: 'Bugando Medical Centre', scope: 'Hospitali ya rufaa Kanda ya Ziwa',
+    contact: 'Mwanza · +255 28 250 0513', verified: true,
+    referral_pathway: 'Rufaa kutoka mikoa ya Ziwa',
+    languages: ['sw', 'en'], source: 'bugandomedicalcentre.go.tz' },
+  { id: 'mbeya-zonal', name: 'Mbeya Zonal Referral Hospital', scope: 'Hospitali ya rufaa Kanda ya Nyanda za Juu',
+    contact: 'Mbeya · +255 25 250 3576', verified: true,
+    referral_pathway: 'Rufaa kutoka mikoa ya Kusini',
+    languages: ['sw', 'en'], source: 'mbeyarrh.go.tz' },
+  { id: 'muhas', name: 'MUHAS — Muhimbili University', scope: 'Mafunzo + utafiti wa afya ya akili',
+    contact: 'Dar es Salaam · info@muhas.ac.tz', verified: true,
+    referral_pathway: 'Mafunzo ya wataalamu, sio huduma ya moja kwa moja',
+    languages: ['sw', 'en'], source: 'muhas.ac.tz' },
+  { id: 'mhgap-tz', name: 'WHO mhGAP Tanzania', scope: 'Mwongozo wa afya ya akili kwa kituo cha msingi',
+    contact: 'Kupitia MoH', verified: true,
+    referral_pathway: 'Vituo vya afya vinatumia mhGAP-IG',
+    languages: ['sw', 'en'], source: 'who.int/mental_health/mhgap' },
+  { id: 'friendship-bench', name: 'Friendship Bench Tanzania (affiliates)', scope: 'Problem-solving therapy ya lay-counselors',
+    contact: 'Kupitia mashirika ya afya ya jamii', verified: true,
+    referral_pathway: 'Kupitia CHWs wa mtaa',
+    languages: ['sw'], source: 'friendshipbenchzimbabwe.org (model)' },
+  { id: 'unhcr-tz', name: 'UNHCR Tanzania — Refugee Mental Health', scope: 'Wakimbizi (Nyarugusu, Nduta, Mtendeli)',
+    contact: 'Kigoma · tandr@unhcr.org', verified: true,
+    referral_pathway: 'Kambi → hospitali ya wilaya → MNH',
+    languages: ['sw', 'en', 'fr', 'rw'], source: 'unhcr.org/tz' },
+  { id: 'tmda', name: 'TMDA — Tanzania Medicines and Medical Devices Authority', scope: 'Usajili wa dawa, pharmacovigilance',
+    contact: 'Dodoma · info@tmda.go.tz', verified: true,
+    referral_pathway: 'Ripoti madhara ya dawa kwa adr@tmda.go.tz',
+    languages: ['sw', 'en'], source: 'tmda.go.tz' },
+  { id: 'amref-tz', name: 'Amref Health Africa — Tanzania', scope: 'Maendeleo ya afya, lishe, mama na mtoto',
+    contact: 'Dar es Salaam · info.tz@amref.org', verified: true,
+    referral_pathway: 'Programu za jamii',
+    languages: ['sw', 'en'], source: 'amref.org/tanzania' },
+  { id: 'pasada', name: 'PASADA — Pastoral Activities & Services for People with AIDS Dar es Salaam', scope: 'VVU + huduma za palliative',
+    contact: 'Dar es Salaam · +255 22 285 1111', verified: true,
+    referral_pathway: 'Wateja wa parokia + jamii',
+    languages: ['sw', 'en'], source: 'pasada.or.tz' },
+];

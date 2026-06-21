@@ -1,0 +1,132 @@
+/* TBHOS — base styles. Creamy / milky / crispy / silky / slick.
+   NO italics anywhere. NO gradients except the sanctioned flag ribbon. */
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { margin: 0; padding: 0; min-height: 100%; }
+
+:root {
+  --ink: #0B0908;
+  --shadow: #1A1410;
+  --cream: #F4EAC9;
+  --milk: #FAF5E5;
+  --ivory: #F8F2D8;
+  --paper: #EFE4C6;
+  --teal-mwenza: #1A3E44;
+  --teal-deep: #0F2A2E;
+  --gold-hope: #B8951F;
+  --gold-soft: #B8951F;
+  --maroon-crisis: #5E1F3E;
+  --navy-deep: #1F3A6E;
+  --indigo-wisdom: #1F3A6E;
+  --flag-green: #1EB53A;
+  --flag-yellow: #FCD116;
+  --flag-black: #000000;
+  --flag-blue: #00A3DD;
+}
+
+html {
+  background: var(--milk);
+  color: var(--ink);
+  font-family: 'Inter', 'Calibri', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-style: normal;
+}
+
+body { min-height: 100vh; background: var(--milk); font-style: normal; }
+
+/* Kill italic everywhere — this is a ministry-grade product. */
+em, i, cite, address, dfn, var { font-style: normal !important; }
+*, *::placeholder { font-style: normal; }
+
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; font-style: normal; }
+
+.container {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(12px, 3vw, 24px);
+}
+@media (min-width: 1440px) {
+  .container { max-width: 1320px; }
+}
+@media (max-width: 379px) {
+  .container { padding: 0 12px; }
+}
+/* Prevent horizontal overflow on small screens */
+html, body { overflow-x: hidden; }
+img, svg, video { max-width: 100%; height: auto; }
+/* Tables inside cards should scroll horizontally, not overflow */
+table { max-width: 100%; }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+.serif {
+  font-family: 'Georgia', 'Iowan Old Style', 'Palatino Linotype', serif;
+  font-style: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Page entrance */
+.fade-in { animation: fadeIn 380ms cubic-bezier(.25,.46,.45,.94) both; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── RTL polish for Arabic (lang=ar) ──────────────────────────────────── */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .container,
+[dir="rtl"] main,
+[dir="rtl"] section,
+[dir="rtl"] header,
+[dir="rtl"] footer {
+  direction: rtl;
+}
+
+/* Flip the Tanzania flag bar gradient horizontally so the green sits on the
+   right (where reading begins in RTL languages). */
+[dir="rtl"] [data-tanzania-flag-bar] {
+  transform: scaleX(-1);
+}
+
+/* Mirror back-chevron icons in nav back buttons */
+[dir="rtl"] [data-back-chevron],
+[dir="rtl"] [aria-label="Rudi" i] svg,
+[dir="rtl"] [aria-label="Back" i] svg {
+  transform: scaleX(-1);
+}
+
+/* Keep Latin code/identifiers LTR even in RTL */
+[dir="rtl"] code,
+[dir="rtl"] pre,
+[dir="rtl"] kbd,
+[dir="rtl"] [data-ltr] {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* Arabic numerals shouldn't flip — keep readable */
+[dir="rtl"] .num,
+[dir="rtl"] [data-num] {
+  direction: ltr;
+  unicode-bidi: embed;
+  display: inline-block;
+}
