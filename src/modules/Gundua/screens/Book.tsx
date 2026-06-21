@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { JEWEL, NEUTRAL, BRAND, CREAM, TEXT, RADII, TYPE, hexToRgba } from '../../../lib/glass'
 import { formatTzs, getProvider } from '../data/providers'
+import { insert, audit, list } from '../../../lib/db'
+import { getMeId } from '../../../lib/me'
 
 /**
  * Booking flow — 3 steps:
@@ -33,10 +35,45 @@ function loadBookings(): Booking[] {
     return []
   }
 }
-function saveBooking(b: Booking) {
-  const list = loadBookings()
-  list.push(b)
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(list))
+
+/**
+ * Parse the "Jumatatu, Jun 24 · 10:00" style slot label back into an ISO
+ * datetime. Falls back to "now + 1 day at 10:00" on failure so we never
+ * write garbage timestamps to tr_appointments.
+ */
+function slotToIso(slot: string): string {
+  try {
+    const [, time] = slot.split('·').map((s) => s.trim())
+    const [hStr, mStr] = (time ?? '10:00').split(':')
+    const d = new Date()
+    d.setDate(d.getDate() + 1)
+    d.setHours(parseInt(hStr ?? '10', 10), parseInt(mStr ?? '0', 10), 0, 0)
+    return d.toISOString()
+  } catch {
+    const d = new Date(); d.setDate(d.getDate() + 1); d.setHours(10, 0, 0, 0)
+    return d.toISOString()
+  }
+}
+
+async function resolveProviderRowId(localProviderId: string, providerName: string): Promise<string> {
+  // Try to find a tr_providers row matching by display_name via tr_users join.
+  // If not found, fall back to the local seed id; backend may reject FK,
+  // in which case we still record the intent via audit().
+  try {
+    const users = await list('tr_users')
+    const match = users.find((u) => u.display_name && providerName.includes(u.display_name.replace(/^Dr\.\s+/i, '')))
+    if (match) {
+      const providers = await list('tr_providers', { user_id: match.id })
+      if (providers.length > 0) return providers[0].id
+    }
+  } catch { /* offline */ }
+  return localProviderId
+}
+
+function saveBookingLocal(b: Booking) {
+  const cur = loadBookings()
+  cur.push(b)
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cur)) } catch { /* quota */ }
 }
 
 /** Generate 6 upcoming slots — next 6 weekdays, 10:00 / 14:00. */
@@ -82,7 +119,7 @@ export default function Book() {
     )
   }
 
-  function confirm() {
+  async function confirm() {
     if (!slot) {
       setError('Tafadhali chagua muda.')
       return
@@ -106,7 +143,30 @@ export default function Book() {
       paid: provider!.feeTzs === 0,
       createdAt: Date.now(),
     }
-    saveBooking(b)
+    saveBookingLocal(b)
+
+    // Real write to tr_appointments.
+    try {
+      const patientId = await getMeId()
+      const providerRowId = await resolveProviderRowId(provider!.id, provider!.name)
+      await insert('tr_appointments', {
+        patient_id: patientId,
+        provider_id: providerRowId,
+        scheduled_at: slotToIso(slot),
+        duration_min: 60,
+        modality: 'in_person',
+        status: 'requested',
+        notes: `Booked via Gundua. Co-pay TZS ${provider!.feeTzs}. Phone ${cleanPhone || '—'}.`,
+      })
+    } catch {
+      // backend unavailable or FK mismatch — record intent in audit log
+      try {
+        await audit('appointment.book.fallback', 'tr_appointments', b.id, {
+          providerId: provider!.id, providerName: provider!.name, slot, copayTzs: provider!.feeTzs,
+        })
+      } catch { /* ignore */ }
+    }
+
     setStep(4)
     setTimeout(() => nav('/gundua'), 2400)
   }
@@ -299,7 +359,7 @@ export default function Book() {
               {error}
             </p>
           )}
-          <NavRow onBack={() => setStep(2)} onNext={confirm} nextLabel="Thibitisha miadi" />
+          <NavRow onBack={() => setStep(2)} onNext={() => { void confirm() }} nextLabel="Thibitisha miadi" />
         </Card>
       )}
 

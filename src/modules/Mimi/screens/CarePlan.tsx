@@ -1,12 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { JEWEL, NEUTRAL, RADII, TYPE, TEXT, CREAM, hexToRgba } from '../../../lib/glass'
 import { PageShell, Card } from '../components/Shell'
 import { Pill } from '../components/Pill'
-import { getCarePlan, saveCarePlan, uid, type CarePlan } from '../data/store'
+import { getCarePlan, getCarePlanAsync, saveCarePlan, uid, type CarePlan } from '../data/store'
 
 export default function CarePlanPage() {
   const [plan, setPlan] = useState<CarePlan>(() => getCarePlan())
   const [newStep, setNewStep] = useState('')
+
+  useEffect(() => {
+    let on = true
+    void getCarePlanAsync().then((p) => { if (on) setPlan(p) })
+    return () => { on = false }
+  }, [])
 
   function commit(next: CarePlan) {
     saveCarePlan(next)

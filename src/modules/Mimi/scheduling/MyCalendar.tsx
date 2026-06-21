@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PageShell, Card } from '../components/Shell'
 import { JEWEL, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
+import { db } from '../../../lib/db'
+import type { TrAppointment } from '../../../lib/db'
+import { getMeId } from '../../../lib/me'
 
 interface Booking {
   id: string
@@ -17,14 +20,44 @@ interface Caregiver {
   email: string
 }
 
+const LOCAL_KEY = 'tumaini.mimi.bookings'
+
 function readBookings(): Booking[] {
   try {
-    const raw = localStorage.getItem('tumaini.mimi.bookings')
+    const raw = localStorage.getItem(LOCAL_KEY)
     if (!raw) return []
     const p: unknown = JSON.parse(raw)
     if (Array.isArray(p)) return p as Booking[]
   } catch { /* ignore */ }
   return []
+}
+
+function appointmentToBooking(row: TrAppointment): Booking {
+  const d = new Date(row.scheduled_at)
+  const date = d.toISOString().slice(0, 10)
+  const slot = d.toTimeString().slice(0, 5)
+  let providerId = row.provider_id
+  // notes may carry the original slug from Book.tsx as "provider_slug=<id>"
+  if (row.notes) {
+    const m = /provider_slug=([^;\s]+)/.exec(row.notes)
+    if (m && m[1]) providerId = m[1]
+  }
+  return { id: row.id, providerId, date, slot, ts: +d }
+}
+
+async function loadBookingsAsync(): Promise<Booking[]> {
+  if (!db.supabase) return readBookings()
+  try {
+    const me = await getMeId()
+    const rows = await db.list('tr_appointments', { patient_id: me })
+    const live = rows
+      .map(appointmentToBooking)
+      .sort((a, b) => a.date.localeCompare(b.date) || a.slot.localeCompare(b.slot))
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(live)) } catch { /* ignore */ }
+    return live
+  } catch {
+    return readBookings()
+  }
 }
 
 function readCaregivers(): Caregiver[] {
@@ -52,13 +85,14 @@ function generateIcs(bookings: Booking[]): string {
 
 export default function MyCalendar() {
   const [tab, setTab] = useState<'bookings' | 'delegation'>('bookings')
-  const [bookings, setBookings] = useState<Booking[]>([])
-  const [caregivers, setCaregivers] = useState<Caregiver[]>([])
+  const [bookings, setBookings] = useState<Booking[]>(() => readBookings().sort((a, b) => a.date.localeCompare(b.date)))
+  const [caregivers, setCaregivers] = useState<Caregiver[]>(() => readCaregivers())
   const [invite, setInvite] = useState({ name: '', email: '' })
 
   useEffect(() => {
-    setBookings(readBookings().sort((a, b) => a.date.localeCompare(b.date)))
-    setCaregivers(readCaregivers())
+    let on = true
+    void loadBookingsAsync().then((rows) => { if (on) setBookings(rows) })
+    return () => { on = false }
   }, [])
 
   function exportIcs(): void {

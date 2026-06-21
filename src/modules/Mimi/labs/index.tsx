@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PageShell, Card } from '../components/Shell'
 import { JEWEL, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
+import { db } from '../../../lib/db'
+import { getMeId } from '../../../lib/me'
 
 interface LabUpload {
   id: string
@@ -18,16 +20,41 @@ function readUploads(): LabUpload[] {
     if (!raw) return []
     const p: unknown = JSON.parse(raw)
     if (Array.isArray(p)) return p as LabUpload[]
-  } catch {
-    // ignore
-  }
+  } catch { /* ignore */ }
   return []
 }
 
+async function readUploadsAsync(): Promise<LabUpload[]> {
+  if (!db.supabase) return readUploads()
+  try {
+    const me = await getMeId()
+    const rows = await db.list('tr_journal_entries', { user_id: me })
+    const labs: LabUpload[] = rows
+      .filter((r) => Array.isArray(r.tags) && r.tags?.includes('lab:upload'))
+      .map((r) => {
+        let parsed: { client_id?: string; title?: string; rows?: unknown[] } = {}
+        try { parsed = JSON.parse(r.body) as typeof parsed } catch { /* legacy */ }
+        return {
+          id: parsed.client_id ?? r.id,
+          ts: r.created_at ? +new Date(r.created_at) : Date.now(),
+          title: parsed.title ?? 'Kipimo',
+          rows: Array.isArray(parsed.rows) ? parsed.rows.length : 0,
+        }
+      })
+      .sort((a, b) => b.ts - a.ts)
+    try { localStorage.setItem(KEY, JSON.stringify(labs)) } catch { /* ignore */ }
+    return labs
+  } catch {
+    return readUploads()
+  }
+}
+
 export default function LabsHub() {
-  const [items, setItems] = useState<LabUpload[]>([])
+  const [items, setItems] = useState<LabUpload[]>(() => readUploads().sort((a, b) => b.ts - a.ts))
   useEffect(() => {
-    setItems(readUploads().sort((a, b) => b.ts - a.ts))
+    let on = true
+    void readUploadsAsync().then((rows) => { if (on) setItems(rows) })
+    return () => { on = false }
   }, [])
   return (
     <PageShell

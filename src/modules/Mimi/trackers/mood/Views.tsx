@@ -1,10 +1,16 @@
+import { useEffect, useState } from 'react';
 import { Card } from '../common';
-import { loadReadings } from '../types';
+import { loadReadings, loadReadingsAsync } from '../types';
 import type { MoodReading } from './schema';
 import { summarize } from './summary';
 
 export default function Views() {
-  const list = loadReadings<MoodReading>('mood').slice(0, 14);
+  const [list, setList] = useState<MoodReading[]>(() => loadReadings<MoodReading>('mood').slice(0, 14));
+  useEffect(() => {
+    let on = true;
+    void loadReadingsAsync<MoodReading>('mood').then((rows) => { if (on) setList(rows.slice(0, 14)); });
+    return () => { on = false; };
+  }, []);
   const avg = list.length ? list.reduce((s, r) => s + r.score, 0) / list.length : 0;
   return (
     <Card>

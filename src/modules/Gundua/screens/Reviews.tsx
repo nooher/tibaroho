@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { JEWEL, TEXT, TYPE, hexToRgba } from '../../../lib/glass'
 import { PROVIDERS } from '../data/providers'
-import { addReview, listReviews, aggregate, type Review } from '../data/ratings'
+import { addReview, listReviews, listReviewsAsync, aggregate, type Review } from '../data/ratings'
 
 export default function Reviews() {
   const { providerId } = useParams<{ providerId: string }>()
@@ -16,11 +16,14 @@ export default function Reviews() {
   useEffect(() => {
     if (!providerId) return
     setReviews(listReviews(providerId))
+    let mounted = true
+    void listReviewsAsync(providerId).then((rs) => { if (mounted) setReviews(rs) })
+    return () => { mounted = false }
   }, [providerId])
 
-  function submit(): void {
+  async function submit(): Promise<void> {
     if (!providerId || !text.trim()) return
-    addReview({
+    await addReview({
       providerId,
       by: 'me',
       ratingStars: stars,
@@ -28,7 +31,7 @@ export default function Reviews() {
       visitCompleted: visitDone,
       outcomeImproved: improved,
     })
-    setReviews(listReviews(providerId))
+    setReviews(await listReviewsAsync(providerId))
     setText('')
   }
 
@@ -63,7 +66,7 @@ export default function Reviews() {
           <label style={{ display: 'flex', gap: 6 }}><input type="checkbox" checked={visitDone} onChange={(e) => setVisitDone(e.target.checked)} /> Nimekamilisha kikao</label>
           <label style={{ display: 'flex', gap: 6 }}><input type="checkbox" checked={improved} onChange={(e) => setImproved(e.target.checked)} /> Hali yangu imeimarika</label>
         </div>
-        <button onClick={submit} style={{ marginTop: 12, padding: '10px 22px', borderRadius: 999, background: JEWEL.tealMwenza, color: '#FAF5E5', border: 'none', fontWeight: 700, cursor: 'pointer' }}>Tuma maoni</button>
+        <button onClick={() => { void submit() }} style={{ marginTop: 12, padding: '10px 22px', borderRadius: 999, background: JEWEL.tealMwenza, color: '#FAF5E5', border: 'none', fontWeight: 700, cursor: 'pointer' }}>Tuma maoni</button>
       </section>
 
       <section style={{ marginTop: 20 }}>

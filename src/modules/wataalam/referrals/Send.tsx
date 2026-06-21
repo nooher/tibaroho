@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { JEWEL, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
 import { CROSS_PRODUCTS, type CrossProduct } from '../../../lib/crossProducts'
+import { db, hasBackend } from '../../../lib/db'
+import { getMyProviderId, getMeId } from '../../../lib/me'
 
 interface Referral {
   id: string
@@ -12,7 +14,7 @@ interface Referral {
   status: 'sent'
 }
 
-function save(r: Referral): void {
+function saveLocal(r: Referral): void {
   try {
     const KEY = 'tumaini.wataalam.referrals.sent'
     const raw = localStorage.getItem(KEY)
@@ -22,15 +24,55 @@ function save(r: Referral): void {
   } catch { /* ignore */ }
 }
 
+/**
+ * Persist a referral to tr_referrals when there's a backend session.
+ *
+ * The user enters the recipient as a free-text "Jina au ID"; if it's a uuid we
+ * treat it as a tr_providers.id, otherwise we drop it into to_facility (free
+ * text). Same logic for patient → tr_users.id vs. free-text label that goes
+ * into reason as a prefix.
+ */
+async function persistReferral(r: Referral): Promise<void> {
+  if (!hasBackend) return
+  const meProviderId = await getMyProviderId()
+  const mePatientId  = await getMeId() // referrals require patient_id NOT NULL
+
+  const looksLikeUuid = (s: string): boolean => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s.trim())
+
+  const patient_id = looksLikeUuid(r.patient) ? r.patient.trim() : mePatientId
+  const to_provider_id = looksLikeUuid(r.toProvider) ? r.toProvider.trim() : null
+  const to_facility = looksLikeUuid(r.toProvider) ? null : r.toProvider
+
+  const reasonExtras: string[] = []
+  if (!looksLikeUuid(r.patient)) reasonExtras.push(`Mgonjwa: ${r.patient}`)
+  if (r.crossProducts.length) reasonExtras.push(`Cross-apps: ${r.crossProducts.join(', ')}`)
+  const reason = [r.reasonSw, ...reasonExtras].join('\n\n')
+
+  try {
+    await db.insert('tr_referrals', {
+      patient_id,
+      from_provider_id: meProviderId ?? undefined,
+      to_provider_id: to_provider_id ?? undefined,
+      to_facility: to_facility ?? undefined,
+      reason,
+      urgency: 'routine',
+      status: 'open',
+    })
+    await db.audit('referral.send', 'tr_referrals', undefined, { cross: r.crossProducts })
+  } catch { /* graceful — RLS / offline */ }
+}
+
 export default function ReferralsSend() {
   const [patient, setPatient] = useState('')
   const [toProvider, setToProvider] = useState('')
   const [reason, setReason] = useState('')
   const [cross, setCross] = useState<Record<CrossProduct, boolean>>({ TibaFigo: false, TibaAfya: false, TibaMama: false, THOS: false })
   const [done, setDone] = useState(false)
+  const [sending, setSending] = useState(false)
 
-  function submit(): void {
-    if (!patient || !toProvider || !reason) return
+  async function submit(): Promise<void> {
+    if (!patient || !toProvider || !reason || sending) return
+    setSending(true)
     const r: Referral = {
       id: `ref_${Date.now()}`,
       ts: Date.now(),
@@ -38,8 +80,10 @@ export default function ReferralsSend() {
       crossProducts: CROSS_PRODUCTS.filter((p) => cross[p]),
       status: 'sent',
     }
-    save(r)
+    saveLocal(r)
+    await persistReferral(r)
     setDone(true)
+    setSending(false)
     setPatient(''); setToProvider(''); setReason('')
     setCross({ TibaFigo: false, TibaAfya: false, TibaMama: false, THOS: false })
   }
@@ -70,7 +114,7 @@ export default function ReferralsSend() {
             ))}
           </div>
         </fieldset>
-        <button onClick={submit} style={{ padding: '10px 22px', borderRadius: 999, background: JEWEL.tealMwenza, color: '#FAF5E5', border: 'none', fontWeight: 700, cursor: 'pointer' }}>Tuma rufaa</button>
+        <button onClick={() => void submit()} disabled={sending} style={{ padding: '10px 22px', borderRadius: 999, background: JEWEL.tealMwenza, color: '#FAF5E5', border: 'none', fontWeight: 700, cursor: sending ? 'wait' : 'pointer', opacity: sending ? 0.7 : 1 }}>{sending ? 'Inatuma…' : 'Tuma rufaa'}</button>
         {done && <div style={{ color: JEWEL.tealMwenza, fontWeight: 600 }}>Rufaa imetumwa.</div>}
       </div>
     </div>

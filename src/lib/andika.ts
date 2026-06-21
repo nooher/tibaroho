@@ -1,6 +1,12 @@
-// andika.ts — universal note capture, local-first with optional cloud sync.
+// andika.ts — universal note capture, local-first with optional Supabase sync.
+//
+// Persists to tr_journal_entries (the canonical schema table). Notes that
+// originate outside the patient journal get an extra tag like 'andika:route:/mimi'
+// so the journal view can filter to "real" entries vs. ambient captures, and
+// Rafiki chat (which uses the 'rafiki:<mode>' tag set) stays separate.
 
 import { hasBackend, supabase } from './supabase'
+import { getMeId } from './me'
 
 export interface AndikaNote {
   id: string
@@ -48,6 +54,14 @@ export function listNotes(): AndikaNote[] {
   return readAll().sort((a, b) => b.ts - a.ts)
 }
 
+// Mood string (e.g. 'tulivu', '3') → smallint 1..10 for the journal column.
+function moodToSmallint(mood?: string): number | null {
+  if (!mood) return null
+  const n = Number.parseInt(mood, 10)
+  if (Number.isFinite(n) && n >= 1 && n <= 10) return n
+  return null
+}
+
 export function saveNote(partial: Partial<AndikaNote> & { text: string }): AndikaNote {
   const note: AndikaNote = {
     id: partial.id ?? genId(),
@@ -65,22 +79,24 @@ export function saveNote(partial: Partial<AndikaNote> & { text: string }): Andik
   writeAll(all)
 
   if (hasBackend && supabase) {
-    try {
-      void supabase
-        .from('tr_notes')
-        .upsert({
+    void (async () => {
+      try {
+        const userId = await getMeId()
+        const tags = note.tags.slice()
+        // Stamp route + image presence as tags so we can reconstruct on read.
+        tags.push(`andika:route:${note.route}`)
+        if (note.imageDataUrl) tags.push('andika:has_image')
+        if (note.mood) tags.push(`andika:mood:${note.mood}`)
+        await supabase.from('tr_journal_entries').upsert({
           id: note.id,
-          text: note.text,
-          ts: note.ts,
-          route: note.route,
-          mood: note.mood ?? null,
-          tags: note.tags,
-          has_image: !!note.imageDataUrl,
+          user_id: userId,
+          body: note.text,
+          mood: moodToSmallint(note.mood),
+          tags,
+          created_at: new Date(note.ts).toISOString(),
         })
-        .then(() => {})
-    } catch {
-      /* graceful fail */
-    }
+      } catch { /* graceful */ }
+    })()
   }
   return note
 }
@@ -89,10 +105,8 @@ export function deleteNote(id: string): void {
   const all = readAll().filter((n) => n.id !== id)
   writeAll(all)
   if (hasBackend && supabase) {
-    try {
-      void supabase.from('tr_notes').delete().eq('id', id).then(() => {})
-    } catch {
-      /* graceful */
-    }
+    void (async () => {
+      try { await supabase.from('tr_journal_entries').delete().eq('id', id) } catch { /* graceful */ }
+    })()
   }
 }

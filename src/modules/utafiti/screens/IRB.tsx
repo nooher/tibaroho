@@ -1,7 +1,10 @@
 import type React from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, Table, Td } from '../../_shared/Layout'
 import { BRAND, CREAM, NEUTRAL, RADII, TEXT, hexToRgba } from '../../../lib/glass'
+import { list, insert } from '../../../lib/db'
+import type { TrResearchConsent, TrAuditLog } from '../../../lib/db'
+import { getMeId } from '../../../lib/me'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -34,33 +37,98 @@ const AMENDMENTS = [
 const KEY_AE = 'tumaini.utafiti.irb.adverse'
 
 interface AE { id: string; date: string; participant: string; severity: 'AE' | 'SAE'; description: string }
+interface ProtocolRow { id: string; name: string; v: string; muhas: string; uams: string; status: string; expires: string; consentCount: number }
 
 export default function IRB(): React.JSX.Element {
   const [aes, setAes] = useState<AE[]>(() => {
     try { return JSON.parse(localStorage.getItem(KEY_AE) || '[]') as AE[] } catch { return [] }
   })
   const [form, setForm] = useState<AE>({ id: '', date: new Date().toISOString().slice(0,10), participant: '', severity: 'AE', description: '' })
+  const [protocols, setProtocols] = useState<ProtocolRow[]>(PROTOCOL_VERSIONS.map((p) => ({ ...p, consentCount: 0 })))
+
+  useEffect(() => {
+    let mounted = true
+    void (async () => {
+      try {
+        const rows = (await list('tr_research_consents')) as TrResearchConsent[]
+        // Group by protocol_id + irb_ref.
+        const byProto = new Map<string, { irbs: Set<string>; count: number; granted: number }>()
+        for (const r of rows) {
+          const key = r.protocol_id
+          const cur = byProto.get(key) ?? { irbs: new Set<string>(), count: 0, granted: 0 }
+          if (r.irb_ref) cur.irbs.add(r.irb_ref)
+          cur.count += 1
+          if (r.granted) cur.granted += 1
+          byProto.set(key, cur)
+        }
+        // Merge backend protocols with the seed list so MUHAS/UAMS metadata is preserved.
+        const merged: ProtocolRow[] = PROTOCOL_VERSIONS.map((p) => {
+          // Best-effort match by id substring (e.g. 'TR-001' ↔ 'Tumaini-HSSR-PhD-001').
+          const match = [...byProto.entries()].find(([k]) => k.includes(p.id) || p.id.includes(k.slice(-3)))
+          return { ...p, consentCount: match ? match[1].granted : 0 }
+        })
+        // Append protocols seen in DB but not in seed.
+        for (const [k, v] of byProto) {
+          if (merged.some((m) => k.includes(m.id) || m.id.includes(k.slice(-3)))) continue
+          const irbRef = [...v.irbs][0] ?? 'Pending'
+          merged.push({ id: k, name: k, v: '—', muhas: irbRef, uams: irbRef, status: 'Active', expires: '—', consentCount: v.granted })
+        }
+        if (mounted) setProtocols(merged)
+      } catch { /* offline */ }
+
+      // Load past AE reports from tr_audit_log entity='adverse_event'.
+      try {
+        const aeRows = (await list('tr_audit_log', { entity: 'adverse_event' })) as TrAuditLog[]
+        const restored: AE[] = aeRows.map((r) => {
+          const m = (r.meta ?? {}) as Partial<AE>
+          return {
+            id: r.id,
+            date: m.date ?? (r.at ?? '').slice(0, 10),
+            participant: m.participant ?? '',
+            severity: (m.severity as 'AE' | 'SAE') ?? 'AE',
+            description: m.description ?? '',
+          }
+        })
+        if (mounted && restored.length) setAes(restored)
+      } catch { /* offline */ }
+    })()
+    return () => { mounted = false }
+  }, [])
 
   const submit = (): void => {
     if (!form.participant || !form.description) return
-    const next = [...aes, { ...form, id: `AE-${Date.now()}` }]
+    const ae: AE = { ...form, id: `AE-${Date.now()}` }
+    const next = [...aes, ae]
     setAes(next)
-    // TODO: sync to Supabase tr_adverse_events.
-    try { localStorage.setItem(KEY_AE, JSON.stringify(next)) } catch {}
+    try { localStorage.setItem(KEY_AE, JSON.stringify(next)) } catch { /* quota */ }
+    void (async () => {
+      try {
+        const actor = await getMeId().catch(() => undefined)
+        await insert('tr_audit_log', {
+          actor_id: actor,
+          action: ae.severity === 'SAE' ? 'adverse_event.sae.report' : 'adverse_event.report',
+          entity: 'adverse_event',
+          entity_id: ae.participant,
+          meta: ae,
+          at: new Date(ae.date).toISOString(),
+        })
+      } catch { /* offline */ }
+    })()
     setForm({ id: '', date: new Date().toISOString().slice(0,10), participant: '', severity: 'AE', description: '' })
   }
 
   return (
     <>
       <Card title="Protocol version control — MUHAS + UAMS dual IRB" accent={BRAND.green}>
-        <Table headers={['Itifaki', 'Toleo', 'MUHAS', 'UAMS', 'Hali', 'Expiry']}>
-          {PROTOCOL_VERSIONS.map((p) => (
+        <Table headers={['Itifaki', 'Toleo', 'MUHAS', 'UAMS', 'Hali', 'Consents', 'Expiry']}>
+          {protocols.map((p) => (
             <tr key={p.id}>
               <Td style={{ color: TEXT.body }}><strong>{p.id}</strong> — {p.name}</Td>
               <Td style={{ color: TEXT.body }}>{p.v}</Td>
               <Td style={{ color: TEXT.muted }}><code style={{ fontSize: 11 }}>{p.muhas}</code></Td>
               <Td style={{ color: TEXT.muted }}><code style={{ fontSize: 11 }}>{p.uams}</code></Td>
               <Td style={{ color: p.status === 'Active' ? BRAND.green : BRAND.yellow, fontWeight: 600 }}>{p.status}</Td>
+              <Td style={{ color: TEXT.body, fontWeight: 600 }}>{p.consentCount}</Td>
               <Td style={{ color: TEXT.muted }}>{p.expires}</Td>
             </tr>
           ))}

@@ -3,7 +3,7 @@ import { JEWEL, NEUTRAL, RADII, TYPE, TEXT, CREAM, hexToRgba } from '../../../li
 import { PageShell, Card } from '../components/Shell'
 import { Pill } from '../components/Pill'
 import { MicButton } from '../../../components/MicButton'
-import { listJournal, saveJournal, uid, type JournalEntry } from '../data/store'
+import { listJournal, listJournalAsync, saveJournal, uid, type JournalEntry } from '../data/store'
 
 const TOPICS = ['kazi', 'familia', 'afya', 'fedha', 'mahusiano', 'usingizi', 'matumaini']
 
@@ -29,6 +29,12 @@ export default function JournalPage() {
   const chunksRef = useRef<Blob[]>([])
 
   useEffect(() => () => { try { recRef.current?.stop() } catch {/* ignore */} }, [])
+
+  useEffect(() => {
+    let on = true
+    void listJournalAsync().then((rows) => { if (on) setEntries(rows) })
+    return () => { on = false }
+  }, [])
 
   function toggleTopic(t: string) {
     const next = new Set(topics)

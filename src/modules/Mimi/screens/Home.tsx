@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { JEWEL, NEUTRAL, RADII, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
 import { Card, PageShell } from '../components/Shell'
@@ -6,13 +6,28 @@ import { MoodCheck } from '../components/MoodCheck'
 import { Pill } from '../components/Pill'
 import { PatientTimeline } from '../components/PatientTimeline'
 import { ArchitectureBadge } from '../../../components/ArchitectureBadge'
-import { listResults, listMoods, getCarePlan } from '../data/store'
+import {
+  listResults, listResultsAsync,
+  listMoods, listMoodsAsync,
+  getCarePlan, getCarePlanAsync,
+  type AssessmentResult, type MoodEntry, type CarePlan,
+} from '../data/store'
 
 export default function Home() {
   const [tick, setTick] = useState(0)
-  const moods = useMemo(() => listMoods().slice(0, 7), [tick])
-  const results = useMemo(() => listResults().slice(0, 4), [tick])
-  const plan = useMemo(() => getCarePlan(), [tick])
+  const [moodsAll, setMoodsAll] = useState<MoodEntry[]>(() => listMoods())
+  const [resultsAll, setResultsAll] = useState<AssessmentResult[]>(() => listResults())
+  const [plan, setPlan] = useState<CarePlan>(() => getCarePlan())
+  const moods = useMemo(() => moodsAll.slice(0, 7), [moodsAll])
+  const results = useMemo(() => resultsAll.slice(0, 4), [resultsAll])
+
+  useEffect(() => {
+    let on = true
+    void listMoodsAsync().then((rows) => { if (on) setMoodsAll(rows) })
+    void listResultsAsync().then((rows) => { if (on) setResultsAll(rows) })
+    void getCarePlanAsync().then((p) => { if (on) setPlan(p) })
+    return () => { on = false }
+  }, [tick])
 
   const avgMood = moods.length ? (moods.reduce((s, m) => s + m.score, 0) / moods.length).toFixed(1) : '—'
 

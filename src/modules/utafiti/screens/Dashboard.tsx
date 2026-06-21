@@ -1,8 +1,11 @@
 import type React from 'react'
+import { useEffect, useState } from 'react'
 import { Card } from '../../_shared/Layout'
 import { BRAND, CREAM, NEUTRAL, TEXT, TZ_FLAG, hexToRgba } from '../../../lib/glass'
 import { REAIM_METRICS } from '../data/reaimMetrics'
 import { CFIR_DOMAINS, CFIR_CONSTRUCT_COUNT } from '../data/cfirConstructs'
+import { supabase, list } from '../../../lib/db'
+import type { TrResearchConsent } from '../../../lib/db'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -48,9 +51,32 @@ function Spark({ values, color }: { values: number[]; color: string }): React.JS
   )
 }
 
+interface DeidRow { patient_hash: string; instrument: string; score: number; delta: number | null; week: string }
+
 export default function UtafitiDashboard(): React.JSX.Element {
   const reaimReach = REAIM_METRICS.find((m) => m.id === 'reach')!
   const reaimEff = REAIM_METRICS.find((m) => m.id === 'effectiveness')!
+  const [live, setLive] = useState<{ consents: number; uniquePatients: number; outcomes: number }>({ consents: 0, uniquePatients: 0, outcomes: 0 })
+
+  useEffect(() => {
+    let mounted = true
+    void (async () => {
+      try {
+        const consents = (await list('tr_research_consents')) as TrResearchConsent[]
+        const granted = consents.filter((c) => c.granted && !c.revoked_at)
+        let outcomes = 0
+        let uniquePatients = 0
+        if (supabase) {
+          const { data } = await supabase.from('tr_v_outcomes_deid').select('*')
+          const rows = (data ?? []) as DeidRow[]
+          outcomes = rows.length
+          uniquePatients = new Set(rows.map((r) => r.patient_hash)).size
+        }
+        if (mounted) setLive({ consents: granted.length, uniquePatients, outcomes })
+      } catch { /* offline */ }
+    })()
+    return () => { mounted = false }
+  }, [])
   return (
     <>
       <Card title="Muhtasari wa Utafiti" accent={BRAND.green}>
@@ -59,7 +85,7 @@ export default function UtafitiDashboard(): React.JSX.Element {
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14 }}>
           <KpiTile label="Tafiti hai" value={String(STUDIES_ACTIVE)} sub="2 zinarekodi · 1 rasimu" accent={BRAND.green} />
-          <KpiTile label="Walioandikishwa" value={ENROLLED_N.toLocaleString('sw-TZ')} sub="lengo 600 · ufikiaji 104%" accent={BRAND.blue} />
+          <KpiTile label="Walioandikishwa" value={(live.uniquePatients || ENROLLED_N).toLocaleString('sw-TZ')} sub={live.uniquePatients ? `live · idhini ${live.consents} · matokeo ${live.outcomes}` : 'lengo 600 · ufikiaji 104%'} accent={BRAND.blue} />
           <KpiTile label="Idhini za IRB" value={String(PENDING_IRB)} sub="UAMS pending · NIMR review" accent={BRAND.yellow} />
           <KpiTile label="Pengo la equity" value={`${EQUITY_GAP_PP}pp`} sub="vijijini < mijini (remission)" accent={NEUTRAL.ink} />
         </div>

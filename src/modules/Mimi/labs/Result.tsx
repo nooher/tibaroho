@@ -6,12 +6,15 @@ import { REF_RANGES, interpretLab, type LabFlag } from './data/refRanges'
 import { createRafiki, createRafikiSession } from '../../../lib/rafiki/router'
 import { allExperts } from '../../../lib/rafiki/experts'
 import type { RafikiAnswer } from '../../../lib/rafiki/types'
+import { db } from '../../../lib/db'
+import { getMeId } from '../../../lib/me'
 
 interface SavedResult {
   id: string
   ts: number
   title: string
   rows: { testId: string; value: string; unit: string }[]
+  storagePath?: string
 }
 
 function readResult(id: string): SavedResult | undefined {
@@ -21,6 +24,38 @@ function readResult(id: string): SavedResult | undefined {
     return JSON.parse(raw) as SavedResult
   } catch {
     return undefined
+  }
+}
+
+async function readResultAsync(id: string): Promise<SavedResult | undefined> {
+  if (!db.supabase) return readResult(id)
+  try {
+    const me = await getMeId()
+    const rows = await db.list('tr_journal_entries', { user_id: me })
+    for (const row of rows) {
+      if (!Array.isArray(row.tags) || !row.tags.includes('lab:upload')) continue
+      try {
+        const parsed = JSON.parse(row.body) as {
+          client_id?: string; title?: string
+          rows?: { testId: string; value: string; unit: string }[]
+          storagePath?: string
+        }
+        if ((parsed.client_id ?? row.id) === id) {
+          const result: SavedResult = {
+            id,
+            ts: row.created_at ? +new Date(row.created_at) : Date.now(),
+            title: parsed.title ?? 'Kipimo',
+            rows: parsed.rows ?? [],
+            storagePath: parsed.storagePath,
+          }
+          try { localStorage.setItem(`tumaini.mimi.labs.result.${id}`, JSON.stringify(result)) } catch { /* ignore */ }
+          return result
+        }
+      } catch { /* skip */ }
+    }
+    return readResult(id)
+  } catch {
+    return readResult(id)
   }
 }
 
@@ -42,8 +77,15 @@ const FLAG_LABEL: Record<LabFlag, string> = {
 
 export default function LabsResult() {
   const { id } = useParams<{ id: string }>()
-  const result = id ? readResult(id) : undefined
+  const [result, setResult] = useState<SavedResult | undefined>(() => id ? readResult(id) : undefined)
   const [rafikiAnswer, setRafikiAnswer] = useState<RafikiAnswer | null>(null)
+
+  useEffect(() => {
+    if (!id) return
+    let on = true
+    void readResultAsync(id).then((r) => { if (on && r) setResult(r) })
+    return () => { on = false }
+  }, [id])
 
   const interpretations = useMemo(() => {
     if (!result) return []

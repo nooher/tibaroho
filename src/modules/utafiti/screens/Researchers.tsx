@@ -2,6 +2,9 @@ import type React from 'react'
 import { useEffect, useState } from 'react'
 import { Card, Table, Td } from '../../_shared/Layout'
 import { BRAND, CREAM, NEUTRAL, RADII, TEXT, hexToRgba } from '../../../lib/glass'
+import { list, insert } from '../../../lib/db'
+import type { TrAuditLog, TrUser } from '../../../lib/db'
+import { getMeId } from '../../../lib/me'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -33,38 +36,103 @@ const AUDIT = [
   { ts: '2026-06-18 11:30', actor: 'mariam@muhas', q: 'SELECT gad7_mean BY week FROM tr_outcomes' },
 ]
 
-function load(): Application[] {
+function loadCache(): Application[] {
   try {
     const r = localStorage.getItem(KEY)
     return r ? (JSON.parse(r) as Application[]) : INITIAL
   } catch { return INITIAL }
 }
 
+function writeCache(items: Application[]): void {
+  try { localStorage.setItem(KEY, JSON.stringify(items)) } catch { /* quota */ }
+}
+
+interface AppMeta extends Omit<Application, 'id' | 'ts'> { ts?: string }
+
+function rowToApp(row: TrAuditLog, idx: number): Application {
+  const m = (row.meta ?? {}) as Partial<AppMeta>
+  return {
+    id: row.entity_id ?? `R-${String(idx + 1).padStart(3, '0')}`,
+    name: m.name ?? '—',
+    affiliation: m.affiliation ?? '—',
+    irbLetter: m.irbLetter ?? '',
+    protocol: m.protocol ?? '',
+    mou: m.mou ?? '',
+    scope: m.scope ?? '',
+    status: m.status ?? 'Submitted',
+    ts: (row.at ?? '').slice(0, 10),
+  }
+}
+
 export default function Researchers(): React.JSX.Element {
   const [apps, setApps] = useState<Application[]>(INITIAL)
+  const [researcherUsers, setResearcherUsers] = useState<TrUser[]>([])
   const [form, setForm] = useState<Omit<Application, 'id' | 'status' | 'ts'>>({
     name: '', affiliation: '', irbLetter: '', protocol: '', mou: '', scope: '',
   })
 
-  useEffect(() => { setApps(load()) }, [])
+  useEffect(() => {
+    setApps(loadCache())
+    let mounted = true
+    void (async () => {
+      try {
+        const rows = (await list('tr_audit_log', { entity: 'researcher_application' })) as TrAuditLog[]
+        // Reduce to one row per entity_id (latest wins for status).
+        const byId = new Map<string, TrAuditLog>()
+        for (const r of rows.sort((a, b) => (a.at ?? '') > (b.at ?? '') ? 1 : -1)) {
+          if (r.entity_id) byId.set(r.entity_id, r)
+        }
+        const restored: Application[] = [...byId.values()].map(rowToApp)
+        if (mounted && restored.length) {
+          setApps(restored)
+          writeCache(restored)
+        }
+      } catch { /* offline */ }
+
+      // Pull approved researcher tr_users.
+      try {
+        const users = (await list('tr_users', { role: 'researcher' })) as TrUser[]
+        if (mounted) setResearcherUsers(users)
+      } catch { /* offline */ }
+    })()
+    return () => { mounted = false }
+  }, [])
 
   const persist = (next: Application[]): void => {
     setApps(next)
-    // TODO: sync to Supabase tr_researcher_applications.
-    try { localStorage.setItem(KEY, JSON.stringify(next)) } catch {}
+    writeCache(next)
+  }
+
+  const writeAudit = async (a: Application, action: string): Promise<void> => {
+    try {
+      const actor = await getMeId().catch(() => undefined)
+      await insert('tr_audit_log', {
+        actor_id: actor,
+        action,
+        entity: 'researcher_application',
+        entity_id: a.id,
+        meta: a,
+        at: new Date().toISOString(),
+      })
+    } catch { /* offline */ }
   }
 
   const submit = (): void => {
     if (!form.name || !form.affiliation) return
-    const next: Application[] = [...apps, {
-      ...form, id: `R-${String(apps.length + 1).padStart(3, '0')}`, status: 'Submitted', ts: new Date().toISOString().slice(0, 10),
-    }]
-    persist(next)
+    const fresh: Application = {
+      ...form, id: `R-${String(apps.length + 1).padStart(3, '0')}`,
+      status: 'Submitted', ts: new Date().toISOString().slice(0, 10),
+    }
+    persist([...apps, fresh])
+    void writeAudit(fresh, 'researcher.application.submit')
     setForm({ name: '', affiliation: '', irbLetter: '', protocol: '', mou: '', scope: '' })
   }
 
   const act = (id: string, status: 'Approved' | 'Rejected'): void => {
-    persist(apps.map((a) => a.id === id ? { ...a, status } : a))
+    const next = apps.map((a) => a.id === id ? { ...a, status } : a)
+    persist(next)
+    const updated = next.find((a) => a.id === id)
+    if (updated) void writeAudit(updated, status === 'Approved' ? 'researcher.application.approve' : 'researcher.application.reject')
   }
 
   return (
@@ -138,6 +206,20 @@ export default function Researchers(): React.JSX.Element {
           ))}
         </Table>
       </Card>
+
+      {researcherUsers.length > 0 ? (
+        <Card title={`Watafiti wenye akaunti hai (${researcherUsers.length})`} accent={BRAND.green}>
+          <Table headers={['Jina', 'Lugha', 'Mkoa']}>
+            {researcherUsers.map((u) => (
+              <tr key={u.id}>
+                <Td style={{ color: TEXT.body }}><strong>{u.display_name ?? '—'}</strong></Td>
+                <Td style={{ color: TEXT.muted }}>{u.lang}</Td>
+                <Td style={{ color: TEXT.muted }}>{u.region ?? '—'}</Td>
+              </tr>
+            ))}
+          </Table>
+        </Card>
+      ) : null}
 
       <Card title="Audit log — query za hivi karibuni (20)" accent={NEUTRAL.ink}>
         <Table headers={['Wakati', 'Mtafiti', 'Query']}>

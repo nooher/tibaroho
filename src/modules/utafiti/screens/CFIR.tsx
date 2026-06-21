@@ -3,6 +3,9 @@ import { useEffect, useState } from 'react'
 import { Card } from '../../_shared/Layout'
 import { BRAND, CREAM, NEUTRAL, RADII, TEXT, hexToRgba } from '../../../lib/glass'
 import { CFIR_DOMAINS, CFIR_CONSTRUCT_COUNT } from '../data/cfirConstructs'
+import { list, insert } from '../../../lib/db'
+import type { TrAuditLog } from '../../../lib/db'
+import { getMeId } from '../../../lib/me'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -17,16 +20,53 @@ const SITES = [
 
 type Scores = Record<string, number>
 
-function loadScores(siteId: string): Scores {
+function loadScoresCache(siteId: string): Scores {
   try {
     const raw = localStorage.getItem(`tumaini.utafiti.cfir.${siteId}`)
     return raw ? (JSON.parse(raw) as Scores) : {}
   } catch { return {} }
 }
 
-function saveScores(siteId: string, s: Scores): void {
-  // TODO: sync to Supabase tr_cfir_assessments when backend lands.
-  try { localStorage.setItem(`tumaini.utafiti.cfir.${siteId}`, JSON.stringify(s)) } catch {}
+function writeCache(siteId: string, s: Scores): void {
+  try { localStorage.setItem(`tumaini.utafiti.cfir.${siteId}`, JSON.stringify(s)) } catch { /* quota */ }
+}
+
+/**
+ * Load the latest CFIR scores for `siteId` from tr_audit_log
+ * (entity='cfir', entity_id=siteId). The newest entry per construct
+ * wins — we replay the entries in chronological order so the most
+ * recent score for each construct sits on top.
+ */
+async function loadScoresAsync(siteId: string): Promise<Scores> {
+  try {
+    const rows = (await list('tr_audit_log', { entity: 'cfir', entity_id: siteId })) as TrAuditLog[]
+    const sorted = [...rows].sort((a, b) => (a.at ?? '') > (b.at ?? '') ? 1 : -1)
+    const out: Scores = {}
+    for (const r of sorted) {
+      const m = (r.meta ?? {}) as { construct?: string; score?: number; scores?: Scores }
+      if (m.scores && typeof m.scores === 'object') Object.assign(out, m.scores)
+      else if (m.construct && typeof m.score === 'number') out[m.construct] = m.score
+    }
+    writeCache(siteId, out)
+    return out
+  } catch {
+    return loadScoresCache(siteId)
+  }
+}
+
+async function persistConstruct(siteId: string, construct: string, score: number, all: Scores): Promise<void> {
+  writeCache(siteId, all)
+  try {
+    const actor = await getMeId().catch(() => undefined)
+    await insert('tr_audit_log', {
+      actor_id: actor,
+      action: 'cfir.score.set',
+      entity: 'cfir',
+      entity_id: siteId,
+      meta: { construct, score, site: siteId },
+      at: new Date().toISOString(),
+    })
+  } catch { /* offline */ }
 }
 
 function heatColor(score: number): string {
@@ -55,12 +95,17 @@ export default function CFIR(): React.JSX.Element {
   const [siteId, setSiteId] = useState<string>(SITES[0].id)
   const [scores, setScores] = useState<Scores>({})
 
-  useEffect(() => { setScores(loadScores(siteId)) }, [siteId])
+  useEffect(() => {
+    setScores(loadScoresCache(siteId))
+    let mounted = true
+    void loadScoresAsync(siteId).then((s) => { if (mounted) setScores(s) })
+    return () => { mounted = false }
+  }, [siteId])
 
   const setScore = (id: string, v: number): void => {
     const next = { ...scores, [id]: v }
     setScores(next)
-    saveScores(siteId, next)
+    void persistConstruct(siteId, id, v, next)
   }
 
   const mean = (() => {

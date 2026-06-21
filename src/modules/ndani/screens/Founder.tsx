@@ -1,7 +1,9 @@
 import type React from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card } from '../../_shared/Layout'
 import { JEWEL, CREAM, NEUTRAL, hexToRgba, TEXT } from '../../../lib/glass'
+import { list } from '../../../lib/db'
+import { logPrincipalView, auditEvent, readSelfAuditAsync, type AuditEntry } from '../audit'
 
 const QUICK_LINKS = [
   { label: 'laetoli.tz hub', href: 'https://laetoli.tz' },
@@ -34,23 +36,34 @@ export default function FounderConsole(): React.JSX.Element {
       return raw ? JSON.parse(raw) : []
     } catch { return [] }
   })
+  const [counts, setCounts] = useState({ users: 0, providers: 0, openCrisis: 0 })
+  const [selfAudit, setSelfAudit] = useState<AuditEntry[]>([])
 
-  const addNote = () => {
+  useEffect(() => {
+    let mounted = true
+    void Promise.all([list('tr_users'), list('tr_providers'), list('tr_appointments')])
+      .then(([u, p, a]) => {
+        if (!mounted) return
+        const openCrisis = a.filter((x) => x.status === 'requested').length
+        setCounts({ users: u.length, providers: p.length, openCrisis })
+      }).catch(() => undefined)
+    void readSelfAuditAsync().then((rows) => { if (mounted) setSelfAudit(rows.slice(0, 10)) })
+    return () => { mounted = false }
+  }, [])
+
+  const addNote = (): void => {
     if (!note.trim()) return
     const next = [{ ts: new Date().toISOString().replace('T', ' ').slice(0, 16), body: note.trim() }, ...notes]
     setNotes(next)
     setNote('')
     try { localStorage.setItem('tumaini.founder.notes.v1', JSON.stringify(next)) } catch { /* ignore */ }
+    void auditEvent('founder.note.create', 'tumaini.founder.notes', undefined, { length: note.trim().length })
   }
 
-  const principalView = () => {
-    if (typeof window === 'undefined') return
-    // Audit log entry — logs the "read-everything" view request to a self-audit feed.
-    try {
-      const audit = JSON.parse(localStorage.getItem('tumaini.principal.audit.v1') || '[]')
-      audit.unshift({ ts: new Date().toISOString(), action: 'PRINCIPAL VIEW invoked', actor: 'founder' })
-      localStorage.setItem('tumaini.principal.audit.v1', JSON.stringify(audit.slice(0, 200)))
-    } catch { /* ignore */ }
+  const principalView = (): void => {
+    void logPrincipalView('platform.all', 'Founder principal-view invoked from /ndani/founder').then(() => {
+      void readSelfAuditAsync().then((rows) => setSelfAudit(rows.slice(0, 10)))
+    })
     alert(
       'Bismillah · Alhamdulillah · Ya Fattah · Ya Mughni\n\n' +
       'PRINCIPAL VIEW imewashwa. Kila ufikiaji wa data ya watumiaji utaandikwa kwenye self-audit feed.',
@@ -65,6 +78,14 @@ export default function FounderConsole(): React.JSX.Element {
           Linganisha kazi ya leo, hifadhi maelezo ya hizo nia, na fungua zana
           unazohitaji haraka.
         </p>
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+          gap: 12, marginTop: 14,
+        }}>
+          <div><div style={{ fontSize: 11, color: TEXT.muted, letterSpacing: 0.6, textTransform: 'uppercase' }}>Watumiaji</div><div style={{ fontSize: 22, color: TEXT.heading, fontWeight: 700 }}>{counts.users}</div></div>
+          <div><div style={{ fontSize: 11, color: TEXT.muted, letterSpacing: 0.6, textTransform: 'uppercase' }}>Wahudumu</div><div style={{ fontSize: 22, color: TEXT.heading, fontWeight: 700 }}>{counts.providers}</div></div>
+          <div><div style={{ fontSize: 11, color: TEXT.muted, letterSpacing: 0.6, textTransform: 'uppercase' }}>Miadi inasubiri</div><div style={{ fontSize: 22, color: TEXT.heading, fontWeight: 700 }}>{counts.openCrisis}</div></div>
+        </div>
       </Card>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
@@ -174,6 +195,17 @@ export default function FounderConsole(): React.JSX.Element {
             fontFamily: 'inherit',
           }}
         >Washa PRINCIPAL VIEW</button>
+        {selfAudit.length > 0 ? (
+          <ul style={{ paddingLeft: 18, margin: '12px 0 0', lineHeight: 1.6, fontSize: 12 }}>
+            {selfAudit.map((e) => (
+              <li key={e.hash}>
+                <span style={{ color: TEXT.muted }}>{e.ts.slice(0, 16).replace('T', ' ')}</span>
+                {' · '}{e.action} → {e.entity}
+                {e.reason ? <span style={{ color: TEXT.muted }}> · {e.reason}</span> : null}
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </Card>
 
       {/* Hidden header — never visible. Code-side signature. */}

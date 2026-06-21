@@ -6,6 +6,7 @@ import ActionConfirm from '../components/ActionConfirm'
 import { list, update, remove } from '../../../lib/db'
 import type { TrUser } from '../../../lib/db'
 import { JEWEL, hexToRgba, TEXT } from '../../../lib/glass'
+import { auditEvent } from '../audit'
 
 interface UserRow extends TrUser { status?: string }
 
@@ -51,6 +52,7 @@ export default function Users(): React.JSX.Element {
     } else if (confirm.mode === 'reset_mfa') {
       // no-op locally; audit captures the intent
     }
+    await auditEvent(`user.${confirm.mode}`, 'tr_users', r.id, { prior: r })
   }
 
   const exportUser = (r: UserRow): void => {

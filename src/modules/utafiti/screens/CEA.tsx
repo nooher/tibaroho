@@ -2,6 +2,9 @@ import type React from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { Card } from '../../_shared/Layout'
 import { BRAND, CREAM, NEUTRAL, TEXT, hexToRgba } from '../../../lib/glass'
+import { list, insert } from '../../../lib/db'
+import type { TrAuditLog } from '../../../lib/db'
+import { getMeId } from '../../../lib/me'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -52,6 +55,38 @@ function load(): Inputs {
   } catch { return DEFAULTS }
 }
 
+/** Latest CEA scenario from tr_audit_log entity='cea'. */
+async function loadAsync(): Promise<Inputs> {
+  try {
+    const rows = (await list('tr_audit_log', { entity: 'cea' })) as TrAuditLog[]
+    const latest = rows
+      .slice()
+      .sort((a, b) => (a.at ?? '') > (b.at ?? '') ? -1 : 1)[0]
+    if (!latest) return load()
+    const m = (latest.meta ?? {}) as { inputs?: Partial<Inputs> }
+    return { ...DEFAULTS, ...(m.inputs ?? {}) }
+  } catch { return load() }
+}
+
+let saveTimer: ReturnType<typeof setTimeout> | null = null
+function debouncedPersist(inp: Inputs): void {
+  if (saveTimer) clearTimeout(saveTimer)
+  saveTimer = setTimeout(() => {
+    void (async () => {
+      try {
+        const actor = await getMeId().catch(() => undefined)
+        await insert('tr_audit_log', {
+          actor_id: actor,
+          action: 'cea.scenario.save',
+          entity: 'cea',
+          meta: { inputs: inp },
+          at: new Date().toISOString(),
+        })
+      } catch { /* offline */ }
+    })()
+  }, 1500)
+}
+
 function NumInput({ label, value, unit, onChange }: { label: string; value: number; unit: string; onChange: (v: number) => void }): React.JSX.Element {
   return (
     <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12 }}>
@@ -86,10 +121,15 @@ function OutTile({ label, usd, tzs, note }: { label: string; usd: number; tzs?: 
 
 export default function CEA(): React.JSX.Element {
   const [inp, setInp] = useState<Inputs>(DEFAULTS)
-  useEffect(() => { setInp(load()) }, [])
   useEffect(() => {
-    // TODO: sync to Supabase tr_cea_scenarios.
-    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(inp)) } catch {}
+    setInp(load())
+    let mounted = true
+    void loadAsync().then((i) => { if (mounted) setInp(i) })
+    return () => { mounted = false }
+  }, [])
+  useEffect(() => {
+    try { localStorage.setItem(LOCAL_KEY, JSON.stringify(inp)) } catch { /* quota */ }
+    debouncedPersist(inp)
   }, [inp])
 
   const set = <K extends keyof Inputs>(k: K, v: number): void => setInp((s) => ({ ...s, [k]: v }))

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CREAM, JEWEL, NEUTRAL, RADII, TEXT, TYPE, TZ_FLAG, hexToRgba } from '../../lib/glass';
-import { loadProfile, saveProfile, markComplete, type KaribuProfile } from './lib/storage';
+import { loadProfile, saveProfile, markCompleteAsync, type KaribuProfile } from './lib/storage';
 import Step1Watajulianaye from './screens/Step1Watajulianaye';
 import Step2Sababu from './screens/Step2Sababu';
 import Step3Hali from './screens/Step3Hali';
@@ -32,7 +32,9 @@ export default function Karibu() {
   };
 
   const finish = (): void => {
-    markComplete();
+    // Persist to Supabase (consents + lang/region/faith) in the background;
+    // the wizard already marks complete locally so the navigation is instant.
+    void markCompleteAsync(profile);
     nav('/mimi', { replace: true });
   };
 

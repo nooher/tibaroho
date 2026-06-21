@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { PageShell, Card } from '../components/Shell'
 import { JEWEL, TYPE, TEXT, focusRing, hexToRgba } from '../../../lib/glass'
 import { REF_RANGES } from './data/refRanges'
+import { db } from '../../../lib/db'
+import { supabase } from '../../../lib/supabase'
+import { getMeId } from '../../../lib/me'
 
 interface Row {
   testId: string
@@ -15,27 +18,66 @@ interface SavedResult {
   ts: number
   title: string
   rows: { testId: string; value: string; unit: string }[]
+  storagePath?: string
 }
 
-function saveResult(result: SavedResult): void {
+const KEY = 'tumaini.mimi.labs.uploads'
+
+function persistLocal(result: SavedResult): void {
   try {
-    const KEY = 'tumaini.mimi.labs.uploads'
     const RES_KEY = `tumaini.mimi.labs.result.${result.id}`
     const raw = localStorage.getItem(KEY)
-    const list: SavedResult[] = raw ? (JSON.parse(raw) as SavedResult[]) : []
-    list.push({ id: result.id, ts: result.ts, title: result.title, rows: [] as SavedResult['rows'] })
-    localStorage.setItem(KEY, JSON.stringify(list.map((i) => ({ id: i.id, ts: i.ts, title: i.title, rows: i.rows?.length ?? 0 }))))
+    const list: { id: string; ts: number; title: string; rows: number }[] =
+      raw ? (JSON.parse(raw) as { id: string; ts: number; title: string; rows: number }[]) : []
+    list.push({ id: result.id, ts: result.ts, title: result.title, rows: result.rows.length })
+    localStorage.setItem(KEY, JSON.stringify(list))
     localStorage.setItem(RES_KEY, JSON.stringify(result))
+  } catch { /* ignore */ }
+}
+
+async function uploadLabFile(file: File): Promise<string | undefined> {
+  if (!supabase) return undefined
+  try {
+    const { data: auth } = await supabase.auth.getUser()
+    const authUid = auth?.user?.id
+    if (!authUid) return undefined
+    const ext = file.name.includes('.') ? file.name.split('.').pop() : 'bin'
+    const path = `${authUid}/${Date.now()}_${Math.random().toString(36).slice(2, 7)}.${ext}`
+    const { error } = await supabase.storage.from('lab-images').upload(path, file, { upsert: false })
+    if (error) return undefined
+    return path
   } catch {
-    // ignore
+    return undefined
   }
+}
+
+async function persistRemote(result: SavedResult): Promise<void> {
+  if (!db.supabase) return
+  try {
+    const me = await getMeId()
+    await db.insert('tr_journal_entries', {
+      user_id: me,
+      body: JSON.stringify({
+        client_id: result.id,
+        title: result.title,
+        rows: result.rows,
+        storagePath: result.storagePath,
+      }),
+      tags: ['lab:upload'],
+      created_at: new Date(result.ts).toISOString(),
+    })
+    void db.audit('lab.upload', 'tr_journal_entries', undefined, {
+      client_id: result.id, hasFile: !!result.storagePath, rows: result.rows.length,
+    })
+  } catch { /* offline */ }
 }
 
 export default function LabsUpload() {
   const nav = useNavigate()
   const [title, setTitle] = useState('Kipimo cha ' + new Date().toLocaleDateString('sw-TZ'))
   const [rows, setRows] = useState<Row[]>([{ testId: 'hb', value: '', unit: 'g/dL' }])
-  const [fileName, setFileName] = useState<string>('')
+  const [file, setFile] = useState<File | null>(null)
+  const [busy, setBusy] = useState(false)
 
   function updateRow(idx: number, patch: Partial<Row>): void {
     setRows((rs) => rs.map((r, i) => (i === idx ? { ...r, ...patch } : r)))
@@ -50,10 +92,20 @@ export default function LabsUpload() {
     const range = REF_RANGES.find((r) => r.id === testId)
     updateRow(idx, { testId, unit: range?.unit ?? '' })
   }
-  function onSave(): void {
+  async function onSave(): Promise<void> {
+    if (busy) return
+    setBusy(true)
     const id = `lab_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
-    const result: SavedResult = { id, ts: Date.now(), title, rows: rows.filter((r) => r.value !== '') }
-    saveResult(result)
+    let storagePath: string | undefined
+    if (file) storagePath = await uploadLabFile(file)
+    const result: SavedResult = {
+      id, ts: Date.now(), title,
+      rows: rows.filter((r) => r.value !== ''),
+      storagePath,
+    }
+    persistLocal(result)
+    await persistRemote(result)
+    setBusy(false)
     nav(`/mimi/vipimo-vya-maabara/matokeo/${id}`)
   }
 
@@ -90,7 +142,7 @@ export default function LabsUpload() {
             type="file"
             accept=".pdf,image/*,.hl7,.txt"
             aria-label="Chagua faili la kipimo"
-            onChange={(e) => setFileName(e.target.files?.[0]?.name ?? '')}
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
           <button
             type="button"
@@ -110,7 +162,7 @@ export default function LabsUpload() {
             OCR (inakuja hivi karibuni)
           </button>
         </div>
-        {fileName && <div style={{ marginTop: 8, fontSize: 14, color: TEXT.muted }}>Imechaguliwa: {fileName}</div>}
+        {file && <div style={{ marginTop: 8, fontSize: 14, color: TEXT.muted }}>Imechaguliwa: {file.name}</div>}
       </Card>
 
       <Card style={{ marginBottom: 16 }}>
@@ -171,7 +223,8 @@ export default function LabsUpload() {
 
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <button
-          onClick={onSave}
+          onClick={() => void onSave()}
+          disabled={busy}
           aria-label="Hifadhi na tafsiri"
           style={{
             padding: '12px 22px',
@@ -179,10 +232,11 @@ export default function LabsUpload() {
             background: JEWEL.tealMwenza,
             color: TEXT.onJewel,
             border: 'none',
-            cursor: 'pointer',
+            cursor: busy ? 'wait' : 'pointer',
             fontWeight: 700,
+            opacity: busy ? 0.6 : 1,
           }}
-        >Hifadhi na tafsiri</button>
+        >{busy ? 'Inahifadhi…' : 'Hifadhi na tafsiri'}</button>
       </div>
     </PageShell>
   )

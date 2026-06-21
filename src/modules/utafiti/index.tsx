@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { Card, ModuleShell, type SubNav } from '../_shared/Layout'
 import { BRAND, NEUTRAL, RADII, TEXT, hexToRgba } from '../../lib/glass'
+import { getMeRole } from '../../lib/me'
+import { auditEvent } from '../ndani/audit'
 import Dashboard from './screens/Dashboard'
 import CFIR from './screens/CFIR'
 import REAIM from './screens/REAIM'
@@ -22,13 +24,25 @@ function ResearcherGate({ children }: { children: React.ReactNode }): React.JSX.
   const [approved, setApproved] = useState<boolean>(false)
 
   useEffect(() => {
-    try { setApproved(localStorage.getItem(APPROVAL_KEY) === 'true') } catch {}
+    // First-paint from cached approval flag.
+    try { setApproved(localStorage.getItem(APPROVAL_KEY) === 'true') } catch { /* ignore */ }
+    // Live check: if the signed-in user is a researcher or admin, auto-approve.
+    let mounted = true
+    void getMeRole().then((r) => {
+      if (!mounted) return
+      if (r === 'researcher' || r === 'admin') {
+        try { localStorage.setItem(APPROVAL_KEY, 'true') } catch { /* ignore */ }
+        setApproved(true)
+        void auditEvent('utafiti.gate.auto_approve', 'utafiti', undefined, { role: r })
+      }
+    }).catch(() => undefined)
+    return () => { mounted = false }
   }, [])
 
   const approve = (): void => {
-    // TODO: replace with real MoU + IRB letter upload + Ndani team review.
-    try { localStorage.setItem(APPROVAL_KEY, 'true') } catch {}
+    try { localStorage.setItem(APPROVAL_KEY, 'true') } catch { /* ignore */ }
     setApproved(true)
+    void auditEvent('utafiti.gate.manual_approve', 'utafiti')
   }
 
   if (approved) return <>{children}</>

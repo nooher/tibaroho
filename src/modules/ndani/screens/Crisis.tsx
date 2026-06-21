@@ -1,7 +1,10 @@
 import type React from 'react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Card } from '../../_shared/Layout'
 import { JEWEL, CREAM, NEUTRAL, hexToRgba, TEXT } from '../../../lib/glass'
+import { list, update } from '../../../lib/db'
+import type { TrReferral } from '../../../lib/db'
+import { auditEvent } from '../audit'
 
 type Risk = 'red' | 'amber' | 'green'
 interface CrisisEvent {
@@ -32,9 +35,44 @@ function pillFor(r: Risk): { bg: string; fg: string; label: string } {
   }
 }
 
+function referralToEvent(r: TrReferral): CrisisEvent {
+  const risk: Risk = r.urgency === 'emergency' ? 'red' : r.urgency === 'urgent' ? 'amber' : 'green'
+  // Heuristic kind classification from the free-text reason.
+  const lower = (r.reason || '').toLowerCase()
+  const kind: CrisisEvent['kind'] = lower.includes('cssrs') || lower.includes('suicid') ? 'CSSRS'
+    : lower.includes('ipv') || lower.includes('intimate') ? 'IPV'
+    : lower.includes('child') || lower.includes('mtoto') ? 'Child'
+    : lower.includes('psychos') ? 'Psychosis'
+    : 'CSSRS'
+  return {
+    id: r.id,
+    ts: (r as TrReferral & { created_at?: string }).created_at?.slice(0, 16).replace('T', ' ') ?? new Date().toISOString().slice(0, 16).replace('T', ' '),
+    kind,
+    region: r.to_facility ?? '—',
+    risk,
+    anonHandle: 'mt-' + r.patient_id.slice(0, 4),
+    responder: r.to_facility,
+    ackedAt: r.status === 'closed' || r.status === 'acked' ? new Date().toISOString().slice(0, 16).replace('T', ' ') : undefined,
+    notes: r.reason,
+  }
+}
+
 export default function CrisisMonitor(): React.JSX.Element {
   const [events, setEvents] = useState<CrisisEvent[]>(SEED)
   const [filter, setFilter] = useState<'all' | 'open' | Risk>('all')
+
+  useEffect(() => {
+    let mounted = true
+    void (async () => {
+      try {
+        const emerg = (await list('tr_referrals', { urgency: 'emergency' })) as TrReferral[]
+        const urg = (await list('tr_referrals', { urgency: 'urgent' })) as TrReferral[]
+        const rows = [...emerg, ...urg].map(referralToEvent)
+        if (mounted && rows.length) setEvents(rows)
+      } catch { /* offline */ }
+    })()
+    return () => { mounted = false }
+  }, [])
 
   const visible = useMemo(() => {
     return events.filter(e => {
@@ -48,10 +86,12 @@ export default function CrisisMonitor(): React.JSX.Element {
   const openAmber = events.filter(e => e.risk === 'amber' && !e.ackedAt).length
   const last24Total = events.length
 
-  const acknowledge = (id: string) => {
+  const acknowledge = (id: string): void => {
     setEvents(prev => prev.map(e => e.id === id
       ? { ...e, ackedAt: new Date().toISOString().replace('T', ' ').slice(0, 16) }
       : e))
+    void update('tr_referrals', id, { status: 'acked' }).catch(() => undefined)
+    void auditEvent('crisis.ack', 'tr_referrals', id)
   }
 
   return (

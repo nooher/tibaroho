@@ -1,7 +1,10 @@
 import type React from 'react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Card, Filter, Table, Td } from '../../_shared/Layout'
 import { BRAND, CREAM, TZ_FLAG, hexToRgba, RADII, TEXT } from '../../../lib/glass'
+import { list, update } from '../../../lib/db'
+import type { TrProvider, TrUser } from '../../../lib/db'
+import { auditEvent } from '../audit'
 
 type ProviderStatus = 'active' | 'locked' | 'suspended' | 'pending'
 
@@ -53,6 +56,35 @@ function StatusChip({ s }: { s: ProviderStatus }): React.JSX.Element {
   )
 }
 
+function specialtyFromKind(kind: TrProvider['kind']): string {
+  switch (kind) {
+    case 'clinician': return 'Clinical psychology'
+    case 'lay_counsellor': return 'PM+ lay counsellor'
+    case 'faith': return 'Faith-informed MI'
+    case 'school': return 'School counselling'
+    case 'ngo': return 'Peer recovery'
+    default: return 'Clinical psychology'
+  }
+}
+
+function dbToProvider(p: TrProvider, users: Map<string, TrUser>): Provider {
+  const u = users.get(p.user_id)
+  return {
+    id: p.id,
+    name: u?.display_name ?? 'Mhudumu',
+    specialty: specialtyFromKind(p.kind),
+    license: p.id.slice(0, 8),
+    region: u?.region ?? (p.regions?.[0] ?? '—'),
+    status: p.verified ? 'active' : 'pending',
+    fee: p.fee_default,
+    phq9Change: 0,
+    dropoutPct: 0,
+    nps: 0,
+    supervisorFlags: 0,
+    caseload: 0,
+  }
+}
+
 export default function Providers(): React.JSX.Element {
   const [rows, setRows] = useState<Provider[]>(SEED)
   const [q, setQ] = useState('')
@@ -61,6 +93,19 @@ export default function Providers(): React.JSX.Element {
   const [status, setStatus] = useState<ProviderStatus | 'All'>('All')
   const [sel, setSel] = useState<Provider | null>(null)
   const [feeDraft, setFeeDraft] = useState<string>('')
+
+  useEffect(() => {
+    let mounted = true
+    void (async () => {
+      try {
+        const [provs, users] = await Promise.all([list('tr_providers'), list('tr_users')])
+        if (!mounted || !provs.length) return
+        const userMap = new Map<string, TrUser>(users.map((u) => [u.id, u]))
+        setRows(provs.map((p) => dbToProvider(p as TrProvider, userMap)))
+      } catch { /* offline */ }
+    })()
+    return () => { mounted = false }
+  }, [])
 
   const filtered = useMemo(() => rows.filter((r) =>
     (spec === 'All' || r.specialty === spec) &&
@@ -72,6 +117,8 @@ export default function Providers(): React.JSX.Element {
   function setProviderStatus(id: string, s: ProviderStatus): void {
     setRows((rs) => rs.map((r) => (r.id === id ? { ...r, status: s } : r)))
     setSel((cur) => (cur && cur.id === id ? { ...cur, status: s } : cur))
+    void update('tr_providers', id, { verified: s === 'active' }).catch(() => undefined)
+    void auditEvent('provider.status.change', 'tr_providers', id, { status: s })
   }
 
   function saveFee(): void {
@@ -81,6 +128,8 @@ export default function Providers(): React.JSX.Element {
     setRows((rs) => rs.map((r) => (r.id === sel.id ? { ...r, fee: n } : r)))
     setSel({ ...sel, fee: n })
     setFeeDraft('')
+    void update('tr_providers', sel.id, { fee_default: n }).catch(() => undefined)
+    void auditEvent('provider.fee.update', 'tr_providers', sel.id, { fee: n })
   }
 
   return (

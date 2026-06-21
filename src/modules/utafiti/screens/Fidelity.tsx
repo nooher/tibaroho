@@ -2,6 +2,9 @@ import type React from 'react'
 import { useEffect, useState } from 'react'
 import { Card, Table, Td } from '../../_shared/Layout'
 import { BRAND, CREAM, NEUTRAL, RADII, TEXT, hexToRgba } from '../../../lib/glass'
+import { list, insert } from '../../../lib/db'
+import type { TrAuditLog } from '../../../lib/db'
+import { getMeId } from '../../../lib/me'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -36,6 +39,18 @@ function load(): State {
   try { const r = localStorage.getItem(KEY); return r ? (JSON.parse(r) as State) : {} } catch { return {} }
 }
 
+/** Compose latest fidelity state from tr_audit_log entity='fidelity'. */
+async function loadAsync(): Promise<State> {
+  try {
+    const rows = (await list('tr_audit_log', { entity: 'fidelity' })) as TrAuditLog[]
+    const latest = rows
+      .slice()
+      .sort((a, b) => (a.at ?? '') > (b.at ?? '') ? -1 : 1)[0]
+    const m = (latest?.meta ?? {}) as { state?: State }
+    return m.state ?? load()
+  } catch { return load() }
+}
+
 const PROVIDERS = ['Bibi Salima', 'Bw. Hamisi', 'Ms. Neema', 'Bw. Joel']
 const CHECKLIST = ['Maelezo ya wazi', 'Lugha sahihi', 'Kuhakikisha usalama', 'Kufuatilia kazi za nyumbani', 'Hatua za kufunga']
 
@@ -60,7 +75,12 @@ export default function Fidelity(): React.JSX.Element {
   const [program, setProgram] = useState<string>(PROGRAMS[0].id)
   const [provider, setProvider] = useState<string>(PROVIDERS[0])
 
-  useEffect(() => { setState(load()) }, [])
+  useEffect(() => {
+    setState(load())
+    let mounted = true
+    void loadAsync().then((s) => { if (mounted) setState(s) })
+    return () => { mounted = false }
+  }, [])
 
   const current = PROGRAMS.find((p) => p.id === program)!
   const sessionStates: boolean[][] = current.sessions.map((_, si) => {
@@ -75,8 +95,20 @@ export default function Fidelity(): React.JSX.Element {
     flat[k] = !flat[k]
     next[program][provider] = flat
     setState(next)
-    // TODO: sync to Supabase tr_fidelity_records.
-    try { localStorage.setItem(KEY, JSON.stringify(next)) } catch {}
+    try { localStorage.setItem(KEY, JSON.stringify(next)) } catch { /* quota */ }
+    void (async () => {
+      try {
+        const actor = await getMeId().catch(() => undefined)
+        await insert('tr_audit_log', {
+          actor_id: actor,
+          action: 'fidelity.toggle',
+          entity: 'fidelity',
+          entity_id: `${program}:${provider}`,
+          meta: { program, provider, sIdx, cIdx, state: next },
+          at: new Date().toISOString(),
+        })
+      } catch { /* offline */ }
+    })()
   }
 
   const adherence = sessionStates.map((s) => (s.filter(Boolean).length / CHECKLIST.length) * 100)

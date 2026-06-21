@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { JEWEL, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
+import { db, hasBackend } from '../../../lib/db'
+import { getMyProviderId } from '../../../lib/me'
 
 type Status = 'sent' | 'seen' | 'accepted' | 'declined' | 'completed'
 const STATUS_LABEL: Record<Status, string> = {
@@ -14,6 +16,22 @@ interface ReceivedReferral {
   reasonSw: string
   status: Status
   acked: boolean
+}
+
+// Map between Tumaini display statuses and the canonical tr_referrals.status text.
+const TR_STATUS_FROM_DB: Record<string, Status> = {
+  open: 'sent',
+  seen: 'seen',
+  accepted: 'accepted',
+  declined: 'declined',
+  completed: 'completed',
+}
+const TR_STATUS_TO_DB: Record<Status, string> = {
+  sent: 'open',
+  seen: 'seen',
+  accepted: 'accepted',
+  declined: 'declined',
+  completed: 'completed',
 }
 
 function seed(): ReceivedReferral[] {
@@ -43,17 +61,60 @@ function write(items: ReceivedReferral[]): void {
   try { localStorage.setItem(KEY, JSON.stringify(items)) } catch { /* ignore */ }
 }
 
+/** Live upgrade: pull the signed-in provider's inbox from tr_referrals. */
+async function fetchInbox(): Promise<ReceivedReferral[] | null> {
+  if (!hasBackend) return null
+  const meProvider = await getMyProviderId()
+  if (!meProvider) return null
+  try {
+    const rows = await db.list('tr_referrals', { to_provider_id: meProvider })
+    return rows.map((r) => {
+      const createdAt = (r as unknown as { created_at?: string }).created_at
+      return {
+      id: r.id,
+      ts: createdAt ? Date.parse(createdAt) : Date.now(),
+      // We don't denormalise the sender label here — show the id; the provider
+      // directory view will resolve names. Patient is shown by id similarly.
+      fromProvider: r.from_provider_id ? `Mtaalamu ${r.from_provider_id.slice(0, 6)}` : '—',
+      patient: r.patient_id ? `Mgonjwa ${r.patient_id.slice(0, 6)}` : '—',
+      reasonSw: r.reason,
+      status: TR_STATUS_FROM_DB[r.status] ?? 'sent',
+      acked: r.status !== 'open',
+    }
+    })
+  } catch { return null }
+}
+
 export default function ReferralsInbox() {
   const [items, setItems] = useState<ReceivedReferral[]>([])
-  useEffect(() => { setItems(read()) }, [])
+
+  useEffect(() => {
+    setItems(read())
+    let mounted = true
+    void fetchInbox().then((rows) => {
+      if (mounted && rows && rows.length) {
+        setItems(rows)
+        write(rows)
+      }
+    })
+    return () => { mounted = false }
+  }, [])
+
+  async function persistStatus(id: string, status: Status): Promise<void> {
+    if (!hasBackend) return
+    try { await db.update('tr_referrals', id, { status: TR_STATUS_TO_DB[status] }) } catch { /* graceful */ }
+  }
 
   function ack(id: string): void {
     const next = items.map((r) => r.id === id ? { ...r, acked: true, status: r.status === 'sent' ? 'seen' as const : r.status } : r)
     setItems(next); write(next)
+    const ackedStatus: Status = items.find((r) => r.id === id)?.status === 'sent' ? 'seen' : (items.find((r) => r.id === id)?.status ?? 'seen')
+    void persistStatus(id, ackedStatus)
   }
   function changeStatus(id: string, s: Status): void {
     const next = items.map((r) => r.id === id ? { ...r, status: s } : r)
     setItems(next); write(next)
+    void persistStatus(id, s)
   }
 
   return (

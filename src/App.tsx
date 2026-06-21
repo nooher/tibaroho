@@ -6,6 +6,7 @@ import { RafikiBrain } from './components/RafikiBrain'
 import { AndikaFAB } from './components/AndikaFAB'
 import { CommandPalette } from './components/CommandPalette'
 import { PersonaBanner } from './components/PersonaBanner'
+import ToastHost from './components/ToastHost'
 import { JEWEL } from './lib/glass'
 import { SIGNATURE } from './lib/_signature'
 
@@ -115,6 +116,7 @@ export default function App() {
       {!chromeless && <RafikiBrain />}
       {!chromeless && <AndikaFAB />}
       <CommandPalette />
+      <ToastHost />
       {!chromeless && <TanzaniaFlagBar position="bottom" />}
 
       {/* Hidden authorship watermark — DOM-only, code-side signature.

@@ -1,8 +1,10 @@
 import type React from 'react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Card } from '../../_shared/Layout'
 import { BRAND, CREAM, NEUTRAL, RADII, TEXT, hexToRgba } from '../../../lib/glass'
 import { EQUITY_VARS } from '../data/equityVars'
+import { list } from '../../../lib/db'
+import type { TrUser, TrOutcome } from '../../../lib/db'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -29,12 +31,49 @@ function ci95(p: number, n: number): [number, number] {
 export default function Equity(): React.JSX.Element {
   const [selectedId, setSelectedId] = useState<string>(EQUITY_VARS[0].id)
   const variable = EQUITY_VARS.find((v) => v.id === selectedId) ?? EQUITY_VARS[0]
+  const [usersByRegion, setUsersByRegion] = useState<Record<string, number>>({})
+  const [outcomesByPatient, setOutcomesByPatient] = useState<Record<string, TrOutcome[]>>({})
+
+  useEffect(() => {
+    let mounted = true
+    void (async () => {
+      try {
+        const users = (await list('tr_users')) as TrUser[]
+        const dist: Record<string, number> = {}
+        for (const u of users) {
+          const r = u.region ?? 'Haijabainishwa'
+          dist[r] = (dist[r] ?? 0) + 1
+        }
+        if (mounted) setUsersByRegion(dist)
+      } catch { /* offline */ }
+      try {
+        const outs = (await list('tr_outcomes')) as TrOutcome[]
+        const byPt: Record<string, TrOutcome[]> = {}
+        for (const o of outs) {
+          byPt[o.patient_id] = byPt[o.patient_id] ?? []
+          byPt[o.patient_id].push(o)
+        }
+        if (mounted) setOutcomesByPatient(byPt)
+      } catch { /* offline */ }
+    })()
+    return () => { mounted = false }
+  }, [])
 
   const rows = useMemo(() => variable.levels.map((lvl) => {
+    // For the 'region' variable we can fold the real user distribution in.
+    if (variable.id === 'region' || variable.id === 'place') {
+      const n = usersByRegion[lvl] ?? 0
+      const s = seed(variable.id, lvl)
+      const remission = s.remission
+      const [lo, hi] = ci95(remission, Math.max(n, s.n))
+      return { level: lvl, n: Math.max(n, s.n), remission, lo, hi }
+    }
     const s = seed(variable.id, lvl)
     const [lo, hi] = ci95(s.remission, s.n)
     return { level: lvl, n: s.n, remission: s.remission, lo, hi }
-  }), [variable])
+  }), [variable, usersByRegion])
+
+  const totalPatients = Object.keys(outcomesByPatient).length
 
   const maxRem = Math.max(...rows.map((r) => r.remission))
   const minRem = Math.min(...rows.map((r) => r.remission))
@@ -45,7 +84,8 @@ export default function Equity(): React.JSX.Element {
     <>
       <Card title="Equity stratifier — PROGRESS-Plus" accent={BRAND.green}>
         <p style={{ margin: '0 0 14px', fontSize: 13, color: TEXT.muted }}>
-          O&apos;Neill et al. 2014 — Vipimo {EQUITY_VARS.length} kwa stratification ya outcome ya msingi (PHQ-9 remission wiki 12). Data ya mfano; backend ya Supabase itaungwa baadaye.
+          O&apos;Neill et al. 2014 — Vipimo {EQUITY_VARS.length} kwa stratification ya outcome ya msingi (PHQ-9 remission wiki 12).
+          {' '}Live: <strong style={{ color: TEXT.body }}>{Object.values(usersByRegion).reduce((a, b) => a + b, 0)}</strong> watumiaji kwenye mikoa {Object.keys(usersByRegion).length}, {totalPatients} na outcomes.
         </p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {EQUITY_VARS.map((v) => (

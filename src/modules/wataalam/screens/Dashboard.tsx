@@ -9,6 +9,8 @@ import {
   loadSupervision,
 } from '../lib/storage'
 import { ArchitectureBadge } from '../../../components/ArchitectureBadge'
+import { subscribeTable } from '../../../lib/realtime'
+import { toast } from '../../../lib/notify'
 
 export default function Dashboard() {
   const [appts, setAppts] = useState<Appointment[]>(() => loadAppointments())
@@ -19,7 +21,20 @@ export default function Dashboard() {
     let mounted = true
     void loadAppointmentsAsync().then((rows) => { if (mounted) setAppts(rows) })
     void loadOutcomesAsync().then((rows) => { if (mounted) setOutcomes(rows) })
-    return () => { mounted = false }
+
+    // Realtime: any new appointment / outcome → refresh + ping the provider.
+    const offAppt = subscribeTable('tr_appointments', {}, (evt) => {
+      if (!mounted) return
+      void loadAppointmentsAsync().then((rows) => { if (mounted) setAppts(rows) })
+      if (evt.event === 'INSERT') toast('Miadi mpya imeingia', 'info')
+      else if (evt.event === 'UPDATE') toast('Miadi imebadilishwa', 'info')
+    })
+    const offOutcome = subscribeTable('tr_outcomes', {}, () => {
+      if (!mounted) return
+      void loadOutcomesAsync().then((rows) => { if (mounted) setOutcomes(rows) })
+    })
+
+    return () => { mounted = false; offAppt(); offOutcome() }
   }, [])
 
   const today = new Date().toDateString()

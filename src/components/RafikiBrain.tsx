@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
 import { CREAM, JEWEL, NEUTRAL, TZ_FLAG, hexToRgba } from '../lib/glass'
+import { ask as rafikiAsk } from '../lib/rafiki'
+import { db, hasBackend } from '../lib/db'
+import { getMeId } from '../lib/me'
 
 /**
  * RafikiBrain — the signature presence of TBHOS.
@@ -379,7 +382,7 @@ export function RafikiBrain() {
         </div>
       </div>
 
-      {open && <RafikiPlaceholderModal onClose={() => setOpen(false)} />}
+      {open && <RafikiChatModal onClose={() => setOpen(false)} />}
 
       {/* Keyframes */}
       <style>{`
@@ -409,6 +412,221 @@ export function RafikiBrain() {
   )
 }
 
+// ─── Chat modal — Rafiki conversation with tr_journal_entries persistence ────
+//
+// Each turn becomes one tr_journal_entries row, tagged 'rafiki:user' or
+// 'rafiki:assistant'. On open we load the most recent N rafiki-tagged rows so
+// the conversation survives reloads + cross-device sync. Local fallback uses
+// the db.ts localStorage shim (key 'tr:tr_journal_entries').
+
+const RAFIKI_TAG_PREFIX = 'rafiki:'
+const RAFIKI_TAG_USER = 'rafiki:user'
+const RAFIKI_TAG_ASSISTANT = 'rafiki:assistant'
+const HISTORY_LIMIT = 60
+
+interface ChatTurn {
+  id: string
+  who: 'user' | 'rafiki'
+  text: string
+  ts: number
+}
+
+async function loadRafikiHistory(): Promise<ChatTurn[]> {
+  try {
+    const userId = await getMeId()
+    // db.list filters by exact-match on scalar columns only; tag overlap is a
+    // pg array op, so we route through supabase directly when available, and
+    // fall back to scanning the LS shim otherwise.
+    if (hasBackend) {
+      const { supabase } = await import('../lib/supabase')
+      if (supabase) {
+        const { data } = await supabase
+          .from('tr_journal_entries')
+          .select('id, body, tags, created_at')
+          .eq('user_id', userId)
+          .overlaps('tags', [RAFIKI_TAG_USER, RAFIKI_TAG_ASSISTANT])
+          .order('created_at', { ascending: true })
+          .limit(HISTORY_LIMIT)
+        if (data) {
+          return data.map((r) => ({
+            id: r.id as string,
+            who: (r.tags as string[]).includes(RAFIKI_TAG_ASSISTANT) ? 'rafiki' : 'user',
+            text: r.body as string,
+            ts: r.created_at ? Date.parse(r.created_at as string) : Date.now(),
+          }))
+        }
+      }
+    }
+    // LocalStorage fallback — scan the shim used by db.ts.
+    const rows = await db.list('tr_journal_entries', { user_id: userId })
+    return rows
+      .filter((r) => (r.tags ?? []).some((t) => t.startsWith(RAFIKI_TAG_PREFIX)))
+      .slice(-HISTORY_LIMIT)
+      .map((r) => ({
+        id: r.id,
+        who: (r.tags ?? []).includes(RAFIKI_TAG_ASSISTANT) ? 'rafiki' : 'user',
+        text: r.body,
+        ts: r.created_at ? Date.parse(r.created_at) : Date.now(),
+      }))
+  } catch {
+    return []
+  }
+}
+
+async function persistTurn(turn: ChatTurn, mode = 'mwenza'): Promise<void> {
+  try {
+    const userId = await getMeId()
+    await db.insert('tr_journal_entries', {
+      id: turn.id,
+      user_id: userId,
+      body: turn.text,
+      tags: [turn.who === 'user' ? RAFIKI_TAG_USER : RAFIKI_TAG_ASSISTANT, `rafiki:mode:${mode}`],
+      created_at: new Date(turn.ts).toISOString(),
+    })
+  } catch { /* graceful — RLS / offline still has LS shim */ }
+}
+
+function RafikiChatModal({ onClose }: { onClose: () => void }) {
+  const [turns, setTurns] = useState<ChatTurn[]>([])
+  const [draft, setDraft] = useState('')
+  const [thinking, setThinking] = useState(false)
+  const scrollerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  useEffect(() => {
+    let mounted = true
+    void loadRafikiHistory().then((rows) => { if (mounted) setTurns(rows) })
+    return () => { mounted = false }
+  }, [])
+
+  useEffect(() => {
+    const el = scrollerRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [turns, thinking])
+
+  async function send(): Promise<void> {
+    const text = draft.trim()
+    if (!text || thinking) return
+    const userTurn: ChatTurn = { id: `u_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, who: 'user', text, ts: Date.now() }
+    setTurns((t) => [...t, userTurn])
+    setDraft('')
+    setThinking(true)
+    void persistTurn(userTurn)
+    try {
+      const ans = await rafikiAsk({ text })
+      const body = ans.text?.sw || ans.text?.en || '…'
+      const aiTurn: ChatTurn = { id: `a_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, who: 'rafiki', text: body, ts: Date.now() }
+      setTurns((t) => [...t, aiTurn])
+      void persistTurn(aiTurn)
+    } catch {
+      const aiTurn: ChatTurn = { id: `a_${Date.now()}`, who: 'rafiki', text: 'Niko nawe. Niambie tena polepole.', ts: Date.now() }
+      setTurns((t) => [...t, aiTurn])
+      void persistTurn(aiTurn)
+    } finally {
+      setThinking(false)
+    }
+  }
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Rafiki"
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 1100,
+        background: hexToRgba(NEUTRAL.ink, 0.42),
+        display: 'grid', placeItems: 'center',
+        animation: 'fadeIn 280ms cubic-bezier(.25,.46,.45,.94)',
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: 'min(560px, 94vw)',
+          height: 'min(680px, 88vh)',
+          display: 'flex', flexDirection: 'column',
+          borderRadius: 28,
+          background: CREAM.milk,
+          border: `1px solid ${hexToRgba(NEUTRAL.ink, 0.1)}`,
+          boxShadow: '0 30px 80px rgba(11,9,8,0.22)',
+          color: NEUTRAL.ink,
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{ padding: '20px 24px 12px', borderBottom: `1px solid ${hexToRgba(NEUTRAL.ink, 0.08)}` }}>
+          <div style={{ fontFamily: "'Georgia', serif", fontSize: 28, fontWeight: 800, color: JEWEL.tealMwenza, letterSpacing: '-0.4px' }}>Rafiki</div>
+          <div style={{ fontSize: 12, color: hexToRgba(NEUTRAL.ink, 0.65), marginTop: 2 }}>Rafiki wako wa polepole. Bonyeza Esc kufunga.</div>
+        </div>
+
+        <div ref={scrollerRef} style={{ flex: 1, overflowY: 'auto', padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {turns.length === 0 && !thinking && (
+            <div style={{ fontSize: 14, color: hexToRgba(NEUTRAL.ink, 0.6), textAlign: 'center', padding: '40px 8px' }}>
+              Niko hapa. Andika lolote — sina haraka.
+            </div>
+          )}
+          {turns.map((t) => (
+            <div key={t.id} style={{
+              alignSelf: t.who === 'user' ? 'flex-end' : 'flex-start',
+              maxWidth: '82%',
+              padding: '10px 14px',
+              borderRadius: t.who === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+              background: t.who === 'user' ? JEWEL.tealMwenza : hexToRgba(NEUTRAL.ink, 0.05),
+              color: t.who === 'user' ? CREAM.milk : NEUTRAL.ink,
+              fontSize: 14, lineHeight: 1.5,
+              whiteSpace: 'pre-wrap',
+            }}>
+              {t.text}
+            </div>
+          ))}
+          {thinking && (
+            <div style={{ alignSelf: 'flex-start', fontSize: 13, color: hexToRgba(NEUTRAL.ink, 0.5), fontStyle: 'normal' }}>Rafiki anasikiliza…</div>
+          )}
+        </div>
+
+        <div style={{ padding: '12px 16px 16px', borderTop: `1px solid ${hexToRgba(NEUTRAL.ink, 0.08)}`, display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void send() }
+            }}
+            placeholder="Andika kwa Kiswahili au Kiingereza…"
+            rows={2}
+            style={{
+              flex: 1, resize: 'none', borderRadius: 14,
+              padding: '10px 12px', fontSize: 14, fontFamily: 'inherit',
+              border: `1px solid ${hexToRgba(NEUTRAL.ink, 0.15)}`,
+              background: '#FAF5E5', color: NEUTRAL.ink,
+            }}
+            aria-label="Ujumbe kwa Rafiki"
+          />
+          <button
+            onClick={() => void send()}
+            disabled={!draft.trim() || thinking}
+            style={{
+              background: JEWEL.tealMwenza, color: CREAM.milk,
+              border: 'none', borderRadius: 999,
+              padding: '10px 18px', fontSize: 13, fontWeight: 700,
+              cursor: draft.trim() && !thinking ? 'pointer' : 'not-allowed',
+              opacity: draft.trim() && !thinking ? 1 : 0.55,
+            }}
+          >
+            Tuma
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Legacy placeholder kept exported for any callers expecting it.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function RafikiPlaceholderModal({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }

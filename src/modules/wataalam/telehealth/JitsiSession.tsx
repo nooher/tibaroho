@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { JEWEL, TYPE, TEXT, hexToRgba } from '../../../lib/glass'
+import { db, hasBackend } from '../../../lib/db'
 
 interface JitsiApiLike {
   dispose: () => void
@@ -42,6 +43,8 @@ export default function JitsiSession() {
 
   const allChecked = CHECKLIST.every((c) => checked[c.key])
   const NOTES_KEY = `tumaini.wataalam.session_notes.${roomId ?? 'room'}`
+  // tr_telehealth_sessions row id, set once we open the session.
+  const sessionRowRef = useRef<string | null>(null)
 
   useEffect(() => {
     try { const v = localStorage.getItem(NOTES_KEY); if (v) setNotes(v) } catch { /* ignore */ }
@@ -55,6 +58,46 @@ export default function JitsiSession() {
     }, 2000)
     return () => clearInterval(t)
   }, [started, notes, NOTES_KEY])
+
+  // Start / end tr_telehealth_sessions row when the call lifecycle changes.
+  useEffect(() => {
+    if (!started) return
+    if (!hasBackend) return
+    let cancelled = false
+    void (async () => {
+      const appointmentId = roomId ?? ''
+      // Generate a fresh random room token (uuid).
+      const room_token = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
+        ? crypto.randomUUID()
+        : `tk-${Date.now()}-${Math.random().toString(36).slice(2)}`
+      try {
+        const row = await db.insert('tr_telehealth_sessions', {
+          appointment_id: appointmentId,
+          room_token,
+          started_at: new Date().toISOString(),
+          recording_consent: recording,
+        })
+        if (!cancelled) sessionRowRef.current = row.id
+      } catch { /* graceful — RLS or appointment_id not in DB */ }
+    })()
+    return () => {
+      cancelled = true
+      const id = sessionRowRef.current
+      if (!id) return
+      void (async () => {
+        try {
+          await db.update('tr_telehealth_sessions', id, {
+            ended_at: new Date().toISOString(),
+            recording_consent: recording,
+          })
+        } catch { /* graceful */ }
+      })()
+      sessionRowRef.current = null
+    }
+    // recording_consent is captured at start and on unmount; we intentionally
+    // don't re-create the row when the toggle flips mid-call.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [started, roomId])
 
   useEffect(() => {
     if (!started || !containerRef.current) return

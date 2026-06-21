@@ -1,6 +1,9 @@
 import type React from 'react'
+import { useEffect, useState } from 'react'
 import { Card } from '../../_shared/Layout'
 import { BRAND, CREAM, NEUTRAL, TEXT, hexToRgba } from '../../../lib/glass'
+import { list } from '../../../lib/db'
+import type { TrAuditLog } from '../../../lib/db'
 
 const ink = (a = 1) => hexToRgba(NEUTRAL.ink, a)
 
@@ -108,7 +111,48 @@ function PaperCard({ p }: { p: Paper }): React.JSX.Element {
   )
 }
 
+interface PaperUpdate { id: string; action: string; status?: string; note?: string; ts: string }
+
 export default function PaperPipeline(): React.JSX.Element {
+  const [updates, setUpdates] = useState<PaperUpdate[]>([])
+  const [livePapers, setLivePapers] = useState<Paper[]>(PAPERS)
+
+  useEffect(() => {
+    let mounted = true
+    void (async () => {
+      try {
+        const rows = (await list('tr_audit_log', { entity: 'paper' })) as TrAuditLog[]
+        const sorted = rows.sort((a, b) => (a.at ?? '') > (b.at ?? '') ? -1 : 1)
+        if (mounted) {
+          setUpdates(sorted.slice(0, 20).map((r) => {
+            const m = (r.meta ?? {}) as { status?: string; note?: string }
+            return {
+              id: r.entity_id ?? r.id,
+              action: r.action,
+              status: m.status,
+              note: m.note,
+              ts: r.at ?? '',
+            }
+          }))
+
+          // Overlay backend status onto the seed papers when entity_id matches.
+          const latestStatus = new Map<string, PaperStatus>()
+          for (const r of sorted) {
+            const m = (r.meta ?? {}) as { status?: PaperStatus }
+            if (r.entity_id && m.status && !latestStatus.has(r.entity_id)) {
+              latestStatus.set(r.entity_id, m.status)
+            }
+          }
+          setLivePapers(PAPERS.map((p) => {
+            const s = latestStatus.get(String(p.num)) ?? latestStatus.get(`paper-${p.num}`)
+            return s ? { ...p, status: s } : p
+          }))
+        }
+      } catch { /* offline */ }
+    })()
+    return () => { mounted = false }
+  }, [])
+
   return (
     <>
       <Card title="3-paper packaging — PhD dissertation arc" accent={BRAND.green}>
@@ -116,7 +160,20 @@ export default function PaperPipeline(): React.JSX.Element {
           Karatasi tatu zinazokamilisha dissertation: Formative (Paper 1), Effectiveness (Paper 2), RE-AIM + Cost-effectiveness + Scale-up (Paper 3). Kila moja ina hali, jarida lengwa, waandishi, na rasimu ya matokeo muhimu.
         </p>
       </Card>
-      {PAPERS.map((p) => <PaperCard key={p.num} p={p} />)}
+      {livePapers.map((p) => <PaperCard key={p.num} p={p} />)}
+
+      {updates.length > 0 ? (
+        <Card title="Matukio ya hivi karibuni" accent={NEUTRAL.ink}>
+          <ul style={{ paddingLeft: 18, margin: 0, lineHeight: 1.7, fontSize: 13, color: TEXT.body }}>
+            {updates.map((u, i) => (
+              <li key={i}>
+                <span style={{ color: TEXT.muted }}>{u.ts.slice(0, 16).replace('T', ' ')}</span>
+                {' · '}{u.action}{u.status ? ` → ${u.status}` : ''}{u.note ? ` · ${u.note}` : ''}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
     </>
   )
 }
