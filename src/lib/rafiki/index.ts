@@ -88,3 +88,7 @@ export { CSSRS_ITEMS, SAFETY_PLAN_STEPS_SW, SAFETY_PLAN_STEPS_EN } from './exper
 export { PHQ9, GAD7, AUDIT, CSSRS_URGENT_FROM } from './experts/triage';
 export { MH_REG_2016, findRegulationAnswer, askMHRegulation } from './kb/mh_regulations_2016';
 export type { MHRegEntry } from './kb/mh_regulations_2016';
+export { TUMAINI_FAQ, findFaqAnswer, askFaq } from './kb/tumaini_faq';
+export type { FaqEntry } from './kb/tumaini_faq';
+export { TZ_MH_ACT_2008, findActAnswer, askMHAct2008 } from './kb/tz_mental_health_act_2008';
+export type { ActEntry } from './kb/tz_mental_health_act_2008';

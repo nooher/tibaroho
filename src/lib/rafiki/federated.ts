@@ -20,6 +20,9 @@
 // civic — gets a real sovereign answer, no external LLM, no network.
 
 import { askAkili, type AkiliAnswer } from '../akili';
+import { askMHRegulation } from './kb/mh_regulations_2016';
+import { askMHAct2008 } from './kb/tz_mental_health_act_2008';
+import { askFaq } from './kb/tumaini_faq';
 
 export interface FederatedContext {
   faith?: 'none' | 'christian' | 'muslim' | 'traditional' | 'multi';
@@ -81,6 +84,43 @@ export async function askFederated(
   query: string,
   ctx: FederatedContext = {},
 ): Promise<FederatedReply> {
+  // Tanzania-specific direct hits FIRST — curated, citation-backed sources
+  // beat the umbrella router for clinically + legally sensitive questions.
+  const reg = askMHRegulation(query);
+  if (reg) {
+    return {
+      ack: 'Nakusikia.',
+      respond: reg.respond,
+      next_step: reg.next_step,
+      source: reg.citation,
+      domain: reg.domain,
+      confidence: 'high',
+    };
+  }
+  const act = askMHAct2008(query);
+  if (act) {
+    return {
+      ack: 'Nakusikia.',
+      respond: act.respond,
+      next_step: act.next_step,
+      source: act.citation,
+      domain: act.domain,
+      confidence: 'high',
+    };
+  }
+  const faq = askFaq(query);
+  if (faq) {
+    return {
+      ack: 'Nakusikia.',
+      respond: faq.respond,
+      next_step: faq.next_step,
+      source: faq.citation,
+      domain: faq.domain,
+      confidence: 'medium',
+    };
+  }
+
+  // Otherwise federate to the umbrella Akili router.
   const label = labelFromQuery(query);
   try {
     const a = await askAkili({ text: query, lang: ctx.lang ?? 'sw' });
