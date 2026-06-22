@@ -55,6 +55,7 @@ export default function CompleteSession() {
   const [phqFollowup, setPhqFollowup] = useState('')
   const [submitClaim, setSubmitClaim] = useState(false)
   const [amount, setAmount] = useState('50000')
+  const [patientSummary, setPatientSummary] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
 
@@ -108,8 +109,19 @@ export default function CompleteSession() {
         },
       } as never)
 
-      // 2) Status update
-      await db.update('tr_appointments', appt.id, { status: 'completed' } as never)
+      // 2) Status update + patient-facing summary persisted on tr_appointments.notes
+      //    Preserve any existing provider_slug marker (Book.tsx writes that).
+      let mergedNotes: string | undefined
+      const existing = appt.notes ?? ''
+      const slugMatch = /provider_slug=([^;\s]+)/.exec(existing)
+      const parts: string[] = []
+      if (slugMatch) parts.push(`provider_slug=${slugMatch[1]}`)
+      if (patientSummary.trim()) parts.push(`summary=${patientSummary.trim().replace(/\n+/g, ' ')}`)
+      if (parts.length) mergedNotes = parts.join('; ')
+      await db.update('tr_appointments', appt.id, {
+        status: 'completed',
+        ...(mergedNotes ? { notes: mergedNotes } : {}),
+      } as never)
 
       // 3) Optional follow-up PHQ-9 outcome
       const score = phqFollowup.trim() ? parseInt(phqFollowup, 10) : NaN
@@ -244,6 +256,24 @@ export default function CompleteSession() {
               />
             </div>
           )}
+
+          <div>
+            <FieldLabel>{t('wataalam.complete.patient_summary', 'Muhtasari kwa mteja (anaweza kuusoma kwenye Mimi)')}</FieldLabel>
+            <textarea
+              rows={3}
+              value={patientSummary}
+              onChange={e => setPatientSummary(e.target.value)}
+              placeholder={t('wataalam.complete.patient_summary_ph', 'Mfano: Tumeongelea sonona ya kati. Endelea na PHQ-9 wiki ijayo. Anza zoezi la kupumua dakika 5 kila asubuhi.')}
+              style={{
+                width: '100%', background: CREAM.milk, color: TEXT.body,
+                border: '1px solid rgba(11,9,8,0.22)', borderRadius: RADII.card,
+                padding: 12, fontFamily: TYPE.serif, fontSize: 14, resize: 'vertical', outline: 'none',
+              }}
+            />
+            <p style={{ fontSize: 11, color: TEXT.muted, marginTop: 4 }}>
+              {t('wataalam.complete.patient_summary_hint', 'Hii inahifadhiwa kwenye miadi na inaonekana kwa mteja. SOAP note kamili haionekani — ni ya wahudumu tu.')}
+            </p>
+          </div>
 
           {err && (
             <div role="alert" style={{

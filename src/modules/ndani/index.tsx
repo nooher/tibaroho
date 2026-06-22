@@ -160,6 +160,10 @@ function Verify(): React.JSX.Element {
       if (provUp.error) { setError(provUp.error.message); return }
     }
     void audit(`provider.${status}`, 'tr_providers', row.providerId, { credentialId: row.credentialId })
+    // Fire-and-forget email notification — never block UI on it.
+    void supabase.functions.invoke('notify-provider-decision', {
+      body: { providerId: row.providerId, decision: status },
+    }).catch(() => { /* best-effort notification */ })
     setRows((rs) => rs.map((r) => r.credentialId === row.credentialId ? { ...r, status } : r))
   }
 

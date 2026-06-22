@@ -1,3 +1,4 @@
+import type React from 'react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PageShell, Card } from '../components/Shell'
@@ -6,6 +7,7 @@ import { useLang } from '../../../lib/i18n/Provider'
 import { db } from '../../../lib/db'
 import type { TrAppointment } from '../../../lib/db'
 import { getMeId } from '../../../lib/me'
+import { supabase } from '../../../lib/supabase'
 
 interface Booking {
   id: string
@@ -13,6 +15,9 @@ interface Booking {
   date: string
   slot: string
   ts: number
+  status?: string
+  modality?: string
+  summary?: string
 }
 
 interface Caregiver {
@@ -38,12 +43,15 @@ function appointmentToBooking(row: TrAppointment): Booking {
   const date = d.toISOString().slice(0, 10)
   const slot = d.toTimeString().slice(0, 5)
   let providerId = row.provider_id
-  // notes may carry the original slug from Book.tsx as "provider_slug=<id>"
+  let summary: string | undefined
+  // notes may carry "provider_slug=<id>; summary=<text>"
   if (row.notes) {
-    const m = /provider_slug=([^;\s]+)/.exec(row.notes)
-    if (m && m[1]) providerId = m[1]
+    const ms = /provider_slug=([^;\s]+)/.exec(row.notes)
+    if (ms && ms[1]) providerId = ms[1]
+    const mu = /summary=(.+?)(?:;|$)/.exec(row.notes)
+    if (mu && mu[1]) summary = mu[1].trim()
   }
-  return { id: row.id, providerId, date, slot, ts: +d }
+  return { id: row.id, providerId, date, slot, ts: +d, status: row.status, modality: row.modality, summary }
 }
 
 async function loadBookingsAsync(): Promise<Booking[]> {
@@ -145,12 +153,7 @@ export default function MyCalendar() {
           ) : (
             <div style={{ display: 'grid', gap: 10 }}>
               {bookings.map((b) => (
-                <Card key={b.id}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <strong style={{ fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>{b.providerId}</strong>
-                    <span style={{ color: JEWEL.goldHope, fontWeight: 700 }}>{b.date} · {b.slot}</span>
-                  </div>
-                </Card>
+                <BookingCard key={b.id} booking={b} t={t} />
               ))}
             </div>
           )}
@@ -176,5 +179,112 @@ export default function MyCalendar() {
         </Card>
       )}
     </PageShell>
+  )
+}
+
+interface BookingCardProps {
+  booking: Booking
+  t: (k: string, fb: string) => string
+}
+
+function BookingCard({ booking, t }: BookingCardProps): React.JSX.Element {
+  const [showSummary, setShowSummary] = useState(false)
+  const [joining, setJoining] = useState(false)
+  const [joinErr, setJoinErr] = useState<string | null>(null)
+  const now = Date.now()
+  const minsToStart = Math.round((booking.ts - now) / 60000)
+  // Join is available 15 minutes before until 90 minutes after start
+  const joinable = booking.modality === 'virtual'
+    && booking.status !== 'completed' && booking.status !== 'cancelled'
+    && minsToStart <= 15 && minsToStart >= -90
+
+  const isPast = booking.status === 'completed' || minsToStart < -90
+  const statusLabel = (() => {
+    if (booking.status === 'completed') return t('mimi.cal.status.completed', 'Imekamilika')
+    if (booking.status === 'cancelled') return t('mimi.cal.status.cancelled', 'Imeghairiwa')
+    if (booking.status === 'confirmed') return t('mimi.cal.status.confirmed', 'Imethibitishwa')
+    if (booking.status === 'requested') return t('mimi.cal.status.requested', 'Inasubiri uthibitisho')
+    return booking.status ?? ''
+  })()
+
+  async function joinTelehealth(): Promise<void> {
+    if (!supabase) {
+      setJoinErr(t('mimi.cal.join_err.no_backend', 'Backend bado haijasanidiwa'))
+      return
+    }
+    setJoining(true)
+    setJoinErr(null)
+    try {
+      const { data, error } = await supabase.functions.invoke('telehealth-token', {
+        body: { appointmentId: booking.id },
+      })
+      if (error) throw error
+      const url = (data as { url?: string })?.url
+      if (!url) throw new Error('No URL returned')
+      window.open(url, '_blank', 'noopener,noreferrer')
+    } catch (e) {
+      setJoinErr(e instanceof Error ? e.message : String(e))
+    } finally {
+      setJoining(false)
+    }
+  }
+
+  return (
+    <Card>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+        <div>
+          <strong style={{ fontFamily: TYPE.serif, color: JEWEL.tealDeep, display: 'block' }}>{booking.providerId}</strong>
+          {statusLabel && (
+            <span style={{ fontSize: 11, color: TEXT.muted, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+              {statusLabel}
+              {booking.modality === 'virtual' && <> · {t('mimi.cal.virtual_tag', 'Mtandaoni')}</>}
+            </span>
+          )}
+        </div>
+        <span style={{ color: JEWEL.goldHope, fontWeight: 700 }}>{booking.date} · {booking.slot}</span>
+      </div>
+
+      {joinable && (
+        <div style={{ marginTop: 10 }}>
+          <button
+            onClick={() => void joinTelehealth()}
+            disabled={joining}
+            style={{
+              padding: '8px 16px', borderRadius: 999, background: JEWEL.tealMwenza, color: TEXT.onJewel,
+              border: 'none', fontWeight: 700, fontSize: 13, cursor: joining ? 'wait' : 'pointer',
+            }}
+          >
+            {joining ? t('mimi.cal.joining', 'Inaunganisha…') : t('mimi.cal.join', 'Jiunge kwenye telehealth')}
+          </button>
+          {joinErr && <span style={{ marginLeft: 10, color: '#8C2222', fontSize: 12 }}>{joinErr}</span>}
+        </div>
+      )}
+
+      {isPast && booking.summary && (
+        <div style={{ marginTop: 10 }}>
+          <button
+            onClick={() => setShowSummary((s) => !s)}
+            style={{
+              background: 'none', border: 'none', color: JEWEL.tealMwenza, fontWeight: 700, fontSize: 12,
+              cursor: 'pointer', padding: 0, textDecoration: 'underline',
+            }}
+          >
+            {showSummary
+              ? t('mimi.cal.hide_summary', 'Ficha muhtasari wa daktari')
+              : t('mimi.cal.show_summary', 'Onyesha muhtasari wa daktari')}
+          </button>
+          {showSummary && (
+            <p style={{
+              marginTop: 8, padding: 12, borderRadius: 10,
+              background: hexToRgba(JEWEL.tealMwenza, 0.07),
+              borderLeft: `3px solid ${JEWEL.tealMwenza}`,
+              fontSize: 13, color: TEXT.body, lineHeight: 1.55,
+            }}>
+              {booking.summary}
+            </p>
+          )}
+        </div>
+      )}
+    </Card>
   )
 }
