@@ -1,9 +1,11 @@
 import type React from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { Card, ModuleShell, Table, Td, type SubNav } from '../_shared/Layout'
 import { JEWEL, RADII, TEXT } from '../../lib/glass'
 import { useLang } from '../../lib/i18n/Provider'
+import { hasBackend, supabase } from '../../lib/supabase'
+import { audit } from '../../lib/db'
 import CrisisMonitor from './screens/Crisis'
 import FounderConsole from './screens/Founder'
 import Providers from './screens/Providers'
@@ -55,24 +57,139 @@ function Overview(): React.JSX.Element {
   )
 }
 
+interface LiveVerifyRow {
+  credentialId: string
+  providerId: string
+  name: string
+  kind: string
+  licenseAuthority: string
+  licenseRef: string
+  submitted: string
+  status: 'pending' | 'verified' | 'rejected' | 'expired'
+  source: 'db' | 'seed'
+}
+
 function Verify(): React.JSX.Element {
   const { t } = useLang()
-  const [rows, setRows] = useState(VERIFY_INITIAL)
-  const act = (id: string, status: 'verified' | 'rejected') => setRows(rows.map((r) => r.id === id ? { ...r, status } : r))
+  const [rows, setRows] = useState<LiveVerifyRow[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [source, setSource] = useState<'db' | 'seed'>('seed')
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      if (!hasBackend || !supabase) {
+        if (cancelled) return
+        setRows(VERIFY_INITIAL.map((r) => ({
+          credentialId: r.id,
+          providerId: r.id,
+          name: r.name,
+          kind: r.kind,
+          licenseAuthority: '—',
+          licenseRef: '—',
+          submitted: r.submitted,
+          status: r.status,
+          source: 'seed',
+        })))
+        setLoading(false)
+        return
+      }
+      const { data, error: e } = await supabase
+        .from('tr_provider_credentials')
+        .select('id, provider_id, kind, status, document_url, issued_by, reviewed_at, tr_providers!inner(id, kind, user_id, tr_users!inner(display_name)), created_at:reviewed_at')
+        .in('status', ['pending'])
+        .order('reviewed_at', { ascending: false, nullsFirst: true })
+        .limit(100)
+      if (cancelled) return
+      if (e) {
+        setError(e.message)
+        setLoading(false)
+        return
+      }
+      const live = ((data ?? []) as unknown as Array<{
+        id: string
+        provider_id: string
+        status: 'pending' | 'verified' | 'rejected' | 'expired'
+        document_url: string | null
+        issued_by: string | null
+        reviewed_at: string | null
+        tr_providers: { id: string; kind: string; tr_users: { display_name: string | null } | null } | null
+      }>).map<LiveVerifyRow>((r) => ({
+        credentialId: r.id,
+        providerId: r.provider_id,
+        name: r.tr_providers?.tr_users?.display_name ?? '—',
+        kind: r.tr_providers?.kind ?? '—',
+        licenseAuthority: r.issued_by ?? '—',
+        licenseRef: r.document_url ?? '—',
+        submitted: r.reviewed_at?.slice(0, 10) ?? '—',
+        status: r.status,
+        source: 'db',
+      }))
+      if (live.length === 0) {
+        setRows(VERIFY_INITIAL.map((r) => ({
+          credentialId: r.id, providerId: r.id, name: r.name, kind: r.kind,
+          licenseAuthority: '—', licenseRef: '—', submitted: r.submitted,
+          status: r.status, source: 'seed',
+        })))
+        setSource('seed')
+      } else {
+        setRows(live)
+        setSource('db')
+      }
+      setLoading(false)
+    })()
+    return () => { cancelled = true }
+  }, [])
+
+  const act = async (row: LiveVerifyRow, status: 'verified' | 'rejected'): Promise<void> => {
+    if (row.source === 'seed' || !hasBackend || !supabase) {
+      setRows((rs) => rs.map((r) => r.credentialId === row.credentialId ? { ...r, status } : r))
+      return
+    }
+    const credUp = await supabase
+      .from('tr_provider_credentials')
+      .update({ status, reviewed_at: new Date().toISOString() })
+      .eq('id', row.credentialId)
+    if (credUp.error) { setError(credUp.error.message); return }
+    if (status === 'verified') {
+      const provUp = await supabase
+        .from('tr_providers')
+        .update({ verified: true })
+        .eq('id', row.providerId)
+      if (provUp.error) { setError(provUp.error.message); return }
+    }
+    void audit(`provider.${status}`, 'tr_providers', row.providerId, { credentialId: row.credentialId })
+    setRows((rs) => rs.map((r) => r.credentialId === row.credentialId ? { ...r, status } : r))
+  }
+
   return (
     <Card title={t('ndani.verify.title', 'Foleni ya kuthibitisha wahudumu')}>
-      <Table headers={[t('ndani.verify.col.name', 'Jina'), t('ndani.verify.col.kind', 'Aina'), t('ndani.verify.col.date', 'Tarehe'), t('ndani.verify.col.status', 'Hali'), t('ndani.verify.col.action', 'Hatua')]}>
+      <div style={{ marginBottom: 10, fontSize: 12, color: TEXT.muted }}>
+        {loading
+          ? t('ndani.verify.loading', 'Inapakia maombi…')
+          : `${rows.filter((r) => r.status === 'pending').length} ${t('ndani.verify.pending_count', 'yanasubiri')}`}
+        {source === 'seed' && !loading && (
+          <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 999, background: 'rgba(0,0,0,0.05)' }}>
+            {t('ndani.verify.demo_data', 'data ya mfano — hakuna pending DB')}
+          </span>
+        )}
+        {error && <span style={{ color: '#8C2222', marginLeft: 8 }}>· {error}</span>}
+      </div>
+      <Table headers={[t('ndani.verify.col.name', 'Jina'), t('ndani.verify.col.kind', 'Aina'), t('ndani.verify.col.authority', 'Mamlaka'), t('ndani.verify.col.ref', 'Cheti #'), t('ndani.verify.col.date', 'Tarehe'), t('ndani.verify.col.status', 'Hali'), t('ndani.verify.col.action', 'Hatua')]}>
         {rows.map((r) => (
-          <tr key={r.id}>
+          <tr key={r.credentialId}>
             <Td><strong>{r.name}</strong></Td>
             <Td>{r.kind}</Td>
+            <Td style={{ color: TEXT.muted }}>{r.licenseAuthority}</Td>
+            <Td><code style={{ fontSize: 11 }}>{r.licenseRef}</code></Td>
             <Td>{r.submitted}</Td>
             <Td>{r.status}</Td>
             <Td>
               {r.status === 'pending' ? (
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <button onClick={() => act(r.id, 'verified')} style={{ ...btnStyle, background: JEWEL.tealRoho }}>{t('ndani.verify.approve', 'Thibitisha')}</button>
-                  <button onClick={() => act(r.id, 'rejected')} style={{ ...btnStyle, background: JEWEL.maroonCrisis }}>{t('ndani.verify.reject', 'Kataa')}</button>
+                  <button onClick={() => void act(r, 'verified')} style={{ ...btnStyle, background: JEWEL.tealRoho }}>{t('ndani.verify.approve', 'Thibitisha')}</button>
+                  <button onClick={() => void act(r, 'rejected')} style={{ ...btnStyle, background: JEWEL.maroonCrisis }}>{t('ndani.verify.reject', 'Kataa')}</button>
                 </div>
               ) : '—'}
             </Td>
