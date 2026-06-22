@@ -5,6 +5,7 @@ import type { KaribuLang, KaribuLiteracy, KaribuGender, KaribuProfile, KaribuSte
 import { cardStyle, chipStyle, inputStyle, labelStyle, primaryBtn, subStyle, titleStyle } from '../lib/ui';
 import { MicButton } from '../../../components/MicButton';
 import { useLang } from '../../../lib/i18n/Provider';
+import { BRAND, CREAM, NEUTRAL, hexToRgba } from '../../../lib/glass';
 
 const REGIONS = [
   'Arusha', 'Dar es Salaam', 'Dodoma', 'Geita', 'Iringa', 'Kagera', 'Katavi', 'Kigoma',
@@ -40,14 +41,19 @@ interface Props {
 }
 
 export default function Step1Watajulianaye({ profile, update, next }: Props) {
-  const { t } = useLang();
+  const { t, lang, setLang } = useLang();
   const s = profile.step1;
   const [name, setName] = useState(s?.name ?? '');
   const [age, setAge] = useState<number>(s?.age ?? 25);
   const [gender, setGender] = useState<KaribuGender>(s?.gender ?? 'sitakipa');
   const [region, setRegion] = useState<string>(s?.region ?? 'Dar es Salaam');
-  const [language, setLanguage] = useState<KaribuLang>(s?.language ?? 'sw');
+  const [language, setLanguage] = useState<KaribuLang>(s?.language ?? (lang === 'en' ? 'en' : 'sw'));
   const [literacy, setLiteracy] = useState<KaribuLiteracy>(s?.literacy ?? 'kusoma_kwa_urahisi');
+
+  const pickUiLang = (l: 'sw' | 'en'): void => {
+    setLanguage(l);
+    setLang(l);
+  };
 
   const submit = (): void => {
     const step1: KaribuStep1 = { name: name.trim() || 'Rafiki', age, gender, region, language, literacy };
@@ -57,6 +63,50 @@ export default function Step1Watajulianaye({ profile, update, next }: Props) {
 
   return (
     <div style={cardStyle}>
+      {/* Prominent language pick — drives both profile.step1.language AND the UI catalog */}
+      <div
+        style={{
+          background: hexToRgba(BRAND.creamOrange, 0.08),
+          border: `1px solid ${hexToRgba(NEUTRAL.ink, 0.10)}`,
+          borderRadius: 14,
+          padding: '12px 14px',
+          marginBottom: 16,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          flexWrap: 'wrap',
+        }}
+      >
+        <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', color: NEUTRAL.ink, textTransform: 'uppercase' }}>
+          {t('karibu.step1.lang_pick', 'Lugha · Language')}
+        </span>
+        {(['sw', 'en'] as const).map((l) => {
+          const active = lang === l;
+          return (
+            <button
+              key={l}
+              type="button"
+              onClick={() => pickUiLang(l)}
+              aria-pressed={active}
+              style={{
+                padding: '8px 18px',
+                borderRadius: 999,
+                border: `1px solid ${active ? BRAND.green : hexToRgba(NEUTRAL.ink, 0.18)}`,
+                background: active ? BRAND.green : CREAM.milk,
+                color: active ? CREAM.milk : NEUTRAL.ink,
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: 'pointer',
+                letterSpacing: '0.02em',
+                transition: 'all 160ms',
+              }}
+            >
+              {l === 'sw' ? 'Kiswahili' : 'English'}
+            </button>
+          );
+        })}
+      </div>
+
       <h2 style={titleStyle}>{t('karibu.step1.heading', 'Tujulianaye')}</h2>
       <p style={subStyle}>{t('karibu.step1.sub', 'Tukufahamu kidogo — unaweza kutumia jina la utani. Maelezo yako yanabaki kwenye simu yako.')}</p>
 

@@ -398,6 +398,23 @@ export default function WelcomeHome() {
             ))}
           </div>
 
+          <div style={{ textAlign: 'center', marginTop: 8 }}>
+            <a
+              href="/sajili-kama-mtaalam"
+              onClick={(e) => { e.preventDefault(); nav('/sajili-kama-mtaalam') }}
+              style={{
+                fontSize: 12,
+                color: BRAND.green,
+                textDecoration: 'none',
+                fontWeight: 600,
+                borderBottom: `1px solid ${hexToRgba(NEUTRAL.ink, 0.18)}`,
+                paddingBottom: 2,
+              }}
+            >
+              {t('welcome.provider_signup', 'Wewe ni mtaalam? Jisajili hapa →')}
+            </a>
+          </div>
+
           <footer
             style={{
               marginTop: 4,

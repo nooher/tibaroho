@@ -18,6 +18,7 @@ const CHROMELESS_PATHS = new Set(['/', '/chagua-akaunti'])
 const WelcomeHome  = lazy(() => import('./modules/WelcomeHome'))
 const Landing      = lazy(() => import('./modules/Landing'))
 const Karibu       = lazy(() => import('./modules/karibu'))
+const SajiliMtaalam= lazy(() => import('./modules/sajili-mtaalam'))
 const Trackers     = lazy(() => import('./modules/Mimi/trackers'))
 const Mimi         = lazy(() => import('./modules/Mimi'))
 const Rafiki       = lazy(() => import('./modules/rafiki'))
@@ -95,6 +96,7 @@ export default function App() {
             <Route path="/press" element={<Press />} />
             <Route path="/investor" element={<Investor />} />
             <Route path="/karibu" element={<Karibu />} />
+            <Route path="/sajili-kama-mtaalam" element={<SajiliMtaalam />} />
             <Route path="/mimi/trackers" element={<Trackers />} />
             <Route path="/mimi/*" element={<Mimi />} />
             <Route path="/rafiki/*" element={<Rafiki />} />
