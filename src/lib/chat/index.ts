@@ -67,7 +67,7 @@ function writeMessages(items: ChatMessage[]): void {
 function seedChannels(): ChatChannel[] {
   const seeded: ChatChannel[] = [
     { id: 'ch_provider_1', kind: 'patient_provider', participants: ['me', 'dr_amina'], unread: 0, title_sw: 'Dkt. Amina (Mtaalamu wako)' },
-    { id: 'ch_group_1', kind: 'peer_group', participants: ['me', 'rafiki_1', 'rafiki_2'], unread: 0, title_sw: 'Kikundi cha Tumaini' },
+    { id: 'ch_group_1', kind: 'peer_group', participants: ['me', 'rafiki_1', 'rafiki_2'], unread: 0, title_sw: 'Kikundi cha TABHOS' },
     { id: 'ch_mwenza_1', kind: 'mwenza', participants: ['me', 'mwenza'], unread: 0, title_sw: 'Rafiki wako' },
   ]
   try {

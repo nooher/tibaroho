@@ -210,7 +210,7 @@ export default function Onboarding() {
               onChange={(e) => update('feeTzs', Number(e.target.value))}
             />
             <p style={{ fontSize: 12, color: TEXT.muted, marginTop: 8 }}>
-              {t('wataalam.onboarding.fee_note', 'Ada hii itakuwa malipo ya moja kwa moja kwako. TBHOS haichukui asilimia kutoka kwako wala kwa mteja.')}
+              {t('wataalam.onboarding.fee_note', 'Ada hii itakuwa malipo ya moja kwa moja kwako. TABHOS haichukui asilimia kutoka kwako wala kwa mteja.')}
             </p>
           </div>
         )}
@@ -315,7 +315,7 @@ export default function Onboarding() {
       </Card>
 
       <p style={{ marginTop: 18, color: TEXT.muted, fontSize: 12, textAlign: 'center' }}>
-        {t('wataalam.onboarding.free_note', 'TBHOS ni bure milele kwa wataalamu na wateja. Sera yetu ya uhakika.')}
+        {t('wataalam.onboarding.free_note', 'TABHOS ni bure milele kwa wataalamu na wateja. Sera yetu ya uhakika.')}
       </p>
     </div>
   )

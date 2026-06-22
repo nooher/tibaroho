@@ -70,7 +70,7 @@ export default function Step7Malengo({ profile, update, next, back }: Props) {
       <div style={{ marginTop: 18, padding: 12, background: '#F4EAC9', borderRadius: 12 }}>
         <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 14, color: JEWEL.tealMwenza, fontWeight: 600 }}>
           <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} style={{ marginTop: 2 }} />
-          {t('karibu.step7.consent', 'Nakubali Tumaini iandae mpango wa huduma kulingana na maelezo yangu (siyo utambuzi wa kimatibabu).')}
+          {t('karibu.step7.consent', 'Nakubali TABHOS iandae mpango wa huduma kulingana na maelezo yangu (siyo utambuzi wa kimatibabu).')}
         </label>
       </div>
 

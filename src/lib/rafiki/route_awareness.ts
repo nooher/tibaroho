@@ -49,8 +49,8 @@ export const ROUTE_PREFERENCES: RoutePreference[] = [
   },
   {
     route: /^\/$/,
-    suggest_sw: 'Karibu Tumaini. Niambie ungependa kuanzia wapi.',
-    suggest_en: 'Welcome to Tumaini. Tell me where you would like to start.',
+    suggest_sw: 'Karibu TABHOS. Niambie ungependa kuanzia wapi.',
+    suggest_en: 'Welcome to TABHOS. Tell me where you would like to start.',
     offers: ['Najisikia vibaya', 'Nipime', 'Nifundishe kupumua'],
   },
 ];

@@ -23,8 +23,8 @@ const DEFAULT_TEMPLATES: EmailTemplate[] = [
   {
     id: 'welcome',
     label: 'Karibu — usajili mpya',
-    subject: 'Karibu Tumaini',
-    body: 'Habari {jina}, karibu kwenye Tumaini. Akaunti yako ipo tayari. Ukihitaji msaada, bonyeza Rafiki.\n\nNa upendo, timu ya Tumaini.',
+    subject: 'Karibu TABHOS',
+    body: 'Habari {jina}, karibu kwenye TABHOS. Akaunti yako ipo tayari. Ukihitaji msaada, bonyeza Rafiki.\n\nNa upendo, timu ya TABHOS.',
   },
   {
     id: 'appt',

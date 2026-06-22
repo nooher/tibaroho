@@ -10,7 +10,7 @@ function Catalogue(): React.JSX.Element {
   return (
     <>
       <Card title={t('miradi.catalogue.title', 'Mwongozo wa Miradi')}>
-        {t('miradi.catalogue.body', 'Hapa ndipo unapata mipango yote ya tiba ya kisaikolojia inayopatikana TBHOS — bure, kwa Kiswahili, na kufuata ushahidi wa kisayansi wa kimataifa. Chagua mpango ulingo na hali yako, au mwombe Mhudumu akushauri.')}
+        {t('miradi.catalogue.body', 'Hapa ndipo unapata mipango yote ya tiba ya kisaikolojia inayopatikana TABHOS — bure, kwa Kiswahili, na kufuata ushahidi wa kisayansi wa kimataifa. Chagua mpango ulingo na hali yako, au mwombe Mhudumu akushauri.')}
       </Card>
       <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
         {PROGRAMS.map((p) => (

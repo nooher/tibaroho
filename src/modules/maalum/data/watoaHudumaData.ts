@@ -21,7 +21,7 @@ export const watoaHudumaData: TrackData = {
     {
       name: 'Faragha kamili kutoka bodi za usajili',
       brief:
-        'Akaunti yako ya Watoa-Huduma ni TOFAUTI na akaunti yako ya kawaida ya Tumaini au TBHOS provider workspace. Hakuna meli, hakuna NACTE/MCT/AKT, hakuna mwajiri anaweza kuomba data hii.',
+        'Akaunti yako ya Watoa-Huduma ni TOFAUTI na akaunti yako ya kawaida ya TABHOS provider workspace. Hakuna meli, hakuna NACTE/MCT/AKT, hakuna mwajiri anaweza kuomba data hii.',
       ebm: 'Confidentiality firewall — UK Practitioner Health, Physician Health Programs (US)',
     },
     {
@@ -59,7 +59,7 @@ export const watoaHudumaData: TrackData = {
     'Wakushauri wote ni madaktari/wauguzi waliopita mafunzo ya saa 60. Wanafunga ahadi ya faragha. Hupatikana saa 24. Hakuna kumbukumbu inayoenda kwa bodi yoyote.',
   hotlines: [
     {
-      name: 'Simu ya rika-mtaalam (TBHOS)',
+      name: 'Simu ya rika-mtaalam (TABHOS)',
       number: '0800330220',
       verified: false,
       note: 'Daktari/muuguzi mwingine ndio anayejibu',
@@ -76,7 +76,7 @@ export const watoaHudumaData: TrackData = {
     {
       title: 'FARAGHA KAMILI — chombo cha kwanza',
       body:
-        'Tunaelewa kwa nini hujaomba msaada: unaogopa kupoteza leseni, sifa, au kuonekana mvyofaa. Akaunti yako hapa haijaunganishwa na MCT, NMC-T, OCT au bodi yoyote ya usajili. Haijaunganishwa na TBHOS provider workspace yako. Haijaunganishwa na mwajiri wako. Hata ukitumia barua-pepe ya hospitali, tunatumia identifier tofauti. Hii ni ahadi ya kiufundi, sio sera tu.',
+        'Tunaelewa kwa nini hujaomba msaada: unaogopa kupoteza leseni, sifa, au kuonekana mvyofaa. Akaunti yako hapa haijaunganishwa na MCT, NMC-T, OCT au bodi yoyote ya usajili. Haijaunganishwa na TABHOS provider workspace yako. Haijaunganishwa na mwajiri wako. Hata ukitumia barua-pepe ya hospitali, tunatumia identifier tofauti. Hii ni ahadi ya kiufundi, sio sera tu.',
     },
     {
       title: 'Kazi yako sio wewe',

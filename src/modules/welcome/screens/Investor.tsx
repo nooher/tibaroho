@@ -28,7 +28,7 @@ export default function Investor() {
           Investor brief
         </h1>
         <p style={{ fontSize: 16, lineHeight: TYPE.bodyLeading, color: TEXT.body }}>
-          {t('investor.intro', 'Tumaini ni bidhaa namba 23 ya Laetoli (T) Ltd — mfumo wa kitaifa wa afya ya akili kwa Tanzania. Pakua deck na barua ya mwanzilishi kupata maelezo kamili.')}
+          {t('investor.intro', 'TABHOS ni bidhaa namba 23 ya Laetoli (T) Ltd — mfumo wa kitaifa wa afya ya akili kwa Tanzania. Pakua deck na barua ya mwanzilishi kupata maelezo kamili.')}
         </p>
 
         <div style={{ display: 'grid', gap: 14, marginTop: 28 }}>

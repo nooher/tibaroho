@@ -13,7 +13,7 @@ const CAMPAIGNS = [
 
 const PARENT_TEMPLATES = [
   { id: 't1', subject_key: 'shule.tpl.t1.subject', subject: 'Idhini ya tathmini ya afya ya akili (SDQ)',
-    body_key: 'shule.tpl.t1.body', body: 'Mzazi mpendwa, shule yetu inashiriki TBHOS ShulePlus — mfumo wa bure wa kupima afya ya akili ya watoto. Tunaomba idhini yako kwa mtoto wako kufanya tathmini ya SDQ. Data ni siri kabisa na haitumii jina lake nje ya wahudumu.' },
+    body_key: 'shule.tpl.t1.body', body: 'Mzazi mpendwa, shule yetu inashiriki TABHOS ShulePlus — mfumo wa bure wa kupima afya ya akili ya watoto. Tunaomba idhini yako kwa mtoto wako kufanya tathmini ya SDQ. Data ni siri kabisa na haitumii jina lake nje ya wahudumu.' },
   { id: 't2', subject_key: 'shule.tpl.t2.subject', subject: 'Mtoto wako anaonyesha dalili — wasiliana nasi',
     body_key: 'shule.tpl.t2.body', body: 'Mzazi mpendwa, tathmini ya hivi karibuni ya mtoto wako ilionyesha dalili tunazopenda kuongelea. Hii sio hatari — ni nafasi ya kusaidia mapema. Tafadhali wasiliana na mshauri wa shule.' },
   { id: 't3', subject_key: 'shule.tpl.t3.subject', subject: 'Warsha ya wazazi — Jumamosi',
@@ -123,7 +123,7 @@ function Overview(): React.JSX.Element {
   const { t } = useLang()
   return (
     <Card title={t('shule.overview.title', 'ShulePlus — Mwongozo')}>
-      <p>{t('shule.overview.body', 'Sehemu ya mshauri wa shule katika TBHOS. Bila malipo kwa shule yoyote ya umma au binafsi Tanzania. Mshauri anasimamia kampeni za uchunguzi, mawasiliano kwa wazazi, na dashboard ya jumla.')}</p>
+      <p>{t('shule.overview.body', 'Sehemu ya mshauri wa shule katika TABHOS. Bila malipo kwa shule yoyote ya umma au binafsi Tanzania. Mshauri anasimamia kampeni za uchunguzi, mawasiliano kwa wazazi, na dashboard ya jumla.')}</p>
     </Card>
   )
 }

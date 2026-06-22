@@ -91,7 +91,7 @@ export const WHO_ATLAS_2024: AtlasEntry[] = [
     summary_en:
       'Mental health information systems are weak in many countries — prevalence data, patient tracking, medication use are not systematically captured. Tanzania uses DHIS2 nationally, but the MH module is still being strengthened.',
     q_patterns: [/(taarifa|data|HMIS|DHIS).*(afya.*akili|mental health)/i],
-    next_step_sw: 'Tumaini inaweza kushirikiana na DHIS2 ya MoH Tanzania kwa FHIR-based bridge.',
+    next_step_sw: 'TABHOS inaweza kushirikiana na DHIS2 ya MoH Tanzania kwa FHIR-based bridge.',
     citation: `${SRC} · Information systems chapter`,
   },
   {

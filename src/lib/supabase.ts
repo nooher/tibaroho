@@ -17,7 +17,7 @@ export const supabase: SupabaseClient | null = hasBackend
 
 export function requireSupabase(): SupabaseClient {
   if (!supabase) {
-    throw new Error('TBHOS: Supabase backend not configured. Set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY.')
+    throw new Error('TABHOS: Supabase backend not configured. Set VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY.')
   }
   return supabase
 }

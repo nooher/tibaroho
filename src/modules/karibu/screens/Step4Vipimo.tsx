@@ -103,12 +103,32 @@ export default function Step4Vipimo({ profile, update, next, back }: Props) {
         {t('karibu.step4.source', 'Chanzo')}: {inst.source}
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20, gap: 8, flexWrap: 'wrap' }}>
         <button type="button" onClick={back} style={ghostBtn()}>{t('karibu.common.back', '← Rudi')}</button>
         {allDone
           ? <button type="button" onClick={submit} style={primaryBtn()}>{t('karibu.step4.finish', 'Maliza vipimo →')}</button>
           : <button type="button" disabled style={{ ...primaryBtn(), opacity: 0.5, cursor: 'not-allowed' }}>{t('karibu.step4.continuing', 'Endelea kupima…')}</button>
         }
+      </div>
+      <div style={{ marginTop: 14, textAlign: 'center' }}>
+        <button
+          type="button"
+          onClick={next}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: TEXT.hint,
+            fontSize: 13,
+            cursor: 'pointer',
+            textDecoration: 'underline',
+            padding: '4px 8px',
+          }}
+        >
+          {t('karibu.step4.skip', 'Ruka vipimo — fanya baadaye →')}
+        </button>
+        <div style={{ fontSize: 11, color: TEXT.hint, marginTop: 4 }}>
+          {t('karibu.step4.skip_hint', 'Unaweza kufanya vipimo wakati wowote kupitia Mimi → Vipimo')}
+        </div>
       </div>
     </div>
   );

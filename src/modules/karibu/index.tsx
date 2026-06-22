@@ -63,7 +63,7 @@ export default function Karibu() {
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '28px 20px 0' }}>
         <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <div style={{ fontFamily: TYPE.serif, fontSize: 22, letterSpacing: TYPE.tightTrack, color: JEWEL.tealMwenza }}>
-            {t('karibu.shell.title', 'Karibu — Tumaini')}
+            {t('karibu.shell.title', 'Karibu — TABHOS')}
           </div>
           <button
             type="button"

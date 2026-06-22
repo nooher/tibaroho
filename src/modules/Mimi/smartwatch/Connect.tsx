@@ -53,7 +53,7 @@ export default function SmartwatchConnect() {
   return (
     <PageShell
       title={t('mimi.sw.title', 'Saa mahiri')}
-      subtitle={t('mimi.sw.subtitle', 'Unganisha saa au smartphone ili Tumaini ielewe usingizi, mapigo, na hatua zako.')}
+      subtitle={t('mimi.sw.subtitle', 'Unganisha saa au smartphone ili TABHOS ielewe usingizi, mapigo, na hatua zako.')}
       back={{ to: '/mimi', label: t('mimi.nav.back', 'Mimi') }}
     >
       <div style={{ display: 'grid', gap: 14 }}>
@@ -177,7 +177,7 @@ export default function SmartwatchConnect() {
           >
             <h3 style={{ marginTop: 0, fontFamily: TYPE.serif, color: JEWEL.tealDeep }}>{t('mimi.sw.consent-title', 'Idhini ya kuunganisha')}</h3>
             <p style={{ fontSize: 14, lineHeight: 1.6 }}>
-              {t('mimi.sw.consent-body', 'Tumaini itasoma tu data unayoidhinisha. Unaweza kuzuia muunganisho wakati wowote. Data huhifadhiwa kwenye kifaa chako kwanza, kisha kwa Supabase iliyolindwa.')}
+              {t('mimi.sw.consent-body', 'TABHOS itasoma tu data unayoidhinisha. Unaweza kuzuia muunganisho wakati wowote. Data huhifadhiwa kwenye kifaa chako kwanza, kisha kwa Supabase iliyolindwa.')}
             </p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 14 }}>
               <button

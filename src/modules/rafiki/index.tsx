@@ -66,7 +66,7 @@ function RafikiHome(): React.JSX.Element {
           marginTop: 16, maxWidth: 680, fontSize: 'clamp(15px, 1.4vw, 17px)',
           lineHeight: 1.6, color: TEXT.muted,
         }}>
-          {t('rafiki.home.intro', 'Rafiki ni AI ya Tumaini — yenyewe, ya nyumbani, inayozungumza Kiswahili kabla ya kila lugha nyingine. Inakaa pamoja nawe kwenye kila ukurasa, inakumbuka unayoyataka kukumbukwa, na haisemi neno la kitaalam bila chanzo. Hairuhusiwi kutoa utambuzi wala dawa — hiyo ni kazi ya mhudumu wako.')}
+          {t('rafiki.home.intro', 'Rafiki ni AI ya TABHOS — yenyewe, ya nyumbani, inayozungumza Kiswahili kabla ya kila lugha nyingine. Inakaa pamoja nawe kwenye kila ukurasa, inakumbuka unayoyataka kukumbukwa, na haisemi neno la kitaalam bila chanzo. Hairuhusiwi kutoa utambuzi wala dawa — hiyo ni kazi ya mhudumu wako.')}
         </p>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 22 }}>

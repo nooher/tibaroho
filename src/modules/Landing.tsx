@@ -49,7 +49,7 @@ export default function Landing() {
               '0 1px 0 rgba(255,255,255,0.96), 0 -1px 1px rgba(11,9,8,0.22), 0 0 1px rgba(11,9,8,0.08)',
           }}
         >
-          {t('brand.tumaini', 'Tumaini')}
+          {t('brand.tumaini', 'TABHOS')}
         </h1>
         <p
           style={{
@@ -211,7 +211,7 @@ export default function Landing() {
           fontWeight: 600,
         }}
       >
-        {t('brand.byline', 'Laetoli (T) Ltd · TBHOS')}
+        {t('brand.byline', 'Laetoli (T) Ltd · TABHOS')}
       </footer>
     </main>
   )

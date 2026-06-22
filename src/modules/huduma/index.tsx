@@ -62,7 +62,7 @@ const INSURERS = [
 ]
 
 const REFERRAL_PATHS = [
-  { from: 'Self → TBHOS', to: 'Mhudumu wa kawaida (lay)', when_sw: 'Dhiki ya kawaida, PHQ-9 < 15' },
+  { from: 'Self → TABHOS', to: 'Mhudumu wa kawaida (lay)', when_sw: 'Dhiki ya kawaida, PHQ-9 < 15' },
   { from: 'Mhudumu wa kawaida', to: 'Mtaalamu wa afya ya akili', when_sw: 'Hakuna jibu baada ya vikao 5, au PHQ-9 ≥15' },
   { from: 'Mtaalamu', to: 'Hospitali ya rufaa (Muhimbili / Mirembe)', when_sw: 'Psychosis, hatari ya kujidhuru, au matatizo ya kimwili' },
   { from: 'Yeyote', to: '199 / 112', when_sw: 'Dharura ya kweli (C-SSRS ≥4 au kujidhuru sasa)' },
@@ -73,7 +73,7 @@ const REFERRAL_PATHS = [
 function Overview(): React.JSX.Element {
   const { t } = useLang()
   return (
-    <Card title={t('huduma.overview.title', 'Huduma ya TBHOS')}>
+    <Card title={t('huduma.overview.title', 'Huduma ya TABHOS')}>
       {t('huduma.overview.body', 'Huduma ndipo unapata kila kitu kinachopatikana — tathmini')} ({ASSESSMENTS.length}),
       {' '}{t('huduma.overview.body2', 'mipango ya tiba')} ({PROGRAMS.length}), {t('huduma.overview.body3', 'mifano ya care plan')} ({CARE_PLANS.length}),
       {' '}{t('huduma.overview.body4', 'ICD-11, bima zinazohusika, na njia za rufaa. Tumia kichupo kuongoza utafiti wako.')}

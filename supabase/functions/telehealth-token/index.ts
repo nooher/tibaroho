@@ -62,7 +62,7 @@ Deno.serve(async (req: Request) => {
   const now = Math.floor(Date.now() / 1000)
   const exp = now + 2 * 60 * 60  // 2 hours
 
-  let name = u.user.email ?? 'Mtumiaji wa Tumaini'
+  let name = u.user.email ?? 'Mtumiaji wa TABHOS'
   try {
     const { data: p } = await supa.from('tr_users').select('display_name').eq('auth_id', u.user.id).maybeSingle()
     if (p?.display_name) name = p.display_name

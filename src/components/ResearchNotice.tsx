@@ -17,8 +17,8 @@ export interface ResearchNoticeProps {
 
 export default function ResearchNotice({ variant = 'welcome' }: ResearchNoticeProps): React.JSX.Element {
   const { t } = useLang()
-  const TITLE = t('research.title', 'Tumaini · faragha na utafiti')
-  const BODY = t('research.body', 'Tumaini ni jukwaa la kitaifa la afya ya tabia — bure milele. Data isiyojulikana inaweza kuchangia utafiti wa kitaifa chini ya idhini ya bodi za maadili (IRB). Data yako haitauzwi kamwe, na hutaweza kutambuliwa.')
+  const TITLE = t('research.title', 'TABHOS · faragha na utafiti')
+  const BODY = t('research.body', 'TABHOS ni jukwaa la kitaifa la afya ya tabia — bure milele. Data isiyojulikana inaweza kuchangia utafiti wa kitaifa chini ya idhini ya bodi za maadili (IRB). Data yako haitauzwi kamwe, na hutaweza kutambuliwa.')
   const BULLETS = [
     t('research.bullet1', 'Bure milele — kwa wote.'),
     t('research.bullet2', 'De-identified — siri yako inalindwa.'),

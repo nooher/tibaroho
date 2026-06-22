@@ -91,7 +91,7 @@ export default function Insurers(): React.JSX.Element {
     <>
       <Card title={t('ndani.ins.overview_title', 'Bima — usimamizi wa madai')}>
         <p style={{ marginTop: 0 }}>
-          {t('ndani.ins.overview_body', 'Wabima wote wanaolipia huduma za afya ya akili kwenye Tumaini. Tunafuatilia hali ya malipo, idadi ya madai yaliyo wazi, na ulinganifu wa malipo ya kila mwezi. Ada za mteja (co-pay) zinatumia mwongozo wa NHIF na MoH 2024.')}
+          {t('ndani.ins.overview_body', 'Wabima wote wanaolipia huduma za afya ya akili kwenye TABHOS. Tunafuatilia hali ya malipo, idadi ya madai yaliyo wazi, na ulinganifu wa malipo ya kila mwezi. Ada za mteja (co-pay) zinatumia mwongozo wa NHIF na MoH 2024.')}
         </p>
       </Card>
 

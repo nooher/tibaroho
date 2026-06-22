@@ -63,7 +63,7 @@ export const wasioajiriwaData: TrackData = {
     {
       title: 'BURE — bila masharti',
       body:
-        'Hakuna kulipa, hakuna usajili wa kazi, hakuna ushahidi. Kama unahitaji msaada na haupokei mshahara, TBHOS ipo.',
+        'Hakuna kulipa, hakuna usajili wa kazi, hakuna ushahidi. Kama unahitaji msaada na haupokei mshahara, TABHOS ipo.',
     },
   ],
 }

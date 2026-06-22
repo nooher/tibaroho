@@ -58,7 +58,7 @@ export default function Personas() {
               lineHeight: TYPE.headLeading,
             }}
           >
-            {t('personas.welcome', 'Karibu kwenye Tumaini')}
+            {t('personas.welcome', 'Karibu kwenye TABHOS')}
           </h1>
           <p
             style={{
@@ -69,7 +69,7 @@ export default function Personas() {
               color: TEXT.muted,
             }}
           >
-            {t('personas.subtitle', 'Chagua persona ya demo ili kuona Tumaini kupitia macho ya mtumiaji halisi — mgonjwa, daktari, mshauri, mwajiri, au wizara.')}
+            {t('personas.subtitle', 'Chagua persona ya demo ili kuona TABHOS kupitia macho ya mtumiaji halisi — mgonjwa, daktari, mshauri, mwajiri, au wizara.')}
           </p>
         </header>
 

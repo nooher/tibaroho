@@ -5,7 +5,7 @@ import { useLang } from '../lib/i18n/Provider'
 import { BRAND, CREAM, NEUTRAL, TEXT, TYPE, hexToRgba } from '../lib/glass'
 import CinematicIntro, { introAlreadyPlayed } from '../components/CinematicIntro'
 import EntranceBrain from '../components/EntranceBrain'
-import { DEMO_PASSWORD, PERSONAS, personaEmail, setPersona, type Persona, type PersonaId } from '../lib/personas'
+import { clearPersona, DEMO_PASSWORD, PERSONAS, personaEmail, setPersona, type Persona, type PersonaId } from '../lib/personas'
 import { hasBackend, supabase } from '../lib/supabase'
 
 /**
@@ -62,10 +62,12 @@ export default function WelcomeHome() {
       if (mode === 'ingia') {
         const { error } = await supabase.auth.signInWithPassword({ email: authEmail, password: authPwd })
         if (error) throw error
+        clearPersona()
         nav('/mimi', { replace: true })
       } else {
         const { error } = await supabase.auth.signUp({ email: authEmail, password: authPwd })
         if (error) throw error
+        clearPersona()
         nav('/karibu', { replace: true })
       }
     } catch (e2) {
@@ -169,7 +171,7 @@ export default function WelcomeHome() {
                 marginBottom: 8,
               }}
             >
-              TBHOS · Tanzania
+              TABHOS · Tanzania
             </div>
             <h1
               id="welcome-sign-title"

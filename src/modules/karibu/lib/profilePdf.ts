@@ -32,7 +32,7 @@ export function printProfile(p: KaribuProfile): void {
   .flag-g { background: #1EB53A; } .flag-y { background: #FCD116; } .flag-k { background: #000; } .flag-b { background: #00A3DD; }
 </style></head><body>
 <div class="flag"><div class="flag-g"></div><div class="flag-y"></div><div class="flag-k"></div><div class="flag-y"></div><div class="flag-b"></div></div>
-<h1>Profaili ya Tumaini — ${escapeHtml(name)}</h1>
+<h1>Profaili ya TABHOS — ${escapeHtml(name)}</h1>
 <div class="meta">Umri: ${age} · Mkoa: ${escapeHtml(region)} · Tarehe: ${new Date().toLocaleDateString('sw-TZ')}</div>
 <div class="tier tier-${risk.tier}">Hatari: ${risk.tier.toUpperCase()}</div>
 
@@ -60,7 +60,7 @@ export function printProfile(p: KaribuProfile): void {
 <h2>Mpango wa huduma</h2>
 <ul>${rec.care_plan.map((c) => `<li><strong>${escapeHtml(c.title_sw)}:</strong> ${escapeHtml(c.body_sw)}</li>`).join('')}</ul>
 
-<div class="source">Chanzo: ${escapeHtml(risk.source)} · Tumaini — Laetoli (T) Ltd · Si utambuzi wa kimatibabu.</div>
+<div class="source">Chanzo: ${escapeHtml(risk.source)} · TABHOS — Laetoli (T) Ltd · Si utambuzi wa kimatibabu.</div>
 </body></html>`;
 
   const w = window.open('', '_blank', 'width=720,height=900');

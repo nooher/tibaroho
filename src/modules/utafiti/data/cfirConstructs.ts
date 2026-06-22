@@ -73,7 +73,7 @@ export const CFIR_DOMAINS: CfirDomain[] = [
         name: 'Innovation Design',
         swahili: 'Muundo wa uvumbuzi',
         definition: 'Perceived excellence in how the innovation is bundled, packaged, presented, and assembled.',
-        lmicAdaptation: 'Workbook in Kiswahili sanifu plus pictographic supports for low-literacy participants; tablet UI follows TBHOS design system.',
+        lmicAdaptation: 'Workbook in Kiswahili sanifu plus pictographic supports for low-literacy participants; tablet UI follows TABHOS design system.',
       },
       {
         id: 'inn-cost',

@@ -101,7 +101,7 @@ self.addEventListener('fetch', (event) => {
 
 // ─── Web Push ───────────────────────────────────────────────────────────────
 self.addEventListener('push', (event) => {
-  let payload = { title: 'Tumaini', body: 'Una taarifa mpya.', tag: 'tumaini' }
+  let payload = { title: 'TABHOS', body: 'Una taarifa mpya.', tag: 'tabhos' }
   try {
     if (event.data) payload = { ...payload, ...event.data.json() }
   } catch { /* parse error */ }

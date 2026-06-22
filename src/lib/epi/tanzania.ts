@@ -86,10 +86,10 @@ export const TZ_MENTAL_HEALTH: Record<string, EpiStat> = {
 
   // -- Facilities (count below is what TBHOS has SEEDED, not a national census)
   facilities_in_directory: {
-    label_sw: 'Vituo vilivyomo katika orodha ya Tumaini',
-    label_en: 'Facilities currently in Tumaini directory',
+    label_sw: 'Vituo vilivyomo katika orodha ya TABHOS',
+    label_en: 'Facilities currently in TABHOS directory',
     value: 10,
-    citation: 'Tumaini · TBHOS internal directory (tr_facilities). National census forthcoming via MoH MoU.',
+    citation: 'TABHOS internal directory (tr_facilities). National census forthcoming via MoH MoU.',
     asOf: '2026',
   },
   national_hospitals_count: {
@@ -103,10 +103,10 @@ export const TZ_MENTAL_HEALTH: Record<string, EpiStat> = {
 
   // -- Modules / product (non-epi but surfaced on Landing) -----------------
   modules_count: {
-    label_sw: 'Moduli za kina katika TBHOS',
-    label_en: 'TBHOS modules',
+    label_sw: 'Moduli za kina katika TABHOS',
+    label_en: 'TABHOS modules',
     value: 12,
-    citation: 'Tumaini · TBHOS product spec (Laetoli, Sprint H).',
+    citation: 'TABHOS product spec (Laetoli, Sprint H).',
     asOf: '2026',
   },
   cost_to_user: {

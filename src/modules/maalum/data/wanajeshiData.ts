@@ -13,7 +13,7 @@ export const wanajeshiData: TrackData = {
   titleEn: 'Military service-members & veterans',
   accent: TZ_FLAG.green,
   prevalence:
-    'PTSD 12–20% (operesheni za mapigano huongeza hadi 30%+). Unyogovu mkubwa 15%+. Tatizo la pombe 25%. Unyanyapaa wa "udhaifu" huzuia kuomba msaada — TBHOS huvunja huo unyanyapaa.',
+    'PTSD 12–20% (operesheni za mapigano huongeza hadi 30%+). Unyogovu mkubwa 15%+. Tatizo la pombe 25%. Unyanyapaa wa "udhaifu" huzuia kuomba msaada — TABHOS huvunja huo unyanyapaa.',
   ebmIntro:
     'Tunatumia Trauma-Focused CBT (TF-CBT) kama itifaki ya kwanza, EMDR (kwa watoa huduma waliotunzwa pekee), tiba ya wanandoa kwa mizozo ya familia baada ya rejeo, na mfumo wa rafiki-rika (peer-buddy) ulionakiliwa kutoka US VA na UK Combat Stress.',
   programs: [
@@ -51,7 +51,7 @@ export const wanajeshiData: TrackData = {
   peerSupport:
     'Rafiki-rika: kila mwanajeshi anapata "buddy" — mwingine wa cheo sawa au veteran. Mfumo wa kuangalia kila wiki. Vikundi vya maveterani Dar, Dodoma, Mbeya, Mwanza.',
   hotlines: [
-    { name: 'Simu ya kijeshi (TBHOS)', number: '0800220110', verified: false, note: 'Siri kabisa' },
+    { name: 'Simu ya kijeshi (TABHOS)', number: '0800220110', verified: false, note: 'Siri kabisa' },
     { name: 'Lifeline Tanzania', number: '0800110116', verified: false },
     { name: 'IPV / unyanyasaji wa nyumbani', number: '116', verified: false },
     { name: 'Dharura ya jumla', number: '112', verified: true },

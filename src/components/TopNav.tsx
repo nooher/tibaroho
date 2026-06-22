@@ -75,7 +75,7 @@ export function TopNav() {
         {/* Wordmark */}
         <Link
           to="/"
-          aria-label={`${t('brand.tbhos.short', 'TBHOS')} — ${t('ui.nyumbani', 'Nyumbani')}`}
+          aria-label={`${t('brand.tbhos.short', 'TABHOS')} — ${t('ui.nyumbani', 'Nyumbani')}`}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -98,12 +98,12 @@ export function TopNav() {
                 fontStyle: 'normal',
               }}
             >
-              Tumaini
+              TABHOS
             </span>
           )}
           {isSmall && (
             <span
-              aria-label={t('brand.tumaini', 'Tumaini')}
+              aria-label={t('brand.tumaini', 'TABHOS')}
               style={{
                 width: 10,
                 height: 10,

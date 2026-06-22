@@ -30,7 +30,7 @@ function Stat({ label, value }: { label: string; value: string }): React.JSX.Ele
 function Overview(): React.JSX.Element {
   const { t } = useLang()
   return (
-    <Card title={t('waf.overview.title', 'EAP ya TBHOS')}>
+    <Card title={t('waf.overview.title', 'EAP ya TABHOS')}>
       <p>
         {t('waf.overview.body', 'Kampuni hulipia usajili; mfanyakazi anapata huduma bila malipo na bila kufichuliwa. Kampuni haoni data binafsi — inaona vipimo vya jumla pekee (utilization, NPS, mada kuu). Hii ndiyo inayofanya watu kweli watumie.')}
       </p>

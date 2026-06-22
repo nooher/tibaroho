@@ -53,7 +53,7 @@ Deno.serve(async (req: Request) => {
 
   const apiKey    = Deno.env.get('BEEM_API_KEY')
   const apiSecret = Deno.env.get('BEEM_SECRET_KEY')
-  const source    = Deno.env.get('BEEM_SOURCE_ADDR') ?? 'Tumaini'
+  const source    = Deno.env.get('BEEM_SOURCE_ADDR') ?? 'TABHOS'
 
   const auth = req.headers.get('Authorization') ?? ''
   const supa = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, {

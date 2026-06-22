@@ -322,7 +322,7 @@ export default function Book() {
                 }}
               >
                 {t('gundua.book.fee_note', 'Ada hii ni malipo ya moja kwa moja kwa mtaalamu kupitia M-Pesa.')}
-                <strong> {t('gundua.book.no_platform_fee', 'TBHOS haichaji mteja chochote.')}</strong>
+                <strong> {t('gundua.book.no_platform_fee', 'TABHOS haichaji mteja chochote.')}</strong>
               </p>
               <label style={{ display: 'block', marginTop: 12 }}>
                 <span style={{ fontSize: 12, color: TEXT.muted }}>{t('gundua.book.mpesa_label', 'Nambari ya M-Pesa')}</span>

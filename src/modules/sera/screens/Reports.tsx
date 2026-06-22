@@ -13,7 +13,7 @@ const QUARTER = 'Robo ya 2 · Aprili–Juni 2026'
  */
 function downloadReport(format: 'md' | 'pdf-stub') {
   const lines: string[] = []
-  lines.push(`# Tumaini · TBHOS — Ripoti ya ${QUARTER}`)
+  lines.push(`# TABHOS — Ripoti ya ${QUARTER}`)
   lines.push('')
   lines.push('## Muhtasari wa Kitaifa')
   lines.push(`- Ufikiaji wa kitaifa: **${NATIONAL.rolloutPct}%** ya wilaya`)
@@ -37,13 +37,13 @@ function downloadReport(format: 'md' | 'pdf-stub') {
   lines.push('4. Kuanzisha mstari wa dharura wa kitaifa wa afya ya akili (24/7).')
   lines.push('')
   lines.push('---')
-  lines.push('Imejengwa na Laetoli (T) Ltd · Tumaini ni huduma. Tumaini ni mfumo. Tumaini ni taifa.')
+  lines.push('Imejengwa na Laetoli (T) Ltd · TABHOS ni huduma. TABHOS ni mfumo. TABHOS ni taifa.')
 
   const blob = new Blob([lines.join('\n')], { type: 'text/markdown;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `Tumaini-TBHOS-${QUARTER.replace(/\s+/g, '-')}.${format === 'md' ? 'md' : 'pdf.txt'}`
+  a.download = `TABHOS-${QUARTER.replace(/\s+/g, '-')}.${format === 'md' ? 'md' : 'pdf.txt'}`
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)

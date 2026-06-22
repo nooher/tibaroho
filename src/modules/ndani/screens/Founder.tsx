@@ -11,7 +11,7 @@ const QUICK_LINKS = [
   { label: 'Vercel Dashboard', href: 'https://vercel.com/dashboard' },
   { label: 'Supabase', href: 'https://supabase.com/dashboard' },
   { label: 'GitHub — Laetoli', href: 'https://github.com/nooher' },
-  { label: 'Tumaini live', href: 'https://tibaroho.vercel.app' },
+  { label: 'TABHOS live', href: 'https://tibaroho.vercel.app' },
 ]
 
 const PHD_MILESTONES = [

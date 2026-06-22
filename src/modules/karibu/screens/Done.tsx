@@ -88,13 +88,13 @@ export default function Done({ profile, finish }: Props) {
           borderRadius: 14,
         }}>
           <strong style={{ color: JEWEL.maroonCrisis }}>{t('karibu.done.erc_strong', 'Tafadhali piga 112 sasa au nenda hospitali ya karibu.')}</strong>
-          <p style={{ margin: '6px 0 0', fontSize: 13 }}>{t('karibu.done.erc_sub', 'Mwenza wa Tumaini atakaa nawe wakati huo.')}</p>
+          <p style={{ margin: '6px 0 0', fontSize: 13 }}>{t('karibu.done.erc_sub', 'Mwenza wa TABHOS atakaa nawe wakati huo.')}</p>
         </div>
       )}
 
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'space-between' }}>
         <button type="button" onClick={() => printProfile(profile)} style={ghostBtn()}>{t('karibu.done.download', 'Pakua profaili (PDF)')}</button>
-        <button type="button" onClick={finish} style={primaryBtn()}>{t('karibu.done.enter', 'Ingia Tumaini →')}</button>
+        <button type="button" onClick={finish} style={primaryBtn()}>{t('karibu.done.enter', 'Ingia TABHOS →')}</button>
       </div>
 
       <div style={{ marginTop: 16, fontSize: 11, color: TEXT.hint }}>

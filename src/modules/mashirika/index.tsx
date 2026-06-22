@@ -36,7 +36,7 @@ function ThosBridge(): React.JSX.Element {
   const [scopes, setScopes] = useState('launch openid fhirUser patient/Observation.rw patient/Condition.rw')
   return (
     <Card title="THOS SMART-on-FHIR Bridge">
-      <p>{t('mashirika.thos.body', 'Unganisha TBHOS na THOS (Tanzania Health Operating System) kwa kushiriki PHQ-9, GAD-7, na rufaa za afya ya akili kwenye historia ya mgonjwa.')}</p>
+      <p>{t('mashirika.thos.body', 'Unganisha TABHOS na THOS (Tanzania Health Operating System) kwa kushiriki PHQ-9, GAD-7, na rufaa za afya ya akili kwenye historia ya mgonjwa.')}</p>
       <FieldRow label="THOS FHIR base URL" value={url} onChange={setUrl} />
       <FieldRow label="SMART client_id" value={client} onChange={setClient} placeholder="tibaroho-prod" />
       <FieldRow label="Scopes" value={scopes} onChange={setScopes} />
@@ -54,7 +54,7 @@ function NhifConfig(): React.JSX.Element {
   const [apiKey, setApiKey] = useState('')
   return (
     <Card title={t('mashirika.nhif.title', 'NHIF + Bima — API')}>
-      <p>{t('mashirika.nhif.body', 'Tuma claims za kifedha za vikao vya wahudumu wa kibinafsi. Mgonjwa habebwi gharama yoyote kwenye TBHOS.')}</p>
+      <p>{t('mashirika.nhif.body', 'Tuma claims za kifedha za vikao vya wahudumu wa kibinafsi. Mgonjwa habebwi gharama yoyote kwenye TABHOS.')}</p>
       <FieldRow label="Carrier" value={carrier} onChange={setCarrier} />
       <FieldRow label="Endpoint" value={endpoint} onChange={setEndpoint} />
       <FieldRow label={t('mashirika.nhif.api_key', 'API key (siri)')} value={apiKey} onChange={setApiKey} placeholder="sk_…" />
@@ -74,7 +74,7 @@ function MpesaConfig(): React.JSX.Element {
   const [secret, setSecret] = useState('')
   return (
     <Card title={t('mashirika.mpesa.title', 'M-Pesa Payout (kwa wahudumu pekee)')}>
-      <p>{t('mashirika.mpesa.body', 'Wahudumu wanaopata malipo kutoka bima au mwajiri hupokea kupitia M-Pesa Business. Mgonjwa hatumii M-Pesa kwa huduma yoyote TBHOS.')}</p>
+      <p>{t('mashirika.mpesa.body', 'Wahudumu wanaopata malipo kutoka bima au mwajiri hupokea kupitia M-Pesa Business. Mgonjwa hatumii M-Pesa kwa huduma yoyote TABHOS.')}</p>
       <FieldRow label="Business shortcode" value={shortcode} onChange={setShortcode} placeholder="174379" />
       <FieldRow label="Consumer key" value={key} onChange={setKey} />
       <FieldRow label="Consumer secret" value={secret} onChange={setSecret} />
@@ -86,7 +86,7 @@ function MohLink(): React.JSX.Element {
   const { t } = useLang()
   return (
     <Card title="MoH portal">
-      <p>{t('mashirika.moh.body', 'TBHOS hutumwa ripoti za jumla kwa Wizara ya Afya — bila utambulisho wa mgonjwa yeyote.')}</p>
+      <p>{t('mashirika.moh.body', 'TABHOS hutumwa ripoti za jumla kwa Wizara ya Afya — bila utambulisho wa mgonjwa yeyote.')}</p>
       <ul>
         <li><a href="https://moh.go.tz" target="_blank" rel="noreferrer" style={{ color: TEXT.link }}>{t('mashirika.moh.link.moh', 'Wizara ya Afya')}</a></li>
         <li><a href="https://hmis.go.tz" target="_blank" rel="noreferrer" style={{ color: TEXT.link }}>HMIS</a></li>
@@ -123,7 +123,7 @@ function Overview(): React.JSX.Element {
   const { t } = useLang()
   return (
     <Card title={t('mashirika.overview.title', 'Mashirika — Mwongozo')}>
-      <p>{t('mashirika.overview.body', 'Hapa ndipo TBHOS hutangamana na mfumo wa afya na fedha wa Tanzania: THOS (interop), NHIF na bima, M-Pesa (kwa wahudumu), MoH portal, ICD-11 (WHO), na directory ya simu za dharura.')}</p>
+      <p>{t('mashirika.overview.body', 'Hapa ndipo TABHOS hutangamana na mfumo wa afya na fedha wa Tanzania: THOS (interop), NHIF na bima, M-Pesa (kwa wahudumu), MoH portal, ICD-11 (WHO), na directory ya simu za dharura.')}</p>
     </Card>
   )
 }

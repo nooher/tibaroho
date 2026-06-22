@@ -16,7 +16,7 @@ const QUOTES_PATIENTS: Quote[] = [
     name: 'Maria, 28 · Dar es Salaam',
     role: 'Mgonjwa',
     quote:
-      'Mood tracker ya Tumaini imenisaidia kuona wakati wa giza unakuja kabla halijanizidi.',
+      'Mood tracker ya TABHOS imenisaidia kuona wakati wa giza unakuja kabla halijanizidi.',
   },
   {
     name: 'Juma, 34 · Mwanza',
@@ -33,7 +33,7 @@ const QUOTES_PATIENTS: Quote[] = [
   {
     name: 'Bahati, 41 · Dodoma',
     role: 'Mama wa watoto watatu',
-    quote: 'Diary ya hisia ni faragha tupu. Ninaiamini Tumaini.',
+    quote: 'Diary ya hisia ni faragha tupu. Ninaiamini TABHOS.',
   },
 ]
 
@@ -48,7 +48,7 @@ const QUOTES_PROVIDERS: Quote[] = [
     name: 'Bibi Salima Issa',
     role: 'Friendship Bench counsellor',
     quote:
-      'Usimamizi wa Tumaini umenipa nguvu mpya — siko peke yangu kwenye kazi.',
+      'Usimamizi wa TABHOS umenipa nguvu mpya — siko peke yangu kwenye kazi.',
   },
   {
     name: 'Dr. Mtumbe',
@@ -196,7 +196,7 @@ export default function Welcome() {
         style={{ textAlign: 'center', padding: '32px 24px 64px' }}
       >
         <div style={{ marginBottom: 18 }}>
-          <Pill>Tumaini &middot; TBHOS</Pill>
+          <Pill>TABHOS</Pill>
         </div>
         <div style={{ margin: '8px auto 12px', maxWidth: 420 }}>
           <TumainiCompass size={420} />
@@ -215,7 +215,7 @@ export default function Welcome() {
               '0 1px 0 rgba(255,255,255,0.97), 0 -1px 1px rgba(11,9,8,0.24), 0 0 1px rgba(11,9,8,0.10)',
           }}
         >
-          Tumaini
+          TABHOS
         </h1>
         <p
           style={{
@@ -228,7 +228,7 @@ export default function Welcome() {
             margin: 0,
           }}
         >
-          TBHOS &middot; Tanzania Behavioral Health Operating System
+          TABHOS &middot; Tanzania Behavioral Health Operating System
         </p>
         <p
           style={{
@@ -328,7 +328,7 @@ export default function Welcome() {
               margin: '0 auto',
             }}
           >
-            {t('welcome.modules.subtitle', 'Kutoka kwa mgonjwa mmoja hadi wizara — Tumaini inazungumza Kiswahili katika kila hatua.')}
+            {t('welcome.modules.subtitle', 'Kutoka kwa mgonjwa mmoja hadi wizara — TABHOS inazungumza Kiswahili katika kila hatua.')}
           </p>
         </header>
         <div

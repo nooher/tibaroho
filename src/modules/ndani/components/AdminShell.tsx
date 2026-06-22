@@ -53,7 +53,7 @@ export default function AdminShell({ children }: { children: ReactNode }): React
         overflowY: 'auto',
       }}>
         <Link to="/" style={{ color: CREAM.cream, fontSize: 12, textDecoration: 'none' }}>
-          {t('ndani.shell.back_tbhos', '← TBHOS')}
+          {t('ndani.shell.back_tbhos', '← TABHOS')}
         </Link>
         <div className="serif" style={{ marginTop: 14, fontSize: 24, letterSpacing: TYPE.tighterTrack }}>
           {t('ndani.shell.ndani_label', 'Ndani')}

@@ -5,7 +5,7 @@ import { REGIONS, FRAMEWORK_LABEL } from '../data'
 
 const MILESTONES: { id: string; name_sw: string; status: 'done' | 'active' | 'planned' }[] = [
   { id: 'mou',         name_sw: 'MoU ya msingi na WAUT',                      status: 'done' },
-  { id: 'tech',        name_sw: 'Tathmini ya kiufundi ya TBHOS',              status: 'done' },
+  { id: 'tech',        name_sw: 'Tathmini ya kiufundi ya TABHOS',              status: 'done' },
   { id: 'security',    name_sw: 'Ukaguzi wa usalama (NIDC + e-Gov Authority)', status: 'active' },
   { id: 'pilot',       name_sw: 'Awamu ya majaribio — mikoa 6',               status: 'active' },
   { id: 'training',    name_sw: 'Mafunzo ya watoa-huduma (lay counsellors)',  status: 'active' },

@@ -49,7 +49,7 @@ export default function TumainiCompass({ size = 480 }: { size?: number }) {
       width={size}
       height={heightPx}
       role="img"
-      aria-label={t('compass.aria', 'Tumaini — Tanzania na mizunguko minne ya rangi za bendera')}
+      aria-label={t('compass.aria', 'TABHOS — Tanzania na mizunguko minne ya rangi za bendera')}
       style={{ display: 'block', overflow: 'visible', width: '100%', maxWidth: size, height: 'auto', marginInline: 'auto' }}
     >
       <style>{`

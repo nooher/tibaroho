@@ -76,7 +76,7 @@ export const dialysisData: TrackData = {
     {
       title: 'Saa 4 zinapogeuka tiba',
       body:
-        'Wagonjwa wengi husema dialysis ni "saa 4 zilizopotea." TBHOS hugeuza saa hizo kuwa fursa ya tiba ya kisaikolojia, bila kuongeza muda wala safari.',
+        'Wagonjwa wengi husema dialysis ni "saa 4 zilizopotea." TABHOS hugeuza saa hizo kuwa fursa ya tiba ya kisaikolojia, bila kuongeza muda wala safari.',
     },
   ],
 }

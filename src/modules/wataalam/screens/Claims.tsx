@@ -23,7 +23,7 @@ export default function Claims() {
       .row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #ccc}
       .total{font-weight:bold;font-size:18px;background:#F4EAC9;padding:14px;margin-top:18px}</style></head>
       <body>
-      <h1>Madai ya Bima — TBHOS</h1>
+      <h1>Madai ya Bima — TABHOS</h1>
       <p>Tarehe: ${new Date().toLocaleDateString('sw-TZ')}</p>
       <hr/>
       <div class="row"><span>Mteja</span><span>${patient}</span></div>
@@ -33,7 +33,7 @@ export default function Claims() {
       <div class="row"><span>Bima inalipa (${coverage}%)</span><span>TSh ${insurerPays.toLocaleString('sw-TZ')}</span></div>
       <div class="row"><span>Mteja anachangia</span><span>TSh ${copay.toLocaleString('sw-TZ')}</span></div>
       <div class="total">Jumla: TSh ${fee.toLocaleString('sw-TZ')}</div>
-      <p style="margin-top:30px;font-size:12px;color:#666">TBHOS ni jukwaa bure. Malipo haya yote ni kati ya bima na mtaalamu.</p>
+      <p style="margin-top:30px;font-size:12px;color:#666">TABHOS ni jukwaa bure. Malipo haya yote ni kati ya bima na mtaalamu.</p>
       </body></html>`
     const blob = new Blob([html], { type: 'text/html' })
     const url = URL.createObjectURL(blob)

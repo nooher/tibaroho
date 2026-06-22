@@ -96,8 +96,8 @@ export const CATALOG: Record<string, TEntry> = {
   // ── Consent ────────────────────────────────────────────────────────────
   'consent.title': { sw: 'Idhini ya matumizi', en: 'Consent' },
   'consent.intro': {
-    sw: 'Tumaini inakuhudumia bila kuuza data yako. Tunakusanya tu ilichohitajika.',
-    en: 'Tumaini serves you without selling your data. We collect only what is needed.',
+    sw: 'TABHOS inakuhudumia bila kuuza data yako. Tunakusanya tu ilichohitajika.',
+    en: 'TABHOS serves you without selling your data. We collect only what is needed.',
   },
   'consent.data_use': {
     sw: 'Data yako inahifadhiwa hapa katika kifaa chako kwanza. Unaweza kufuta wakati wowote.',
