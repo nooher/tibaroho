@@ -3,16 +3,17 @@ import { useLang } from '../../../lib/i18n/Provider'
 import { NEUTRAL, CREAM, TEXT, RADII, TYPE, hexToRgba } from '../../../lib/glass'
 import Filters, { DEFAULT_FILTERS, type FilterState } from '../components/Filters'
 import ProviderCard from '../components/ProviderCard'
-import { PROVIDERS } from '../data/providers'
+import { useProviders } from '../data/providersDb'
 import { applyFilters, sortProviders, type SortKey } from '../lib/filter'
 
 export default function GunduaList() {
   const { t } = useLang()
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS)
   const [sort, setSort] = useState<SortKey>('relevance')
+  const { providers, loading, source } = useProviders()
   const results = useMemo(
-    () => sortProviders(applyFilters(PROVIDERS, filters), sort),
-    [filters, sort],
+    () => sortProviders(applyFilters(providers, filters), sort),
+    [providers, filters, sort],
   )
 
   return (
@@ -48,7 +49,12 @@ export default function GunduaList() {
         }}
       >
         <span style={{ color: TEXT.muted, fontSize: 13 }}>
-          {results.length} {t('gundua.list.results', 'matokeo')}
+          {loading ? t('gundua.list.loading', 'Inapakia…') : `${results.length} ${t('gundua.list.results', 'matokeo')}`}
+          {source === 'seed' && !loading && (
+            <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 8px', borderRadius: 999, background: hexToRgba(NEUTRAL.ink, 0.08), color: TEXT.muted }}>
+              {t('gundua.list.demo_data', 'data ya mfano')}
+            </span>
+          )}
         </span>
         <div style={{ flex: 1 }} />
         <label htmlFor="srt" style={{ fontSize: 12, color: TEXT.muted }}>
